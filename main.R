@@ -41,7 +41,8 @@ get_stoichiometry <- function(species, reaction) {
 
 reactants_in_reaction <- function(species, reaction) {
     f_p <- get_first_part(reaction)
-    words <- strsplit(f_p, '[^a-zA-Z]')[[1]]
+    words <- strsplit(f_p, '[^a-zA-Z0-9]')[[1]]
+    words <- words[words != '']
     r <- c()
     for(i in 1:length(species)) {
         if(any(words == species[i])) {
@@ -51,9 +52,15 @@ reactants_in_reaction <- function(species, reaction) {
     return(r)
 }
 
+#
 # Reaction must be unimolecular or bimolecular
 #  E.g.: A + B -> C
 #        2A -> B
+#
+# Limitations:
+#  - It only supports uni or bimolecular reactions
+#  - Bidiretional reactions is not supported (two separated reactions are needed)
+#
 react <- function(species, ci, reactions, ki, t) {
     products <- matrix(data = 0, nrow = length(reactions), ncol = length(species))
     reactants <- matrix(data = 0, nrow = length(reactions), ncol = length(species))
@@ -97,11 +104,11 @@ plot_behaviour <- function(behaviour) {
 
 run_ApBeC <- function() {
     behaviour <- react(
-        species   = c('A', 'B', 'C'),
+        species   = c('A2', 'B', 'C'),
         ci        = c(1e3, 1e3, 0), 
-        reactions = c('A + B -> C'),
+        reactions = c('A2 + B -> C'),
         ki        = c(1e-7),
-        t         = seq(0, 72000, 1)
+        t         = seq(0, 72000, 10)
     )
     return(behaviour)
 }
@@ -211,12 +218,12 @@ consensus <- function() {
     )
 }
 
-#behaviour <- run_ApBeC()
+behaviour <- run_ApBeC()
 #behaviour <- run_lotka()
 #behaviour <- run_lotka_scaled()
 #behaviour <- run_ApBeC_4domain()
 #behaviour <- run_origonator()
 #behaviour <- run_rossler()
-behaviour <- consensus()
+#behaviour <- consensus()
 
 plot_behaviour(behaviour)
