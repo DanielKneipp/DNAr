@@ -1,4 +1,5 @@
 library(deSolve)
+library(stringr)
 
 get_first_part <- function(react_str) {
     return(sub('->.*', '', react_str))
@@ -10,16 +11,16 @@ get_second_part <- function(react_str) {
 
 is_bimolecular <- function(react_str) {
     first_part <- get_first_part(react_str)
-    return(grepl('\\+', first_part))
+    return(get_stoichiometry_part(first_part) == 2)
 }
 
-get_species_count <- function(species, reaction_part) {
-    m <- gregexpr(paste('[1-9]*', species, sep = ''), reaction_part)
+get_onespecies_count <- function(one_species, reaction_part) {
+    m <- gregexpr(paste('[1-9]*', one_species, sep = ''), reaction_part)
     matches <- regmatches(reaction_part, m)
     nums <- array(0, length(matches[[1]]))
     if(length(nums) > 0) {
         for(i in 1:length(nums)){
-            nums[i] <- as.numeric(sub(species, '', matches[[1]][i]))
+            nums[i] <- as.numeric(sub(one_species, '', matches[[1]][i]))
             if(is.na(nums[i])) {
                 nums[i] <- 1
             }
@@ -28,21 +29,57 @@ get_species_count <- function(species, reaction_part) {
     return(nums)
 }
 
-get_stoichiometry <- function(species, reaction) {
+get_stoichiometry_onespecies <- function(one_species, reaction) {
     f_p <- get_first_part(reaction)
     s_p <- get_second_part(reaction)
     
-    f_p_n <- get_species_count(species, f_p)
-    s_p_n <- get_species_count(species, s_p)
+    f_p_n <- get_onespecies_count(one_species, f_p)
+    s_p_n <- get_onespecies_count(one_species, s_p)
     
     r <- list(left_sto = sum(f_p_n), right_sto = sum(s_p_n))
     return(r)
 }
 
+get_stoichiometry_part <- function(reaction_part) {
+    matches <- str_match_all(reaction_part, '([1-9])*([a-zA-Z0-9_]+)')[[1]]
+    count <- 0
+    for(i in 1:dim(matches)[1]) {
+        n <- as.numeric(matches[i,2])
+        if(is.na(n)) {
+            n <- 1
+        }
+        count <- count + n
+    }
+    return(count)
+}
+
+get_stoichiometry_all <- function(reaction) {
+    f_p <- get_first_part(react_str)
+    s_p <- get_second_part(reaction)
+    r <- list(left_sto = get_stoichiometry_part(f_p), 
+              right_sto = get_stoichiometry_part(s_p))
+    return(r)
+}
+
+remove_stoichiometry <- function(species) {
+    no_sto_spec <- c()
+    for(i in 1:length(species)) {
+        s <- sub('^[1-9]*', '', species[i])
+        no_sto_spec <- c(no_sto_spec, s)
+    }
+    return(no_sto_spec)
+}
+
+get_species <- function(reaction_part) {
+    specs <- strsplit(reaction_part, '[^a-zA-Z0-9_]')[[1]]
+    specs <- specs[specs != '']
+    specs <- remove_stoichiometry(specs)
+    return(specs)
+}
+
 reactants_in_reaction <- function(species, reaction) {
     f_p <- get_first_part(reaction)
-    words <- strsplit(f_p, '[^a-zA-Z0-9]')[[1]]
-    words <- words[words != '']
+    words <- get_species(f_p)
     r <- c()
     for(i in 1:length(species)) {
         if(any(words == species[i])) {
@@ -67,7 +104,7 @@ react <- function(species, ci, reactions, ki, t) {
     
     for(i in 1:length(reactions)) {
         for(j in 1:length(species)) {
-            stoc <- get_stoichiometry(species[j], reactions[i])
+            stoc <- get_stoichiometry_onespecies(species[j], reactions[i])
             products[i,j] <- stoc$right_sto
             reactants[i,j] <- stoc$left_sto
         }
@@ -94,13 +131,55 @@ react <- function(species, ci, reactions, ki, t) {
     return(result)
 }
 
-react_4domain <- function(species, ci, reactions, ki, t) {
-    
-}
-
 plot_behaviour <- function(behaviour) {
     matplot(x = behaviour[,1], y = behaviour[,2:dim(behaviour)[2]])
 }
+
+#
+# 4-domain DNA approach
+#
+
+react_4domain <- function(species, ci, reactions, qi, qmax, cmax, t) {
+    new_reactions <- c()
+    new_species <- c(species)
+    ki <- c()
+    
+    uni_aux_species <- c('G', 'O', 'T')
+    bi_aux_species <- c('L', 'H', 'W', 'O', 'T')
+    
+    for(i in 1:length(reactions)) {
+        new_reactions_for_i <- c()
+        new_species_for_i <- c() 
+        
+        if(is_bimolecular(reactions[i])) {
+            aux <- paste(bi_aux_species, as.character(i), sep = '')
+            
+            left_part <- get_first_part(reactions[i])
+            l_p_specs <- get_species(left_part)
+            
+            # For a species, get its count on left
+            # If the count is 2 (2A), transform it into 2 molecules (A + A)
+            
+            # Combine the molecules into reactions
+            new_reactions_for_i <- c(new_reactions_for_i, paste(l_p_specs[1],' +', aux[1], '-->', 
+                                                                aux[2], '+', aux[3]))
+            # Check the generation of two products instead of only one
+                                     
+            # Set the initial concentrations, ks and new species
+            
+            # Add everything into news variables
+        } else {
+            # Do the same (almost) for the unimolecular case
+        }
+        
+        new_species <- c(new_species, new_species_for_i)
+        new_reactions <- c(new_reactions, new_reactions_for_i)
+    }
+}
+
+#
+# Examples
+#
 
 run_ApBeC <- function() {
     behaviour <- react(
