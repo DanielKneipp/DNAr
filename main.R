@@ -139,10 +139,24 @@ plot_behaviour <- function(behaviour) {
 # 4-domain DNA approach
 #
 
+# Only accepts uni or bimolecular reactions 
+check_reaction_4domain <- function(reaction) {
+    left_part <- get_first_part(reaction)
+    sto <- get_stoichiometry_part(left_part)
+    return(sto < 3)
+}
+
 react_4domain <- function(species, ci, reactions, qi, qmax, cmax, t) {
+    for(r in reactions) {
+        if(!check_reaction_4domain(r)) {
+            stop(paste('Failed to processo reaction', r))
+        }
+    }
+    
     new_reactions <- c()
     new_species <- c(species)
-    ki <- c()
+    new_ks <- c()
+    new_cis <- c(ci)
     
     uni_aux_species <- c('G', 'O', 'T')
     bi_aux_species <- c('L', 'H', 'W', 'O', 'T')
@@ -150,6 +164,8 @@ react_4domain <- function(species, ci, reactions, qi, qmax, cmax, t) {
     for(i in 1:length(reactions)) {
         new_reactions_for_i <- c()
         new_species_for_i <- c() 
+        new_ks_for_i <- c()
+        new_cis_for_i <- c()
         
         if(is_bimolecular(reactions[i])) {
             aux <- paste(bi_aux_species, as.character(i), sep = '')
@@ -157,24 +173,61 @@ react_4domain <- function(species, ci, reactions, qi, qmax, cmax, t) {
             left_part <- get_first_part(reactions[i])
             l_p_specs <- get_species(left_part)
             
-            # For a species, get its count on left
-            # If the count is 2 (2A), transform it into 2 molecules (A + A)
+            # For a species, get its count on left.
+            # If the count is 2 (2A), transform it into 2 molecules (A + A).
+            # If there is only one species and the reaction is bimolecular, 
+            # this unique molecule needs to be duplicated
+            if(length(l_p_specs) == 1) {
+                l_p_specs <- c(l_p_specs, l_p_specs)
+            }
             
+            # Get the products string.
+            # This time we don't need to expand 2A to A + A
+            right_part <- get_second_part(reactions[i])
+
             # Combine the molecules into reactions
-            new_reactions_for_i <- c(new_reactions_for_i, paste(l_p_specs[1],' +', aux[1], '-->', 
-                                                                aux[2], '+', aux[3]))
-            # Check the generation of two products instead of only one
-                                     
-            # Set the initial concentrations, ks and new species
+            new_reactions_for_i <- c(paste(l_p_specs[1],' +', aux[1], '-->', aux[2], '+', aux[3]),
+                                     paste(aux[2],' +', aux[3], '-->', l_p_specs[1], '+', aux[1]),
+                                     paste(l_p_specs[2],' +', aux[2], '-->', aux[4]),
+                                     paste(aux[4],' +', aux[5], '-->', right_part))
             
-            # Add everything into news variables
+            # Set the new species, initial concentrations and ks
+            new_species_for_i <- c(aux)
+            #                     L      H     B       O     T
+            new_cis_for_i <- c(cmax[i], 0.0, cmax[i], 0.0, cmax[i])
+            new_ks_for_i <- c(qi[i], qmax[i], qmax[i], qmax[i])
         } else {
-            # Do the same (almost) for the unimolecular case
+            aux <- paste(uni_aux_species, as.character(i), sep = '')
+            
+            left_part <- get_first_part(reactions[i])
+            l_p_specs <- get_species(left_part)
+            right_part <- get_second_part(reactions[i])
+            
+            new_reactions_for_i <- c(paste(l_p_specs,' +', aux[1], '-->', aux[2]),
+                                     paste(aux[2],' +', aux[3], '-->', right_part, '+', aux[1]))
+            new_species_for_i <- c(aux)
+            #                     G      O     T
+            new_cis_for_i <- c(cmax[i], 0.0, cmax[i])
+            new_ks_for_i <- c(qi[i], qmax[i])
         }
         
         new_species <- c(new_species, new_species_for_i)
         new_reactions <- c(new_reactions, new_reactions_for_i)
+        new_ks <- c(new_ks, new_ks_for_i)
+        new_cis <- c(new_cis, new_cis_for_i)
     }
+    
+    # Run the reaction
+    b <- react(
+        species   = new_species,
+        ci        = new_cis,
+        reactions = new_reactions,
+        ki        = new_ks,
+        t         = t
+    )
+    
+    # Return the behaviour of the input species, without the auxyliar ones
+    return(b[,1:(length(species) + 1)])
 }
 
 #
@@ -297,12 +350,46 @@ consensus <- function() {
     )
 }
 
-behaviour <- run_ApBeC()
+#behaviour <- run_ApBeC()
 #behaviour <- run_lotka()
 #behaviour <- run_lotka_scaled()
 #behaviour <- run_ApBeC_4domain()
 #behaviour <- run_origonator()
 #behaviour <- run_rossler()
 #behaviour <- consensus()
+
+#plot_behaviour(behaviour)
+
+
+#
+# 4-domain Examples
+#
+
+run_ApBeC_4d <- function() {
+    behaviour <- react_4domain(
+        species   = c('A', 'B', 'C'),
+        ci        = c(1e3, 1e3, 0),
+        reactions = c('A + B -> C'),
+        qi        = c(1e-7),
+        qmax      = c(1e-3),
+        cmax      = c(1e5),
+        t         = seq(0, 72000, 10)
+    )
+}
+
+run_AeB_4d <- function() {
+    behaviour <- react_4domain(
+        species   = c('A', 'B'),
+        ci        = c(1e4, 0),
+        reactions = c('A -> B'),
+        qi        = c(5e-5 / 1e5),
+        qmax      = c(1e-5),
+        cmax      = c(1e5),
+        t         = seq(0, 72000, 10)
+    )
+}
+
+#behaviour <- run_ApBeC_4d()
+behaviour <- run_AeB_4d()
 
 plot_behaviour(behaviour)
