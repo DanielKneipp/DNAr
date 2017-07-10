@@ -14,6 +14,10 @@ is_bimolecular <- function(react_str) {
     return(get_stoichiometry_part(first_part) == 2)
 }
 
+isempty_part <- function(react_part) {
+    return(!is.na(suppressWarnings(as.numeric(react_part))) && as.numeric(react_part) == 0)
+}
+
 get_onespecies_count <- function(one_species, reaction_part) {
     m <- gregexpr(paste('[1-9]*', one_species, sep = ''), reaction_part)
     matches <- regmatches(reaction_part, m)
@@ -77,9 +81,14 @@ get_species <- function(reaction_part) {
     return(specs)
 }
 
-reactants_in_reaction <- function(species, reaction) {
+get_reactants <- function(reaction) {
     f_p <- get_first_part(reaction)
-    words <- get_species(f_p)
+    reactants <- get_species(f_p)
+    return(reactants)
+}
+
+reactants_in_reaction <- function(species, reaction) {
+    words <- get_reactants(reaction)
     r <- c()
     for(i in 1:length(species)) {
         if(any(words == species[i])) {
