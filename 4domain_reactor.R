@@ -14,10 +14,8 @@ check_reaction_4domain <- function(reaction) {
 get_buff_modules <- function(reactions, ki, qmax, cmax) {
     sigmas <- list()
     bff_aux_species <- c('LS', 'HS', 'WS')
-    global_cmax <- max(cmax)
-    global_qmax <- max(qmax)
-    #                 LS      HS      WS
-    bff_cis <- c(global_cmax, 0, global_cmax)
+    #             LS   HS  WS
+    bff_cis <- c(cmax, 0, cmax)
     
     uni_count <- 0
     for(i in 1:length(reactions)) {
@@ -44,7 +42,7 @@ get_buff_modules <- function(reactions, ki, qmax, cmax) {
     }
     
     reaction_sigma <- max(unlist(sigmas))
-    lambda_1 <- global_qmax / (global_qmax - reaction_sigma)
+    lambda_1 <- qmax / (qmax - reaction_sigma)
     
     new_ks <- c()
     new_bff_reactions <- c()
@@ -60,7 +58,7 @@ get_buff_modules <- function(reactions, ki, qmax, cmax) {
             backward_reaction <- paste(aux_specs[2], '+', aux_specs[3], '-->', input_spec, '+', aux_specs[1])
             
             new_bff_reactions <- c(new_bff_reactions, forward_reaction, backward_reaction)
-            new_ks <- c(new_ks, qs, global_qmax)
+            new_ks <- c(new_ks, qs, qmax)
             new_species <- c(new_species, aux_specs[1], aux_specs[2], aux_specs[3])
             new_cis <- c(new_cis, bff_cis)
         }
@@ -131,15 +129,15 @@ react_4domain <- function(species, ci, reactions, ki, qmax, cmax, t) {
             
             # Set the new species, initial concentrations and ks
             new_species_for_i <- c(aux[1], aux[2], aux[3], aux[4])
-            #                     L      H     B       O 
-            new_cis_for_i <- c(cmax[i], 0.0, cmax[i], 0.0)
+            #                    L    H     B    O 
+            new_cis_for_i <- c(cmax, 0.0, cmax, 0.0)
             
             # Recalculate qis according to the buffer module theory
             qi_with_buff <- ki[i]
             if(!is.null(buffer_stuff)) {
                 qi_with_buff <- qi_with_buff * buffer_stuff$lambda_1
             }
-            new_ks_for_i <- c(qi_with_buff, qmax[i], qmax[i])
+            new_ks_for_i <- c(qi_with_buff, qmax, qmax)
             
             # If the right part is only a 0, do not add the last reaction, otherwise:
             if(!isempty_part(right_part)) {
@@ -147,8 +145,8 @@ react_4domain <- function(species, ci, reactions, ki, qmax, cmax, t) {
                                          paste(aux[4], '+', aux[5], '-->', right_part))
                 new_species_for_i <- c(new_species_for_i, aux[5])
                 #                                   T
-                new_cis_for_i <- c(new_cis_for_i, cmax[i])
-                new_ks_for_i <- c(new_ks_for_i, qmax[i])
+                new_cis_for_i <- c(new_cis_for_i, cmax)
+                new_ks_for_i <- c(new_ks_for_i, qmax)
             }
         } else {
             aux <- paste(uni_aux_species, as.character(i), sep = '')
@@ -159,9 +157,9 @@ react_4domain <- function(species, ci, reactions, ki, qmax, cmax, t) {
             
             new_reactions_for_i <- c(paste(l_p_specs, '+', aux[1], '-->', aux[2]))
             new_species_for_i <- c(aux[1], aux[2])
-            #                     G      O
-            new_cis_for_i <- c(cmax[i], 0.0)
-            qi_with_buff <- ki[i] / cmax[i]
+            #                     G   O
+            new_cis_for_i <- c(cmax, 0.0)
+            qi_with_buff <- ki[i] / cmax
             if(!is.null(buffer_stuff)) {
                 qi_with_buff <- qi_with_buff * buffer_stuff$lambda_1
             }
@@ -172,8 +170,8 @@ react_4domain <- function(species, ci, reactions, ki, qmax, cmax, t) {
                                          paste(aux[2], '+', aux[3], '-->', right_part))
                 new_species_for_i <- c(new_species_for_i, aux[3])
                 #                                   T
-                new_cis_for_i <- c(new_cis_for_i, cmax[i])
-                new_ks_for_i <- c(new_ks_for_i, qmax[i])
+                new_cis_for_i <- c(new_cis_for_i, cmax)
+                new_ks_for_i <- c(new_ks_for_i, qmax)
             }
         }
         

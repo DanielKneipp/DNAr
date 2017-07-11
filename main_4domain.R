@@ -1,4 +1,4 @@
-debugSource('4domain_reactor.R')
+source('4domain_reactor.R')
 
 #
 # 4-domain Examples
@@ -10,8 +10,8 @@ run_ApBeC_4d <- function() {
         ci        = c(1e3, 1e3, 0),
         reactions = c('A + B -> C'),
         ki        = c(1e-7),
-        qmax      = c(1e-3),
-        cmax      = c(1e5),
+        qmax      = 1e-3,
+        cmax      = 1e5,
         t         = seq(0, 72000, 10)
     )
 }
@@ -22,8 +22,8 @@ run_AeB_4d <- function() {
         ci        = c(1e4, 0),
         reactions = c('A -> B'),
         ki        = c(5e-5 / 1e5),
-        qmax      = c(1e-5),
-        cmax      = c(1e5),
+        qmax      = 1e-5,
+        cmax      = 1e5,
         t         = seq(0, 72000, 10)
     )
 }
@@ -38,8 +38,8 @@ run_Lotka_4d <- function() {
         ki        = c(5e5,
                       1/300,
                       1/300),
-        qmax      = c(1e6, 1e6, 1e6),
-        cmax      = c(10e-6, 10e-6, 10e-6),
+        qmax      = 1e6,
+        cmax      = 10e-6,
         t         = seq(0, 12600, 1)
     )
 }
