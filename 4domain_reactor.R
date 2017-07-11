@@ -11,7 +11,7 @@ check_reaction_4domain <- function(reaction) {
     return(sto < 3)
 }
 
-get_buff_modules <- function(reactions, qi, qmax, cmax) {
+get_buff_modules <- function(reactions, ki, qmax, cmax) {
     sigmas <- list()
     bff_aux_species <- c('LS', 'HS', 'WS')
     global_cmax <- max(cmax)
@@ -26,9 +26,9 @@ get_buff_modules <- function(reactions, qi, qmax, cmax) {
         
         if(is_bimolecular(reactions[[i]])) {
             if(is.null(sigmas[[first_reactant]])) {
-                sigmas[first_reactant] <- qi[[i]]
+                sigmas[first_reactant] <- ki[[i]]
             } else {
-                sigmas[first_reactant] <- sigmas[[first_reactant]] + qi[[i]]
+                sigmas[first_reactant] <- sigmas[[first_reactant]] + ki[[i]]
             }
         } else {
             uni_count <- uni_count + 1
@@ -75,7 +75,7 @@ get_buff_modules <- function(reactions, qi, qmax, cmax) {
     )
 }
 
-react_4domain <- function(species, ci, reactions, qi, qmax, cmax, t) {
+react_4domain <- function(species, ci, reactions, ki, qmax, cmax, t) {
     for(r in reactions) {
         if(!check_reaction_4domain(r)) {
             stop(paste('Failed to process reaction', r))
@@ -91,7 +91,7 @@ react_4domain <- function(species, ci, reactions, qi, qmax, cmax, t) {
     bi_aux_species <- c('L', 'H', 'W', 'O', 'T')
     
     # Get buffer modules
-    buffer_stuff <- get_buff_modules(reactions, qi, qmax, cmax)
+    buffer_stuff <- get_buff_modules(reactions, ki, qmax, cmax)
     
     # Change cis according to the lambda^{-1} factor
     if(!is.null(buffer_stuff)) {
@@ -135,7 +135,7 @@ react_4domain <- function(species, ci, reactions, qi, qmax, cmax, t) {
             new_cis_for_i <- c(cmax[i], 0.0, cmax[i], 0.0)
             
             # Recalculate qis according to the buffer module theory
-            qi_with_buff <- qi[i]
+            qi_with_buff <- ki[i]
             if(!is.null(buffer_stuff)) {
                 qi_with_buff <- qi_with_buff * buffer_stuff$lambda_1
             }
@@ -161,7 +161,7 @@ react_4domain <- function(species, ci, reactions, qi, qmax, cmax, t) {
             new_species_for_i <- c(aux[1], aux[2])
             #                     G      O
             new_cis_for_i <- c(cmax[i], 0.0)
-            qi_with_buff <- qi[i]
+            qi_with_buff <- ki[i] / cmax[i]
             if(!is.null(buffer_stuff)) {
                 qi_with_buff <- qi_with_buff * buffer_stuff$lambda_1
             }
