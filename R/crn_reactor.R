@@ -43,7 +43,7 @@ get_stoichiometry_onespecies <- function(one_species, reaction) {
 }
 
 get_stoichiometry_part <- function(reaction_part) {
-    matches <- str_match_all(reaction_part, '([1-9])*([a-zA-Z0-9_]+)')[[1]]
+    matches <- stringr::str_match_all(reaction_part, '([1-9])*([a-zA-Z0-9_]+)')[[1]]
     count <- 0
     for(i in 1:dim(matches)[1]) {
         n <- as.numeric(matches[i,2])
@@ -134,7 +134,7 @@ react <- function(species, ci, reactions, ki, t) {
         return(list(dy))
     }
 
-    result <- ode(times = t, y = ci, func = fx, parms = NULL)
+    result <- deSolve::ode(times = t, y = ci, func = fx, parms = NULL)
     return(result)
 }
 
