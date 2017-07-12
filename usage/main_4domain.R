@@ -44,8 +44,28 @@ run_Lotka_4d <- function() {
     )
 }
 
+run_neuron_4d <- function() {
+    behaviour <- react_4domain(
+        species   = c('X1', 'X2', 'X3', 'X4', 'E1', 'E2', 'I1', 'I2'),
+        ci        = c(0, 0, 0, 0, 0.5 * 5e-7, 0.5 * 5e-7, 10 * 5e-7, 5 * 5e-7),
+        reactions = c('I2 -> 2I2',
+                      'I2 -> X3',
+                      'I1 -> 2I1',
+                      'I1 -> X1',
+                      'X1 + E1 -> X2 + E2',
+                      'X3 + E2 -> X4 + E1',
+                      'X2 -> 0',
+                      'X4 -> 0'),
+        ki        = c(0.001, 0.001, 0.001, 0.001, 1e6, 1e6, 0.01, 0.01),
+        qmax      = 10e6,
+        cmax      = 10e-5,
+        t         = seq(0, 1000, 10)
+    )
+}
+
 #behaviour <- run_ApBeC_4d()
 #behaviour <- run_AeB_4d()
-behaviour <- run_Lotka_4d()
+#behaviour <- run_Lotka_4d()
+behaviour <- run_neuron_4d()
 
 plot_behaviour(behaviour)
