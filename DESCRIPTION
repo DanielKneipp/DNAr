@@ -1,0 +1,22 @@
+Package: DNAr
+Type: Package
+Title: Simulates chemical reaction networks constructed with DNA
+Version: 0.1.0
+Authors@R: person("Daniel", "Kneipp", email = "danielv@dcc.ufmg.br",
+                   role = c("aut", "cre"))
+Description: With this package you can simulate CRNs implemented with 
+    DNA. Currently there is only one approach for CRN construction with 
+    DNA, but the plan is to expand this to other approachs using the CRN 
+    simulator implemented in this package. This CRN simulator simply 
+    converts a set of reactions into a set of diferential equations and 
+    solve them with a package called deSolve.
+License: GPL-2
+Encoding: UTF-8
+LazyData: true
+Depends: R (>= 3.4.0)
+Imports:
+    deSolve (>= 1.14),
+    stringr (>= 1.2.0)
+Collate:
+    'crn_reactor.R'
+    '4domain_reactor.R'

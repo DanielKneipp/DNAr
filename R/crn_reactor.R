@@ -1,5 +1,3 @@
-library(deSolve)
-library(stringr)
 
 get_first_part <- function(react_str) {
     return(sub('->.*', '', react_str))
@@ -36,10 +34,10 @@ get_onespecies_count <- function(one_species, reaction_part) {
 get_stoichiometry_onespecies <- function(one_species, reaction) {
     f_p <- get_first_part(reaction)
     s_p <- get_second_part(reaction)
-    
+
     f_p_n <- get_onespecies_count(one_species, f_p)
     s_p_n <- get_onespecies_count(one_species, s_p)
-    
+
     r <- list(left_sto = sum(f_p_n), right_sto = sum(s_p_n))
     return(r)
 }
@@ -60,7 +58,7 @@ get_stoichiometry_part <- function(reaction_part) {
 get_stoichiometry_all <- function(reaction) {
     f_p <- get_first_part(react_str)
     s_p <- get_second_part(reaction)
-    r <- list(left_sto = get_stoichiometry_part(f_p), 
+    r <- list(left_sto = get_stoichiometry_part(f_p),
               right_sto = get_stoichiometry_part(s_p))
     return(r)
 }
@@ -110,7 +108,7 @@ reactants_in_reaction <- function(species, reaction) {
 react <- function(species, ci, reactions, ki, t) {
     products <- matrix(data = 0, nrow = length(reactions), ncol = length(species))
     reactants <- matrix(data = 0, nrow = length(reactions), ncol = length(species))
-    
+
     for(i in 1:length(reactions)) {
         for(j in 1:length(species)) {
             stoc <- get_stoichiometry_onespecies(species[j], reactions[i])
@@ -118,24 +116,24 @@ react <- function(species, ci, reactions, ki, t) {
             reactants[i,j] <- stoc$left_sto
         }
     }
-    
+
     M <- products - reactants
     Mt <- t(M)
-    
+
     fx <- function(t, y, parms) {
         dy <- numeric(length(y))
-        
+
         v <- matrix(data = 0, nrow = length(reactions), ncol = 1)
         for(i in 1:length(reactions)) {
             s_is_reac <- reactants_in_reaction(species, reactions[i])
             v[i,1] <- ki[i] * prod(y[s_is_reac])
         }
-        
+
         dy <- Mt %*% v
-        
+
         return(list(dy))
     }
-    
+
     result <- ode(times = t, y = ci, func = fx, parms = NULL)
     return(result)
 }

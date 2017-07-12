@@ -1,4 +1,4 @@
-source('4domain_reactor.R')
+library(DNAr)
 
 #
 # 4-domain Examples

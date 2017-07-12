@@ -1,4 +1,4 @@
-source('crn_reactor.R')
+library(DNAr)
 
 #
 # Examples
