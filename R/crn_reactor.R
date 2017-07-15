@@ -3,8 +3,6 @@
 #'
 #' Given a reaction like 'A + B -> C', this function
 #' returns 'A + B '.
-#'
-#' @export
 get_first_part <- function(react_str) {
     return(sub('->.*', '', react_str))
 }
@@ -13,8 +11,6 @@ get_first_part <- function(react_str) {
 #'
 #' Given a reaction like 'A + B -> C', this function
 #' returns ' C'.
-#'
-#' @export
 get_second_part <- function(react_str) {
     return(sub('.*->', '', react_str))
 }
@@ -23,8 +19,6 @@ get_second_part <- function(react_str) {
 #'
 #' Give a reaction, this functions checks if it is
 #' a bimolecular reaction.
-#'
-#' @export
 #'
 #' @examples
 #' is_bimolecular('2A -> B')     # Should return TRUE
@@ -43,8 +37,6 @@ is_bimolecular <- function(react_str) {
 #' \code{\link{get_second_part}} and then use this function with the second part
 #' as the parameter.
 #'
-#' @export
-#'
 #' @examples
 #' sp <- get_second_part('A -> 0')
 #' isempty_part(sp)  # Should return TRUE
@@ -58,8 +50,6 @@ isempty_part <- function(react_part) {
 #' With the reaction part 'A + B ', for instance, and \code{\link{one_species}}
 #' begin equal to 'A', this function would return 1. On the case of '2A ' it
 #' would return 2.
-#'
-#' @export
 get_onespecies_count <- function(one_species, reaction_part) {
     m <- gregexpr(paste('[1-9]*', one_species, sep = ''), reaction_part)
     matches <- regmatches(reaction_part, m)
@@ -85,8 +75,6 @@ get_onespecies_count <- function(one_species, reaction_part) {
 #' species in the left side of a reaction, and \code{right_sto} being
 #' the same but for the right side of the reaction.
 #'
-#' @export
-#'
 #' @examples
 #' # It should return list(left_sto = 1, right_sto = 2)
 #' get_stoichiometry_onespecies('A', 'A + B -> 2A')
@@ -107,8 +95,6 @@ get_stoichiometry_onespecies <- function(one_species, reaction) {
 #'
 #' This function is used when you want to know the count of molecules
 #' in part of a reaction.
-#'
-#' @export
 #'
 #' @examples
 #' get_stoichiometry_part('A + B ')  # It should return 2
@@ -136,8 +122,6 @@ get_stoichiometry_part <- function(reaction_part) {
 #' @return a list with left_sto and right_sto being the stoichiometry
 #' of the left and right part respectively.
 #'
-#' @export
-#'
 #' @examples
 #' # Returns list(left_sto = 2, right_sto = 1)
 #' get_stoichiometry_all('A + B -> C')
@@ -159,8 +143,6 @@ get_stoichiometry_all <- function(reaction) {
 #' @return The species string without the stoichiometry (number)
 #' specifying the number of molecules
 #'
-#' @export
-#'
 #' @examples
 #' remove_stoichiometry('2A')   # Returns 'A'
 #' remove_stoichiometry('2A2')  # Returns 'A2', The other numbers
@@ -179,8 +161,6 @@ remove_stoichiometry <- function(species) {
 #' Given part of a reaction, this function returns
 #' the species of it without the stoichiometry.
 #'
-#' @export
-#'
 #' @examples
 #' get_species('A + 2B')  # Should return c('A', 'B')
 get_species <- function(reaction_part) {
@@ -194,8 +174,6 @@ get_species <- function(reaction_part) {
 #'
 #' This function returns the reactants of a reactions,
 #' removing their stoichiometry.
-#'
-#' @export
 #'
 #' @examples
 #' get_reactants('A + B -> C')  # Returns c('A', 'B')
@@ -215,8 +193,6 @@ get_reactants <- function(reaction) {
 #'
 #' @return A vector filled with indexes specifying the
 #' species that are in a reaction as a reactant.
-#'
-#' @export
 #'
 #' @examples
 #' # Should return c(1, 2)
