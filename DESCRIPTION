@@ -2,8 +2,10 @@ Package: DNAr
 Type: Package
 Title: Simulates chemical reaction networks constructed with DNA
 Version: 0.1.0
-Authors@R: person("Daniel", "Kneipp", email = "danielv@dcc.ufmg.br",
-                   role = c("aut", "cre"))
+Authors@R: c(person("Daniel", "Kneipp", email = "danielv@dcc.ufmg.br",
+                    role = c("aut", "cre")),
+             person("Marcos", "Guterres", email = "mguterres@yahoo.com",
+                    role = c("aut")))
 Description: With this package you can simulate CRNs implemented with 
     DNA. Currently there is only one approach for CRN construction with 
     DNA, but the plan is to expand this to other approachs using the CRN 
@@ -20,3 +22,4 @@ Imports:
 Collate:
     'crn_reactor.R'
     '4domain_reactor.R'
+RoxygenNote: 6.0.1

@@ -5,7 +5,7 @@ library(DNAr)
 #
 
 run_ApBeC_4d <- function() {
-    behaviour <- react_4domain(
+    behavior <- react_4domain(
         species   = c('A', 'B', 'C'),
         ci        = c(1e3, 1e3, 0),
         reactions = c('A + B -> C'),
@@ -19,7 +19,7 @@ run_ApBeC_4d <- function() {
 }
 
 run_AeB_4d <- function() {
-    behaviour <- react_4domain(
+    behavior <- react_4domain(
         species   = c('A', 'B'),
         ci        = c(1e4, 0),
         reactions = c('A -> B'),
@@ -33,7 +33,7 @@ run_AeB_4d <- function() {
 }
 
 run_Lotka_4d <- function() {
-    behaviour <- react_4domain(
+    behavior <- react_4domain(
         species   = c('X1', 'X2'),
         ci        = c(20e-9, 10e-9),
         reactions = c('X1 + X2 -> 2X2',
@@ -51,7 +51,7 @@ run_Lotka_4d <- function() {
 }
 
 run_neuron_4d <- function() {
-    behaviour <- react_4domain(
+    behavior <- react_4domain(
         species   = c('X1', 'X2', 'X3', 'X4', 'E1', 'E2', 'I1', 'I2'),
         ci        = c(0, 0, 0, 0, 0.5, 0.5, 10, 5),
         reactions = c('I2 -> 2I2',
@@ -71,9 +71,9 @@ run_neuron_4d <- function() {
     )
 }
 
-#behaviour <- run_ApBeC_4d()
-#behaviour <- run_AeB_4d()
-#behaviour <- run_Lotka_4d()
-behaviour <- run_neuron_4d()
+#behavior <- run_ApBeC_4d()
+#behavior <- run_AeB_4d()
+#behavior <- run_Lotka_4d()
+behavior <- run_neuron_4d()
 
-plot_behaviour(behaviour)
+plot_behavior(behavior)

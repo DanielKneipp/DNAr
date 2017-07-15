@@ -157,7 +157,7 @@ react_4domain <- function(species, ci, reactions, ki, qmax, cmax, alpha, beta, t
 
             new_reactions_for_i <- c(paste(l_p_specs, '+', aux[1], '-->', aux[2]))
             new_species_for_i <- c(aux[1], aux[2])
-            #                     G   O
+            #                    G    O
             new_cis_for_i <- c(cmax, 0.0)
             qi_with_buff <- ki[i] / alpha / cmax
             if(!is.null(buffer_stuff)) {
@@ -198,6 +198,6 @@ react_4domain <- function(species, ci, reactions, ki, qmax, cmax, alpha, beta, t
         t         = t
     )
 
-    # Return the behaviour of the input species, without the auxiliar ones
+    # Return the behavior of the input species, without the auxiliary ones
     return(b[,1:(length(species) + 1)])
 }
