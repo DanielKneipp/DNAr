@@ -235,9 +235,10 @@ reactants_in_reaction <- function(species, reaction) {
 #' @param t          A vector specifying the time interval. Each value
 #'                   would be a specific time point.
 #'
-#' @return A matrix with each line being a specific point in the time
+#' @return A data frame with each line being a specific point in the time
 #'         and each column but the first being the concentration of a
-#'         species. The first column is the time interval.
+#'         species. The first column is the time interval. The column names
+#'         are filled with the species's names.
 #'
 #' @export
 #'
@@ -276,16 +277,136 @@ react <- function(species, ci, reactions, ki, t) {
     }
 
     result <- deSolve::ode(times = t, y = ci, func = fx, parms = NULL)
-    return(result)
+
+    # Convert double matrix to dataframe
+    df_result <- data.frame(result)
+    names(df_result) <- c('time', species)
+
+    return(df_result)
+}
+
+#' `ggplot2` theme developed by Max Woolf.
+#'
+#' This is a simple theme for `ggplot2` pacakge designed by Max Woolf.
+#'
+#' @references
+#'   - [Website with the theme.](http://minimaxir.com/2015/02/ggplot-tutorial/)
+fte_theme <- function() {
+    # Generate the colors for the chart procedurally with RColorBrewer
+    palette <- RColorBrewer::brewer.pal("Greys", n=9)
+    color.background = palette[2]
+    color.grid.major = palette[3]
+    color.axis.text = palette[6]
+    color.axis.title = palette[7]
+    color.title = palette[9]
+
+    # Begin construction of chart
+    ggplot2::theme_bw(base_size=9) +
+
+        # Set the entire chart region to a light gray color
+        ggplot2::theme(panel.background = ggplot2::element_rect(
+            fill = color.background, color = color.background
+        )) +
+        ggplot2::theme(plot.background = ggplot2::element_rect(
+            fill = color.background, color = color.background
+        )) +
+        ggplot2::theme(panel.border = ggplot2::element_rect(
+            color = color.background
+        )) +
+
+        # Format the grid
+        ggplot2::theme(panel.grid.major = ggplot2::element_line(
+            color = color.grid.major, size = .25
+        )) +
+        ggplot2::theme(panel.grid.minor = ggplot2::element_blank()) +
+        ggplot2::theme(axis.ticks = ggplot2::element_blank()) +
+
+        # Format the legend, but hide by default
+        ggplot2::theme(legend.position="none") +
+        ggplot2::theme(legend.background = ggplot2::element_rect(
+            fill = color.background
+        )) +
+        ggplot2::theme(legend.text = ggplot2::element_text(
+            size = 7,color=color.axis.title
+        )) +
+
+        # Set title and axis labels, and format these and tick marks
+        ggplot2::theme(plot.title = ggplot2::element_text(
+            color = color.title, size = 10, vjust = 1.25
+        )) +
+        ggplot2::theme(axis.text.x = ggplot2::element_text(
+            size = 7, color = color.axis.text
+        )) +
+        ggplot2::theme(axis.text.y = ggplot2::element_text(
+            size = 7, color = color.axis.text
+        )) +
+        ggplot2::theme(axis.title.x = ggplot2::element_text(
+            size = 8, color = color.axis.title, vjust=0
+        )) +
+        ggplot2::theme(axis.title.y = ggplot2::element_text(
+            size = 8, color = color.axis.title, vjust=1.25
+        )) +
+
+        # Plot margins
+        ggplot2::theme(plot.margin = ggplot2::unit(
+            c(0.35, 0.2, 0.3, 0.35), "cm")
+        )
 }
 
 #' Plot the behavior of a CRN.
 #'
 #' This function plots the behavior returned by \code{\link{react}()}.
 #'
-#' @export
+#' @param behavior          Behaviour returned by \code{\link{react}()}
+#' @param species           The vector with the species that should be plotted.
+#'                          If no one is specified, than all of them are
+#'                          plotted.
+#' @param x_label,y_label   Label name of the x and y axis, respectively.
+#'                          The default are 'Time' and 'Concentration'.
+#' @param legend_name       Name of the legend. The default is 'Species'.
+#' @param save_file_name    Name file that the plot should be saved in.
+#'                          Currently files with .pdf and .png were tested but
+#'                          it should support any extension supported by
+#'                          \code{\link[ggplot2]{ggsave}()}. If no file name
+#'                          is specified, the won't be saved.
 #'
-#' @importFrom graphics matplot
-plot_behavior <- function(behavior) {
-    matplot(x = behavior[,1], y = behavior[,2:dim(behavior)[2]])
+#' @return  The object returned by \code{\link[ggplot2]{ggplot}()}, so you
+#'          can modify the plot or save it in a different way.
+#'
+#' @export
+plot_behavior <- function(
+    behavior,
+    species = NULL,
+    x_label = 'Time',
+    y_label = 'Concentration',
+    legend_name = 'Species',
+    save_file_name = NULL
+) {
+    # If no species was specified, pick all of them.
+    if(is.null(species)) {
+        species <- names(behavior)[2:dim(behavior)[2]]
+    }
+
+    # Convert the dataframe to the proper format
+    df <- behavior[,c('time', species)]
+    dfm <- reshape2::melt(df, id.vars = 'time')
+
+    # Show the plot
+    print(
+        g <- ggplot2::ggplot(dfm, ggplot2::aes(
+            time, value, color = variable
+        )) +
+        ggplot2::geom_line(size = 1.3) +
+        ggplot2::theme_minimal(base_size = 18) +
+        ggplot2::labs(x = x_label, y = y_label, color = legend_name) +
+        ggplot2::scale_color_brewer(palette="Dark2")
+    )
+
+    # if a name file was specified, save the plot ther.
+    if(!is.null(save_file_name)) {
+        ggplot2::ggsave(save_file_name, dpi = 300, width = 6, height = 4.5)
+    }
+
+    # Return the plot object
+    return(g)
 }

@@ -4,7 +4,31 @@
 \alias{plot_behavior}
 \title{Plot the behavior of a CRN.}
 \usage{
-plot_behavior(behavior)
+plot_behavior(behavior, species = NULL, x_label = "Time",
+  y_label = "Concentration", legend_name = "Species",
+  save_file_name = NULL)
+}
+\arguments{
+\item{behavior}{Behaviour returned by \code{\link{react}()}}
+
+\item{species}{The vector with the species that should be plotted.
+If no one is specified, than all of them are
+plotted.}
+
+\item{x_label, y_label}{Label name of the x and y axis, respectively.
+The default are 'Time' and 'Concentration'.}
+
+\item{legend_name}{Name of the legend. The default is 'Species'.}
+
+\item{save_file_name}{Name file that the plot should be saved in.
+Currently files with .pdf and .png were tested but
+it should support any extension supported by
+\code{\link[ggplot2]{ggsave}()}. If no file name
+is specified, the won't be saved.}
+}
+\value{
+The object returned by \code{\link[ggplot2]{ggplot}()}, so you
+can modify the plot or save it in a different way.
 }
 \description{
 This function plots the behavior returned by \code{\link{react}()}.

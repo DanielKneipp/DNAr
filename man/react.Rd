@@ -23,9 +23,10 @@ in \code{reactions}, in order.}
 would be a specific time point.}
 }
 \value{
-A matrix with each line being a specific point in the time
+A data frame with each line being a specific point in the time
 and each column but the first being the concentration of a
-species. The first column is the time interval.
+species. The first column is the time interval. The column names
+are filled with the species's names.
 }
 \description{
 This is the function used to actually simulate the chemical reaction network.
