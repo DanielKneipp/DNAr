@@ -11,7 +11,7 @@ This function is used when you want to know the count of molecules
 in part of a reaction.
 }
 \examples{
-get_stoichiometry_part('A + B ')  # It should return 2
-get_stoichiometry_part('2A ')     # It should return 2
-get_stoichiometry_part(' C')      # It should return 1
+DNAr:::get_stoichiometry_part('A + B ')  # It should return 2
+DNAr:::get_stoichiometry_part('2A ')     # It should return 2
+DNAr:::get_stoichiometry_part(' C')      # It should return 1
 }

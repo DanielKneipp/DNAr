@@ -11,7 +11,7 @@ Give a reaction, this functions checks if it is
 a bimolecular reaction.
 }
 \examples{
-is_bimolecular('2A -> B')     # Should return TRUE
-is_bimolecular('A + B -> C')  # Should return TRUE
-is_bimolecular('A -> B')      # Should return FALSE
+DNAr:::is_bimolecular('2A -> B')     # Should return TRUE
+DNAr:::is_bimolecular('A + B -> C')  # Should return TRUE
+DNAr:::is_bimolecular('A -> B')      # Should return FALSE
 }

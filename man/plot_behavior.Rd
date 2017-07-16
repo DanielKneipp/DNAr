@@ -7,5 +7,5 @@
 plot_behavior(behavior)
 }
 \description{
-This function plots the behavior returned by \code{\link{react}}.
+This function plots the behavior returned by \code{\link{react}()}.
 }

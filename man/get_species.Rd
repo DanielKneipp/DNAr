@@ -11,5 +11,5 @@ Given part of a reaction, this function returns
 the species of it without the stoichiometry.
 }
 \examples{
-get_species('A + 2B')  # Should return c('A', 'B')
+DNAr:::get_species('A + 2B')  # Should return c('A', 'B')
 }

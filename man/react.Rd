@@ -12,20 +12,20 @@ this vector is important because it will define the
 column order of the returned behavior.}
 
 \item{ci}{A vector specifying the initial concentrations of the
-\code{\link{species}} specified, in order.}
+\code{species} specified, in order.}
 
 \item{reactions}{A vector with the reactions of the CRN.}
 
 \item{ki}{A vector defining the constant rate of each reaction
-in \code{\link{reactions}}, in order.}
+in \code{reactions}, in order.}
 
 \item{t}{A vector specifying the time interval. Each value
 would be a specific time point.}
 }
 \value{
 A matrix with each line being a specific point in the time
-                  and each column but the first being the concentration of a species.
-                  The first column is the time interval.
+and each column but the first being the concentration of a
+species. The first column is the time interval.
 }
 \description{
 This is the function used to actually simulate the chemical reaction network.
@@ -33,11 +33,11 @@ Given the CRN specifications, it returns the behavior of the reaction.
 }
 \section{Known limitations}{
 
-  \itemize{
-    \item It only supports uni or bimolecular reactions;
-    \item Bidirectional reactions (e.g.: 'A <--> B') is not supported
-  yet (you have to describe them with two separated reactions).
-  }
+\itemize{
+\item It only supports uni or bimolecular reactions;
+\item Bidirectional reactions (e.g.: 'A <--> B') are not supported
+yet (you have to describe them with two separated reactions).
+}
 }
 
 \examples{

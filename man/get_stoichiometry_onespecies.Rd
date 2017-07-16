@@ -12,13 +12,13 @@ species in the left side of a reaction, and \code{right_sto} being
 the same but for the right side of the reaction.
 }
 \description{
-This function uses \code{\link{get_onespecies_count}} in the left
+This function uses \code{\link{get_onespecies_count}()} in the left
 and right part of a reaction to get the stoichiometry of a species
 in a reaction.
 }
 \examples{
 # It should return list(left_sto = 1, right_sto = 2)
-get_stoichiometry_onespecies('A', 'A + B -> 2A')
+DNAr:::get_stoichiometry_onespecies('A', 'A + B -> 2A')
 # It should return list(left_sto = 0, right_sto = 1)
-get_stoichiometry_onespecies('A', 'B -> A + B')
+DNAr:::get_stoichiometry_onespecies('A', 'B -> A + B')
 }

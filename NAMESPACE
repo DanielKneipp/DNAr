@@ -2,3 +2,5 @@
 
 export(plot_behavior)
 export(react)
+export(react_4domain)
+importFrom(graphics,matplot)

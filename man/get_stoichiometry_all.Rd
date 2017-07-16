@@ -16,7 +16,7 @@ right part of a reaction.
 }
 \examples{
 # Returns list(left_sto = 2, right_sto = 1)
-get_stoichiometry_all('A + B -> C')
+DNAr:::get_stoichiometry_all('A + B -> C')
 # Returns list(left_sto = 1, right_sto = 2)
-get_stoichiometry_all('A -> 2B')
+DNAr:::get_stoichiometry_all('A -> 2B')
 }

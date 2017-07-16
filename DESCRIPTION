@@ -23,3 +23,5 @@ Collate:
     'crn_reactor.R'
     '4domain_reactor.R'
 RoxygenNote: 6.0.1
+RdMacros: Rdpack
+Roxygen: list(markdown = TRUE)

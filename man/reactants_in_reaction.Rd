@@ -13,14 +13,14 @@ species that are in a reaction as a reactant.
 \description{
 It is used to check which of the given species are
 reactants in a reaction, returning a vector with the
-species indexes in \code{\link{species}} that are reactants
-in \code{\link{reaction}}.
+species indexes in \code{species} that are reactants
+in \code{reaction}.
 }
 \examples{
 # Should return c(1, 2)
-reactants_in_reaction(c('A', 'B', 'C'), 'A + B -> C')
+DNAr:::reactants_in_reaction(c('A', 'B', 'C'), 'A + B -> C')
 # Should return c(1)
-reactants_in_reaction(c('A', 'B', 'C'), '2A -> B + C')
+DNAr:::reactants_in_reaction(c('A', 'B', 'C'), '2A -> B + C')
 # Should return c(1, 3)
-reactants_in_reaction(c('A', 'B', 'C'), 'A + C -> B')
+DNAr:::reactants_in_reaction(c('A', 'B', 'C'), 'A + C -> B')
 }

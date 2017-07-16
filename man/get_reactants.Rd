@@ -11,6 +11,6 @@ This function returns the reactants of a reactions,
 removing their stoichiometry.
 }
 \examples{
-get_reactants('A + B -> C')  # Returns c('A', 'B')
-get_reactants('2A -> B')     # Returns c('A')
+DNAr:::get_reactants('A + B -> C')  # Returns c('A', 'B')
+DNAr:::get_reactants('2A -> B')     # Returns c('A')
 }

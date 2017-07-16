@@ -21,9 +21,9 @@ get_second_part <- function(react_str) {
 #' a bimolecular reaction.
 #'
 #' @examples
-#' is_bimolecular('2A -> B')     # Should return TRUE
-#' is_bimolecular('A + B -> C')  # Should return TRUE
-#' is_bimolecular('A -> B')      # Should return FALSE
+#' DNAr:::is_bimolecular('2A -> B')     # Should return TRUE
+#' DNAr:::is_bimolecular('A + B -> C')  # Should return TRUE
+#' DNAr:::is_bimolecular('A -> B')      # Should return FALSE
 is_bimolecular <- function(react_str) {
     first_part <- get_first_part(react_str)
     return(get_stoichiometry_part(first_part) == 2)
@@ -34,12 +34,12 @@ is_bimolecular <- function(react_str) {
 #' This function is useful when you have a reaction and
 #' you want to check if it is something like 'A -> 0' (something to nothing).
 #' To do this you get the second part of the reaction with
-#' \code{\link{get_second_part}} and then use this function with the second part
-#' as the parameter.
+#' \code{\link{get_second_part}()} and then use this function with the second
+#' part as the parameter.
 #'
 #' @examples
-#' sp <- get_second_part('A -> 0')
-#' isempty_part(sp)  # Should return TRUE
+#' sp <- DNAr:::get_second_part('A -> 0')
+#' DNAr:::isempty_part(sp)  # Should return TRUE
 isempty_part <- function(react_part) {
     return(!is.na(suppressWarnings(as.numeric(react_part))) &&
            as.numeric(react_part) == 0)
@@ -47,7 +47,7 @@ isempty_part <- function(react_part) {
 
 #' Get the count of occurrences of a given species in a reaction part.
 #'
-#' With the reaction part 'A + B ', for instance, and \code{\link{one_species}}
+#' With the reaction part 'A + B ', for instance, and \code{one_species}
 #' begin equal to 'A', this function would return 1. On the case of '2A ' it
 #' would return 2.
 get_onespecies_count <- function(one_species, reaction_part) {
@@ -67,7 +67,7 @@ get_onespecies_count <- function(one_species, reaction_part) {
 
 #' Get the stoichiometry of a specific species in a reaction.
 #'
-#' This function uses \code{\link{get_onespecies_count}} in the left
+#' This function uses \code{\link{get_onespecies_count}()} in the left
 #' and right part of a reaction to get the stoichiometry of a species
 #' in a reaction.
 #'
@@ -77,9 +77,9 @@ get_onespecies_count <- function(one_species, reaction_part) {
 #'
 #' @examples
 #' # It should return list(left_sto = 1, right_sto = 2)
-#' get_stoichiometry_onespecies('A', 'A + B -> 2A')
+#' DNAr:::get_stoichiometry_onespecies('A', 'A + B -> 2A')
 #' # It should return list(left_sto = 0, right_sto = 1)
-#' get_stoichiometry_onespecies('A', 'B -> A + B')
+#' DNAr:::get_stoichiometry_onespecies('A', 'B -> A + B')
 get_stoichiometry_onespecies <- function(one_species, reaction) {
     f_p <- get_first_part(reaction)
     s_p <- get_second_part(reaction)
@@ -97,9 +97,9 @@ get_stoichiometry_onespecies <- function(one_species, reaction) {
 #' in part of a reaction.
 #'
 #' @examples
-#' get_stoichiometry_part('A + B ')  # It should return 2
-#' get_stoichiometry_part('2A ')     # It should return 2
-#' get_stoichiometry_part(' C')      # It should return 1
+#' DNAr:::get_stoichiometry_part('A + B ')  # It should return 2
+#' DNAr:::get_stoichiometry_part('2A ')     # It should return 2
+#' DNAr:::get_stoichiometry_part(' C')      # It should return 1
 get_stoichiometry_part <- function(reaction_part) {
     matches <- stringr::str_match_all(reaction_part,
                                       '([1-9])*([a-zA-Z0-9_]+)')[[1]]
@@ -124,11 +124,11 @@ get_stoichiometry_part <- function(reaction_part) {
 #'
 #' @examples
 #' # Returns list(left_sto = 2, right_sto = 1)
-#' get_stoichiometry_all('A + B -> C')
+#' DNAr:::get_stoichiometry_all('A + B -> C')
 #' # Returns list(left_sto = 1, right_sto = 2)
-#' get_stoichiometry_all('A -> 2B')
+#' DNAr:::get_stoichiometry_all('A -> 2B')
 get_stoichiometry_all <- function(reaction) {
-    f_p <- get_first_part(react_str)
+    f_p <- get_first_part(reaction)
     s_p <- get_second_part(reaction)
     r <- list(left_sto = get_stoichiometry_part(f_p),
               right_sto = get_stoichiometry_part(s_p))
@@ -144,9 +144,9 @@ get_stoichiometry_all <- function(reaction) {
 #' specifying the number of molecules
 #'
 #' @examples
-#' remove_stoichiometry('2A')   # Returns 'A'
-#' remove_stoichiometry('2A2')  # Returns 'A2', The other numbers
-#'                              # are considered part of the species name
+#' DNAr:::remove_stoichiometry('2A')   # Returns 'A'
+#' DNAr:::remove_stoichiometry('2A2')  # Returns 'A2', The other numbers
+#'                                     # are considered part of the species name
 remove_stoichiometry <- function(species) {
     no_sto_spec <- c()
     for(i in 1:length(species)) {
@@ -162,7 +162,7 @@ remove_stoichiometry <- function(species) {
 #' the species of it without the stoichiometry.
 #'
 #' @examples
-#' get_species('A + 2B')  # Should return c('A', 'B')
+#' DNAr:::get_species('A + 2B')  # Should return c('A', 'B')
 get_species <- function(reaction_part) {
     specs <- strsplit(reaction_part, '[^a-zA-Z0-9_]')[[1]]
     specs <- specs[specs != '']
@@ -176,8 +176,8 @@ get_species <- function(reaction_part) {
 #' removing their stoichiometry.
 #'
 #' @examples
-#' get_reactants('A + B -> C')  # Returns c('A', 'B')
-#' get_reactants('2A -> B')     # Returns c('A')
+#' DNAr:::get_reactants('A + B -> C')  # Returns c('A', 'B')
+#' DNAr:::get_reactants('2A -> B')     # Returns c('A')
 get_reactants <- function(reaction) {
     f_p <- get_first_part(reaction)
     reactants <- get_species(f_p)
@@ -188,19 +188,19 @@ get_reactants <- function(reaction) {
 #'
 #' It is used to check which of the given species are
 #' reactants in a reaction, returning a vector with the
-#' species indexes in \code{\link{species}} that are reactants
-#' in \code{\link{reaction}}.
+#' species indexes in \code{species} that are reactants
+#' in \code{reaction}.
 #'
 #' @return A vector filled with indexes specifying the
 #' species that are in a reaction as a reactant.
 #'
 #' @examples
 #' # Should return c(1, 2)
-#' reactants_in_reaction(c('A', 'B', 'C'), 'A + B -> C')
+#' DNAr:::reactants_in_reaction(c('A', 'B', 'C'), 'A + B -> C')
 #' # Should return c(1)
-#' reactants_in_reaction(c('A', 'B', 'C'), '2A -> B + C')
+#' DNAr:::reactants_in_reaction(c('A', 'B', 'C'), '2A -> B + C')
 #' # Should return c(1, 3)
-#' reactants_in_reaction(c('A', 'B', 'C'), 'A + C -> B')
+#' DNAr:::reactants_in_reaction(c('A', 'B', 'C'), 'A + C -> B')
 reactants_in_reaction <- function(species, reaction) {
     words <- get_reactants(reaction)
     r <- c()
@@ -220,7 +220,7 @@ reactants_in_reaction <- function(species, reaction) {
 #' @section Known limitations:
 #'   \itemize{
 #'     \item It only supports uni or bimolecular reactions;
-#'     \item Bidirectional reactions (e.g.: 'A <--> B') is not supported
+#'     \item Bidirectional reactions (e.g.: 'A <--> B') are not supported
 #'   yet (you have to describe them with two separated reactions).
 #'   }
 #'
@@ -228,22 +228,27 @@ reactants_in_reaction <- function(species, reaction) {
 #'                   this vector is important because it will define the
 #'                   column order of the returned behavior.
 #' @param ci         A vector specifying the initial concentrations of the
-#'                   \code{\link{species}} specified, in order.
+#'                   \code{species} specified, in order.
 #' @param reactions  A vector with the reactions of the CRN.
 #' @param ki         A vector defining the constant rate of each reaction
-#'                   in \code{\link{reactions}}, in order.
+#'                   in \code{reactions}, in order.
 #' @param t          A vector specifying the time interval. Each value
 #'                   would be a specific time point.
-#' @return           A matrix with each line being a specific point in the time
-#'                   and each column but the first being the concentration of a species.
-#'                   The first column is the time interval.
+#'
+#' @return A matrix with each line being a specific point in the time
+#'         and each column but the first being the concentration of a
+#'         species. The first column is the time interval.
 #'
 #' @export
 #'
 #' @example usage/main_crn.R
 react <- function(species, ci, reactions, ki, t) {
-    products <- matrix(data = 0, nrow = length(reactions), ncol = length(species))
-    reactants <- matrix(data = 0, nrow = length(reactions), ncol = length(species))
+    products <- matrix(data = 0,
+                       nrow = length(reactions),
+                       ncol = length(species))
+    reactants <- matrix(data = 0,
+                        nrow = length(reactions),
+                        ncol = length(species))
 
     for(i in 1:length(reactions)) {
         for(j in 1:length(species)) {
@@ -276,9 +281,11 @@ react <- function(species, ci, reactions, ki, t) {
 
 #' Plot the behavior of a CRN.
 #'
-#' This function plots the behavior returned by \code{\link{react}}.
+#' This function plots the behavior returned by \code{\link{react}()}.
 #'
 #' @export
+#'
+#' @importFrom graphics matplot
 plot_behavior <- function(behavior) {
     matplot(x = behavior[,1], y = behavior[,2:dim(behavior)[2]])
 }

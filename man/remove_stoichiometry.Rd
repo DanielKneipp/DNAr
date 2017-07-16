@@ -15,7 +15,7 @@ Use this function to get rid of the stoichiometry of a
 species string.
 }
 \examples{
-remove_stoichiometry('2A')   # Returns 'A'
-remove_stoichiometry('2A2')  # Returns 'A2', The other numbers
-                             # are considered part of the species name
+DNAr:::remove_stoichiometry('2A')   # Returns 'A'
+DNAr:::remove_stoichiometry('2A2')  # Returns 'A2', The other numbers
+                                    # are considered part of the species name
 }

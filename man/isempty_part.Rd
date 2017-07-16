@@ -10,10 +10,10 @@ isempty_part(react_part)
 This function is useful when you have a reaction and
 you want to check if it is something like 'A -> 0' (something to nothing).
 To do this you get the second part of the reaction with
-\code{\link{get_second_part}} and then use this function with the second part
-as the parameter.
+\code{\link{get_second_part}()} and then use this function with the second
+part as the parameter.
 }
 \examples{
-sp <- get_second_part('A -> 0')
-isempty_part(sp)  # Should return TRUE
+sp <- DNAr:::get_second_part('A -> 0')
+DNAr:::isempty_part(sp)  # Should return TRUE
 }
