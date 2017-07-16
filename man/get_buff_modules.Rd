@@ -19,7 +19,7 @@ it returns a list with:
 }
 \description{
 This function is used to add buffer modules according
-to the theory discribed by Soloveichik D et al. \code{[1]}.
+to the theory described by Soloveichik D et al. \code{[1]}.
 The parameters of this function follows the same
 semantics of \code{\link{react_4domain}()}.
 }
