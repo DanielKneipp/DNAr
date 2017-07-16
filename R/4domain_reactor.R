@@ -24,7 +24,7 @@ check_reaction_4domain <- function(reaction) {
 #' Get buffer modules
 #'
 #' This function is used to add buffer modules according
-#' to the theory discribed by Soloveichik D et al. `[1]`.
+#' to the theory described by Soloveichik D et al. `[1]`.
 #' The parameters of this function follows the same
 #' semantics of \code{\link{react_4domain}()}.
 #'
@@ -110,13 +110,13 @@ get_buff_modules <- function(reactions, ki, qmax, cmax) {
 #' approach described by Soloveichik D et al. `[1]`
 #'
 #' This function is used to simulate a chemical circuit based on DNA made
-#' to behaviour as expected from a CRN specified by the parameters. In another
+#' to behavior as expected from a CRN specified by the parameters. In another
 #' words, given the CRN^* passed through the parameters, another CRN_2 is
 #' created based on reactions between strands of DNA. CRN_2 is simulated using
 #' \code{\link{react}()}. The matrix behavior of CRN_2 is returned but only
-#' of the species specified in the \code{species} paramter, the behavious of
+#' of the species specified in the \code{species} parameter, the behavior of
 #' the  auxiliary ones are not returned. the parameters of this functions
-#' follows the same patern of \code{\link{react}()}, only with some additions
+#' follows the same pattern of \code{\link{react}()}, only with some additions
 #' required by this approach `[1]`.
 #'
 #' @section Known limitations:
