@@ -241,7 +241,7 @@ reactants_in_reaction <- function(species, reaction) {
 #'
 #' @export
 #'
-#' @example usage/main_crn.R
+#' @example demo/main_crn.R
 react <- function(species, ci, reactions, ki, t) {
     products <- matrix(data = 0,
                        nrow = length(reactions),

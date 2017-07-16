@@ -149,7 +149,7 @@ get_buff_modules <- function(reactions, ki, qmax, cmax) {
 #' @references
 #'   - `[1]` \insertRef{soloveichik2010dna}{DNAr}
 #'
-#' @example usage/main_4domain.R
+#' @example demo/main_4domain.R
 react_4domain <- function(
     species,
     ci,
