@@ -120,30 +120,12 @@ run_consensus <- function() {
     )
 }
 
-run_neuron <- function() {
-    behavior <- react(
-        species   = c('X1', 'X2', 'X3', 'X4', 'E1', 'E2', 'I1', 'I2'),
-        ci        = c(0, 0, 0, 0, 0.5, 0.5, 10, 5),
-        reactions = c('I2 -> 2I2',
-                      'I2 -> X3',
-                      'I1 -> 2I1',
-                      'I1 -> X1',
-                      'X1 + E1 -> X2 + E2',
-                      'X3 + E2 -> X4 + E1',
-                      'X2 -> 0',
-                      'X4 -> 0'),
-        ki        = c(1, 1, 1, 1, 500, 500, 10, 10),
-        t         = seq(0, 1, 0.01)
-    )
-}
-
 #behavior <- run_ApBeC()
 #behavior <- run_lotka()
 #behavior <- run_lotka_scaled()
 #behavior <- run_ApBeC_4domain()
 #behavior <- run_origonator()
 #behavior <- run_rossler()
-#behavior <- run_consensus()
-behavior <- run_neuron()
+behavior <- run_consensus()
 
 plot_behavior(behavior)
