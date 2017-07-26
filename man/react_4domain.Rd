@@ -10,7 +10,8 @@ react_4domain(species, ci, reactions, ki, qmax, cmax, alpha, beta, t)
 \arguments{
 \item{species}{A vector with the species of the reaction. The order of
 this vector is important because it will define the
-column order of the returned behavior.}
+column order of the returned behavior. The species names
+'L', 'H', 'W', 'O', 'T' and 'G' are not supported.}
 
 \item{ci}{A vector specifying the initial concentrations of the
 \code{species} specified, in order.}
@@ -53,6 +54,8 @@ required by this approach \code{[1]}.
 \item It only support uni or bimolecular reactions;
 \item Because of \code{\link{react}()} known limitation, this function also
 doesn't support bidirectional reactions.
+\item The species names 'L', 'H', 'W', 'O', 'T' and 'G' are not supported
+because these are the reserved for the auxiliary ones.
 }
 }
 

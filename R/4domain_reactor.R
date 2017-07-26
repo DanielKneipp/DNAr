@@ -140,10 +140,13 @@ get_buff_modules <- function(reactions, ki, qmax, cmax) {
 #'   - It only support uni or bimolecular reactions;
 #'   - Because of \code{\link{react}()} known limitation, this function also
 #'   doesn't support bidirectional reactions.
+#'   - The species names 'L', 'H', 'W', 'O', 'T' and 'G' are not supported
+#'   because these are the reserved for the auxiliary ones.
 #'
 #' @param species     A vector with the species of the reaction. The order of
 #'                    this vector is important because it will define the
-#'                    column order of the returned behavior.
+#'                    column order of the returned behavior. The species names
+#'                    'L', 'H', 'W', 'O', 'T' and 'G' are not supported.
 #' @param ci          A vector specifying the initial concentrations of the
 #'                    \code{species} specified, in order.
 #' @param reactions   A vector with the reactions of the CRN^*.
