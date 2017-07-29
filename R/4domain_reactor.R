@@ -51,7 +51,7 @@ check_reaction_4domain <- function(reaction) {
 #'   - `new_species`   = vector with the new species added;
 #'   - `new_cis`       = vector with the initial concentrations;
 #'   - `new_reactions` = vector with the new reactions;
-#'   - `new_ks`        = contant rate of the new reactions.
+#'   - `new_ks`        = constant rate of the new reactions.
 #'
 #' @references
 #'   - `[1]` \insertRef{soloveichik2010dna}{DNAr}
@@ -128,25 +128,30 @@ get_buff_modules <- function(reactions, ki, qmax, cmax) {
 #'
 #' This function is used to simulate a chemical circuit based on DNA made
 #' to behavior as expected from a CRN specified by the parameters. In another
-#' words, given the CRN^* passed through the parameters, another CRN_2 is
+#' words, given the CRN^* passed through the parameters, another \eqn{CRN_2} is
 #' created based on reactions between strands of DNA. CRN_2 is simulated using
 #' \code{\link{react}()}. The matrix behavior of CRN_2 is returned but only
 #' of the species specified in the \code{species} parameter, the behavior of
-#' the  auxiliary ones are not returned. the parameters of this functions
+#' the  auxiliary ones are not returned. The parameters of this functions
 #' follows the same pattern of \code{\link{react}()}, only with some additions
-#' required by this approach `[1]`.
+#' required by this approach `[1]` (here named as 4-domain).
 #'
 #' @section Known limitations:
 #'   - It only support uni or bimolecular reactions;
 #'   - Because of \code{\link{react}()} known limitation, this function also
-#'   doesn't support bidirectional reactions.
-#'   - The species names 'L', 'H', 'W', 'O', 'T' and 'G' are not supported
-#'   because these are the reserved for the auxiliary ones.
+#'   doesn't support bidirectional reactions;
+#'   - The species names `L`, `H`, `W`, `O`, `T`, `G`, `LS`,
+#'   `HS`, `WS` with or without numbers after it are not supported because
+#'   these are the reserved for the auxiliary ones. Ex.: `L2` and `LS2`
+#'   are not supported but `LT` and `LT2` are.
 #'
 #' @param species     A vector with the species of the reaction. The order of
 #'                    this vector is important because it will define the
 #'                    column order of the returned behavior. The species names
-#'                    'L', 'H', 'W', 'O', 'T' and 'G' are not supported.
+#'                    `L[0-9]*`, `H[0-9]*`, `W[0-9]*`, `O[0-9]*`,
+#'                    `T[0-9]*`, `G[0-9]*`, `LS[0-9]*`, `HS[0-9]*`,
+#'                    `WS[0-9]*` are not supported. For more information
+#'                    about this, see the Section of **Known limitations**.
 #' @param ci          A vector specifying the initial concentrations of the
 #'                    \code{species} specified, in order.
 #' @param reactions   A vector with the reactions of the CRN^*.
@@ -158,11 +163,17 @@ get_buff_modules <- function(reactions, ki, qmax, cmax) {
 #' @param t           A vector specifying the time interval. Each value
 #'                    would be a specific time point.
 #'
-#' @return A matrix with each line being a specific point in the time
-#'         and each column but the first being the concentration of a
-#'         species. The first column is the time interval. The
-#'         behavior of the auxiliary species are not returned, only
-#'         the ones specified in the \code{species} parameter.
+#' @return A list with the attributes `behavior`, `species`, `ci`, `reactions`
+#' and `ki`. This attributes are:
+#'   - `behavior`: A matrix with each line being a specific point in the time
+#'                 and each column but the first being the concentration of a
+#'                 species. The first column is the time interval. The
+#'                 behavior of the auxiliary species are also returned.
+#'  - `species`  : A vector with all the species used in the reactions.
+#'  - `ci`       : The initial concentration of each species.
+#'  - `reactions`: All the reactions computed, including the ones generated
+#'                 according to the 4-domain approach.
+#'  - `ki`       : The rate constants of the reactions.
 #'
 #' @export
 #'
@@ -312,6 +323,16 @@ react_4domain <- function(
         t         = t
     )
 
-    # Return the behavior of the input species, without the auxiliary ones
-    return(b[,1:(length(species) + 1)])
+    # Arrange the data to be returned in a list
+    result <- list(
+        behavior  = b,
+        species   = new_species,
+        ci        = new_cis,
+        reactions = new_reactions,
+        ki        = new_ks
+    )
+
+    # Return the behavior of all species (including the auxiliary ones),
+    # initial concentrations, reactions and rate constants.
+    return(result)
 }

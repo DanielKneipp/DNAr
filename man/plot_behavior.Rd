@@ -9,7 +9,7 @@ plot_behavior(behavior, species = NULL, x_label = "Time",
   save_file_name = NULL)
 }
 \arguments{
-\item{behavior}{Behaviour returned by \code{\link{react}()}}
+\item{behavior}{Behavior returned by \code{\link{react}()}}
 
 \item{species}{The vector with the species that should be plotted.
 If no one is specified, than all of them are

@@ -303,7 +303,7 @@ react <- function(species, ci, reactions, ki, t) {
 
 #' `ggplot2` theme developed by Max Woolf.
 #'
-#' This is a simple theme for `ggplot2` pacakge designed by Max Woolf.
+#' This is a simple theme for `ggplot2` package designed by Max Woolf.
 #'
 #' @references
 #'   - [Website with the theme.](http://minimaxir.com/2015/02/ggplot-tutorial/)
@@ -373,7 +373,7 @@ fte_theme <- function() {
 #'
 #' This function plots the behavior returned by \code{\link{react}()}.
 #'
-#' @param behavior          Behaviour returned by \code{\link{react}()}
+#' @param behavior          Behavior returned by \code{\link{react}()}
 #' @param species           The vector with the species that should be plotted.
 #'                          If no one is specified, than all of them are
 #'                          plotted.

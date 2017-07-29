@@ -7,7 +7,7 @@
 fte_theme()
 }
 \description{
-This is a simple theme for \code{ggplot2} pacakge designed by Max Woolf.
+This is a simple theme for \code{ggplot2} package designed by Max Woolf.
 }
 \references{
 \itemize{

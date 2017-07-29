@@ -5,7 +5,7 @@ library(DNAr)
 #
 
 run_ApBeC_4d <- function() {
-    behavior <- react_4domain(
+    result <- react_4domain(
         species   = c('A', 'B', 'C'),
         ci        = c(1e3, 1e3, 0),
         reactions = c('A + B -> C'),
@@ -16,10 +16,11 @@ run_ApBeC_4d <- function() {
         beta      = 1,
         t         = seq(0, 72000, 10)
     )
+    behavior <- result$behavior[,1:(3 + 1)]
 }
 
 run_AeB_4d <- function() {
-    behavior <- react_4domain(
+    result <- react_4domain(
         species   = c('A', 'B'),
         ci        = c(1e4, 0),
         reactions = c('A -> B'),
@@ -30,10 +31,11 @@ run_AeB_4d <- function() {
         beta      = 1,
         t         = seq(0, 72000, 10)
     )
+    behavior <- result$behavior[,1:(2 + 1)]
 }
 
 run_Lotka_4d <- function() {
-    behavior <- react_4domain(
+    result <- react_4domain(
         species   = c('X1', 'X2'),
         ci        = c(20e-9, 10e-9),
         reactions = c('X1 + X2 -> 2X2',
@@ -48,6 +50,7 @@ run_Lotka_4d <- function() {
         beta      = 1,
         t         = seq(0, 12600, 1)
     )
+    behavior <- result$behavior[,1:(2 + 1)]
 }
 
 #behavior <- run_ApBeC_4d()

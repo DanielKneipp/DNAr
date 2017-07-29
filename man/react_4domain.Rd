@@ -11,7 +11,10 @@ react_4domain(species, ci, reactions, ki, qmax, cmax, alpha, beta, t)
 \item{species}{A vector with the species of the reaction. The order of
 this vector is important because it will define the
 column order of the returned behavior. The species names
-'L', 'H', 'W', 'O', 'T' and 'G' are not supported.}
+\code{L[0-9]*}, \code{H[0-9]*}, \code{W[0-9]*}, \code{O[0-9]*},
+\code{T[0-9]*}, \code{G[0-9]*}, \code{LS[0-9]*}, \code{HS[0-9]*},
+\code{WS[0-9]*} are not supported. For more information
+about this, see the Section of \strong{Known limitations}.}
 
 \item{ci}{A vector specifying the initial concentrations of the
 \code{species} specified, in order.}
@@ -31,31 +34,41 @@ in \code{reactions}, in order.}
 would be a specific time point.}
 }
 \value{
-A matrix with each line being a specific point in the time
+A list with the attributes \code{behavior}, \code{species}, \code{ci}, \code{reactions}
+and \code{ki}. This attributes are:
+\itemize{
+\item \code{behavior}: A matrix with each line being a specific point in the time
 and each column but the first being the concentration of a
 species. The first column is the time interval. The
-behavior of the auxiliary species are not returned, only
-the ones specified in the \code{species} parameter.
+behavior of the auxiliary species are also returned.
+\item \code{species}  : A vector with all the species used in the reactions.
+\item \code{ci}       : The initial concentration of each species.
+\item \code{reactions}: All the reactions computed, including the ones generated
+according to the 4-domain approach.
+\item \code{ki}       : The rate constants of the reactions.
+}
 }
 \description{
 This function is used to simulate a chemical circuit based on DNA made
 to behavior as expected from a CRN specified by the parameters. In another
-words, given the CRN^* passed through the parameters, another CRN_2 is
+words, given the CRN^* passed through the parameters, another \eqn{CRN_2} is
 created based on reactions between strands of DNA. CRN_2 is simulated using
 \code{\link{react}()}. The matrix behavior of CRN_2 is returned but only
 of the species specified in the \code{species} parameter, the behavior of
-the  auxiliary ones are not returned. the parameters of this functions
+the  auxiliary ones are not returned. The parameters of this functions
 follows the same pattern of \code{\link{react}()}, only with some additions
-required by this approach \code{[1]}.
+required by this approach \code{[1]} (here named as 4-domain).
 }
 \section{Known limitations}{
 
 \itemize{
 \item It only support uni or bimolecular reactions;
 \item Because of \code{\link{react}()} known limitation, this function also
-doesn't support bidirectional reactions.
-\item The species names 'L', 'H', 'W', 'O', 'T' and 'G' are not supported
-because these are the reserved for the auxiliary ones.
+doesn't support bidirectional reactions;
+\item The species names \code{L}, \code{H}, \code{W}, \code{O}, \code{T}, \code{G}, \code{LS},
+\code{HS}, \code{WS} with or without numbers after it are not supported because
+these are the reserved for the auxiliary ones. Ex.: \code{L2} and \code{LS2}
+are not supported but \code{LT} and \code{LT2} are.
 }
 }
 
@@ -67,7 +80,7 @@ library(DNAr)
 #
 
 run_ApBeC_4d <- function() {
-    behavior <- react_4domain(
+    result <- react_4domain(
         species   = c('A', 'B', 'C'),
         ci        = c(1e3, 1e3, 0),
         reactions = c('A + B -> C'),
@@ -78,10 +91,11 @@ run_ApBeC_4d <- function() {
         beta      = 1,
         t         = seq(0, 72000, 10)
     )
+    behavior <- result$behavior[,1:(3 + 1)]
 }
 
 run_AeB_4d <- function() {
-    behavior <- react_4domain(
+    result <- react_4domain(
         species   = c('A', 'B'),
         ci        = c(1e4, 0),
         reactions = c('A -> B'),
@@ -92,10 +106,11 @@ run_AeB_4d <- function() {
         beta      = 1,
         t         = seq(0, 72000, 10)
     )
+    behavior <- result$behavior[,1:(2 + 1)]
 }
 
 run_Lotka_4d <- function() {
-    behavior <- react_4domain(
+    result <- react_4domain(
         species   = c('X1', 'X2'),
         ci        = c(20e-9, 10e-9),
         reactions = c('X1 + X2 -> 2X2',
@@ -110,6 +125,7 @@ run_Lotka_4d <- function() {
         beta      = 1,
         t         = seq(0, 12600, 1)
     )
+    behavior <- result$behavior[,1:(2 + 1)]
 }
 
 #behavior <- run_ApBeC_4d()

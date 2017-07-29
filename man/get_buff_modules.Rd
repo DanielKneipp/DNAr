@@ -14,7 +14,7 @@ it returns a list with:
 \item \code{new_species}   = vector with the new species added;
 \item \code{new_cis}       = vector with the initial concentrations;
 \item \code{new_reactions} = vector with the new reactions;
-\item \code{new_ks}        = contant rate of the new reactions.
+\item \code{new_ks}        = constant rate of the new reactions.
 }
 }
 \description{
