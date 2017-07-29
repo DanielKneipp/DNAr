@@ -403,7 +403,7 @@ plot_behavior <- function(
         species <- names(behavior)[2:dim(behavior)[2]]
     }
 
-    # Convert the dataframe to the proper format
+    # Convert the data frame to the proper format
     df <- behavior[,c('time', species)]
     dfm <- reshape2::melt(df, id.vars = 'time')
 
@@ -418,11 +418,36 @@ plot_behavior <- function(
         ggplot2::scale_color_brewer(palette="Dark2")
     )
 
-    # if a name file was specified, save the plot ther.
+    # if a name file was specified, save the plot there.
     if(!is.null(save_file_name)) {
         ggplot2::ggsave(save_file_name, dpi = 300, width = 6, height = 4.5)
     }
 
     # Return the plot object
     return(g)
+}
+
+#' Save the reactions in a formatted text file
+#'
+#' This function can be used for saving the reactions
+#' with their rate constants in a formatted text file.
+#'
+#' @param reactions  The reactions that will be saved.
+#' @param kis        The rate constant of those reactions.
+#' @param filename   The name of the file (without extension) that will be
+#'                   saved. The extension `.txt` will be added automatically.
+#'
+#' @export
+save_reactions_txt <- function(reactions, kis, filename) {
+    # Create a data frame with the reactions and rate constants
+    data <- data.frame(reactions, kis)
+    # Rename the data frame columns
+    names(data) <- c('Reaction', 'Rate Constant')
+    # Get the file name
+    filename <- paste(filename, '.txt', sep = '')
+    # Store the data frame
+    capture.output(
+        print(data, row.names = FALSE, print.gap = 4),
+        file = filename
+    )
 }

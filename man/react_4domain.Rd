@@ -35,7 +35,7 @@ would be a specific time point.}
 }
 \value{
 A list with the attributes \code{behavior}, \code{species}, \code{ci}, \code{reactions}
-and \code{ki}. This attributes are:
+and \code{ki}. These attributes are:
 \itemize{
 \item \code{behavior}: A matrix with each line being a specific point in the time
 and each column but the first being the concentration of a
@@ -55,7 +55,7 @@ words, given the CRN^* passed through the parameters, another \eqn{CRN_2} is
 created based on reactions between strands of DNA. CRN_2 is simulated using
 \code{\link{react}()}. The matrix behavior of CRN_2 is returned but only
 of the species specified in the \code{species} parameter, the behavior of
-the  auxiliary ones are not returned. The parameters of this functions
+the  auxiliary ones are not returned. The parameters of these functions
 follows the same pattern of \code{\link{react}()}, only with some additions
 required by this approach \code{[1]} (here named as 4-domain).
 }
@@ -125,6 +125,7 @@ run_Lotka_4d <- function() {
         beta      = 1,
         t         = seq(0, 12600, 1)
     )
+    #save_reactions_txt(result$reactions, result$ki, 'lotka-4domain')
     behavior <- result$behavior[,1:(2 + 1)]
 }
 

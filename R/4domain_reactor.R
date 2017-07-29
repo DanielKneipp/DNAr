@@ -132,7 +132,7 @@ get_buff_modules <- function(reactions, ki, qmax, cmax) {
 #' created based on reactions between strands of DNA. CRN_2 is simulated using
 #' \code{\link{react}()}. The matrix behavior of CRN_2 is returned but only
 #' of the species specified in the \code{species} parameter, the behavior of
-#' the  auxiliary ones are not returned. The parameters of this functions
+#' the  auxiliary ones are not returned. The parameters of these functions
 #' follows the same pattern of \code{\link{react}()}, only with some additions
 #' required by this approach `[1]` (here named as 4-domain).
 #'
@@ -164,7 +164,7 @@ get_buff_modules <- function(reactions, ki, qmax, cmax) {
 #'                    would be a specific time point.
 #'
 #' @return A list with the attributes `behavior`, `species`, `ci`, `reactions`
-#' and `ki`. This attributes are:
+#' and `ki`. These attributes are:
 #'   - `behavior`: A matrix with each line being a specific point in the time
 #'                 and each column but the first being the concentration of a
 #'                 species. The first column is the time interval. The

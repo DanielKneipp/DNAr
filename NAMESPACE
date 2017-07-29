@@ -3,3 +3,4 @@
 export(plot_behavior)
 export(react)
 export(react_4domain)
+export(save_reactions_txt)
