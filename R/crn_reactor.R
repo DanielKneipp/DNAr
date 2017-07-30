@@ -432,22 +432,35 @@ plot_behavior <- function(
 #' This function can be used for saving the reactions
 #' with their rate constants in a formatted text file.
 #'
+#' @param species    The species of all CRN.
+#' @param cis        The initial concentration of the species.
 #' @param reactions  The reactions that will be saved.
 #' @param kis        The rate constant of those reactions.
 #' @param filename   The name of the file (without extension) that will be
 #'                   saved. The extension `.txt` will be added automatically.
 #'
 #' @export
-save_reactions_txt <- function(reactions, kis, filename) {
-    # Create a data frame with the reactions and rate constants
-    data <- data.frame(reactions, kis)
+#'
+#' @importFrom utils capture.output
+save_reactions_txt <- function(species, cis, reactions, kis, filename) {
+    # Create two data frames, one with the reactions and rate constants and
+    # the other with the species and initial concentrations.
+    spec_data <- data.frame(species, cis)
+    react_data <- data.frame(reactions, kis)
     # Rename the data frame columns
-    names(data) <- c('Reaction', 'Rate Constant')
+    names(react_data) <- c('Reaction', 'Rate Constant')
+    names(spec_data) <- c('Species', 'Initial Concentration')
     # Get the file name
     filename <- paste(filename, '.txt', sep = '')
     # Store the data frame
     capture.output(
-        print(data, row.names = FALSE, print.gap = 4),
+        print(spec_data, row.names = FALSE, print.gap = 4),
         file = filename
+    )
+    cat('\n', file = filename, append = TRUE)
+    capture.output(
+        print(react_data, row.names = FALSE, print.gap = 4),
+        file = filename,
+        append = TRUE
     )
 }
