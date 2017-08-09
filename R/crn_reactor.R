@@ -470,7 +470,7 @@ save_reactions_txt <- function(species, cis, reactions, kis, filename) {
 #' This function saves a reaction behavior returned by \code{\link{react}()}
 #' in a csv file.
 #'
-#' @param behavior  The reaction behavior returned by \code{\link{react}()}
+#' @param behavior  The reaction behavior returned by \code{\link{react}()}.
 #' @param filename  The name of the file that will be saved. You don't need
 #'                  to specify the extension of the file, the `.csv` extension
 #'                  will be added automatically at the end of the name
@@ -482,4 +482,78 @@ save_reactions_txt <- function(species, cis, reactions, kis, filename) {
 save_behavior_csv <- function(behavior, filename) {
     filename <- paste(filename, '.csv', sep = '')
     write.csv(behavior, file = filename, row.names = FALSE)
+}
+
+#' Calculate the root-mean-square error of two data sets
+#'
+#' This function is used to calculate the root-mean-square error (RMSE)
+#' of two data sets.
+#'
+#' @param data1  A numerical vector representing one of the data sets.
+#' @param data2  A numerical vector representing the other data set.
+#'
+#' @return  The RMSE value.
+#'
+#' @export
+rmse <- function(data1, data2) {
+    return(sqrt(mean((data2 - data1)^2)))
+}
+
+#' Calculate the normalized root-mean-square error of two data sets
+#'
+#' Use this function to calculate the normalized root-mean-square error
+#' (NRMSE) of two data sets. In this measures, a distinction between the
+#' data sets is needed since the normalization is made using only one of
+#' the data sets. For convention, one of the data sets is called simulated
+#' data set, and the other one is called observed data set.
+#'
+#' @param sim_data  The simulated data set
+#' @param obs_data  The observed data set (used in the normalization)
+#'
+#' @return  The NRMSE measure.
+#'
+#' @export
+nrmse <- function(sim_data, obs_data) {
+    rmse_num <- rmse(sim_data, obs_data)
+    return(rmse_num / (1 + max(obs_data) - min(obs_data)))
+}
+
+#' Compare the behavior of two reactions
+#'
+#' Use this function to compare the behavior of two reactions to see
+#' the similarity between them for each species. The normalized
+#' root-mean-square error (NRMSE) measure (\code{\link{nrmse}()}) is used
+#' to make this comparison.
+#'
+#' For convention, one of the behaviors is called
+#' simulated behavior, and the other one is called observed behavior. This
+#' differentiation is important because the order that you pass the
+#' behaviors impacts in the result.
+#'
+#' The normalization made by the NRMSE
+#' uses the observed values (`bhv_obs` parameter) only, consequently,
+#' `compare_behaviors_nrmse(data1, data2)` results in different measures
+#' than `compare_behaviors_nrmse(data2, data1)`.
+#'
+#' @param bhv_sim  The simulated behavior.
+#' @param bhv_obs  The observed behavior (used in the normalization).
+#'
+#' @return  A data frame with the same columns of the behaviors and one row.
+#'          Each value is the NRMSE of that species.
+#'
+#' @export
+compare_behaviors_nrmse <- function(bhv_sim, bhv_obs) {
+    # Create an empty data frame with the same columns of the behaviors,
+    # but the time column
+    result <- data.frame(matrix(nrow = 1, ncol = dim(bhv_sim)[2] - 1))
+    column_names <- names(bhv_sim)[2:length(names(bhv_sim))]
+    colnames(result) <- column_names
+
+    # Calculate the NRMSE for each column
+    for(i in column_names) {
+        result[i] <- nrmse(bhv_sim[i], bhv_obs[i])
+    }
+
+    # Return the result data frame
+    return(result)
 }
