@@ -464,3 +464,22 @@ save_reactions_txt <- function(species, cis, reactions, kis, filename) {
         append = TRUE
     )
 }
+
+#' Save a reaction behavior
+#'
+#' This function saves a reaction behavior returned by \code{\link{react}()}
+#' in a csv file.
+#'
+#' @param behavior  The reaction behavior returned by \code{\link{react}()}
+#' @param filename  The name of the file that will be saved. You don't need
+#'                  to specify the extension of the file, the `.csv` extension
+#'                  will be added automatically at the end of the name
+#'                  specified.
+#'
+#' @export
+#'
+#' @importFrom utils write.csv
+save_behavior_csv <- function(behavior, filename) {
+    filename <- paste(filename, '.csv', sep = '')
+    write.csv(behavior, file = filename, row.names = FALSE)
+}
