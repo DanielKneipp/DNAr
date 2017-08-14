@@ -903,9 +903,27 @@ save_dsd_script <- function(
 
     modules_str <- paste(modules_str, '\n\n)\n', sep = '')
 
-    # TODO: Change the species Cis according ot their counters
+    # Change the species Cis according ot their counters
+    script_str <- paste(script_str, '\n\n', sep = '')
+    for(spec in species) {
+        # Get the variable name of the initial concentration
+        var_name <- paste('Ci', spec, sep = '')
 
-    # TODO: Add the modules into the script
+        # Redefine the variable in the script, dividing its
+        # value by the number specified in the counter
+        script_str <- paste(script_str, get_dsd_def_str(
+            key = var_name,
+            val = paste(
+                var_name, '/',
+                format(species_mod_counter[[spec]], nsmall = 1),
+                sep = ''
+            )
+        ), sep = '\n')
+    }
 
-    # TODO: Save the script into the file
+    # Add the modules into the script
+    script_str <- paste(script_str, modules_str, sep = '')
+
+    # Save the script into the file
+    cat(script_str, file = filename, sep = '')
 }
