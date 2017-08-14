@@ -526,8 +526,8 @@ def ApB_e_0(
 # TODO: Doc this function
 get_dsd_AeB_str <- function(
     qi, qmax, CiA, CiB, Cmax,
-    unki, ia, ib, ic,
-    unko, oa, ob, oc
+    A_domains,
+    B_domains
 ) {
     # TODO: Implement this function
 }
@@ -535,9 +535,9 @@ get_dsd_AeB_str <- function(
 # TODO: Doc this function
 get_dsd_AeBpC_str <- function(
     qi, qmax, CiA, CiB, CiC, Cmax,
-    unki, ia, ib, ic,
-    unko1, o1a, o1b, o1c,
-    unko2, o2a, o2b, o2c
+    A_domains,
+    B_domains,
+    C_domains
 ) {
     # TODO: Implement this function
 }
@@ -545,9 +545,9 @@ get_dsd_AeBpC_str <- function(
 # TODO: Doc this function
 get_dsd_ApBeC_str <- function(
     qi, qmax, CiA, CiB, CiC, Cmax,
-    unka, i1a, i1b, i1c,
-    unkb, i2a, i2b, i2c,
-    unkc, c1, c2, c3
+    A_domains,
+    B_domains,
+    C_domains
 ) {
     # TODO: Implement this function
 }
@@ -555,10 +555,10 @@ get_dsd_ApBeC_str <- function(
 # TODO: Doc this function
 get_dsd_ApBeCpD_str <- function(
     qi, qmax, CiA, CiB, CiC, CiD, Cmax,
-    unka, i1a, i1b, i1c,
-    unkb, i2a, i2b, i2c,
-    unkc, o1a, o1b, o1c,
-    unkd, o2a, o2b, o2c
+    A_domains,
+    B_domains,
+    C_domains,
+    D_domains
 ) {
     # TODO: Implement this function
 }
@@ -566,21 +566,24 @@ get_dsd_ApBeCpD_str <- function(
 # TODO: Doc this function
 get_dsd_buff_str <- function(
     qs, qmax, Cmax, Cii, d,
-    unki, ia, ib, ic
+    domains
 ) {
 
 }
 
 # TODO: Doc this function
 get_dsd_Ae0_str <- function(
-    qi, CiA, Cmax, unki, ia, ib, ic
+    qi, CiA, Cmax,
+    A_domains
 ) {
     # TODO: Implement this function
 }
 
 # TODO: Doc this function
 get_dsd_ApBe0_str <- function(
-
+    qi, qmax, CiA, CiB, Cmax,
+    A_domains,
+    B_domains
 ) {
     # TODO: Implement this function
 }
@@ -685,8 +688,8 @@ save_dsd_script <- function(
         }
     }
 
-    # Set buffer rate constants
-    bff_kis <- c()
+    # Set the variable names of the buffer rate constants
+    bff_kis_str <- c()
     # If there is buffer modules to add
     if(!is.null(buffer_stuff)) {
         # Set a counter for naming purposes
@@ -695,13 +698,16 @@ save_dsd_script <- function(
         # Iterate over the rate constant values that aren't cmax
         # (all the even indexes are cmax rate constants)
         for(i in seq(1, length(buffer_stuff$new_ks), by = 2)) {
+            # Set buffer k variable name
+            bff_k_str <- paste('kb', as.character(count), sep = '')
+
             # Get the k for the buffer module
-            bff_kis <- c(bff_kis, buffer_stuff$new_ks[[i]])
+            bff_kis_str <- c(bff_kis_str, bff_k_str)
 
             # Add the k to the script (with the name kb)
             script_str <- paste(
                 script_str, get_dsd_def_str(
-                    paste('kb', as.character(count), sep = ''),
+                    bff_k_str,
                     buffer_stuff$new_ks[[i]]
                 ), sep = '\n'
             )
@@ -717,10 +723,10 @@ save_dsd_script <- function(
     for(spec in species) {
         # Each species has 4 domains
         species_domains[spec] <- c(
-            paste('d', as.character(domain_counter)),
-            paste('d', as.character(domain_counter + 1)),
-            paste('d', as.character(domain_counter + 2)),
-            paste('d', as.character(domain_counter + 3))
+            paste('d', as.character(domain_counter), sep = ''),
+            paste('d', as.character(domain_counter + 1), sep = ''),
+            paste('d', as.character(domain_counter + 2), sep = ''),
+            paste('d', as.character(domain_counter + 3), sep = '')
         )
 
         # Set the species definition to the script
@@ -733,6 +739,173 @@ save_dsd_script <- function(
         domain_counter <- domain_counter + 4
     }
 
-    # TODO: Add reactions to the script
-    script_str <- paste(script_str, '\n', sep = '')
+    # Add reactions into another variable to be added
+    # to the script afterwards
+    modules_str <- '\n\n(\n'
+
+    # Set counters for each input species to count how many times
+    # they are used on the modules. This counters will be used
+    # to change the initial concentration ('Ci') of each species.
+    species_mod_counter <- list()
+    for(spec in species) {
+        species_mod_counter[spec] <- 0
+    }
+
+    for(i in 1:length(reactions)) {
+        # Get the species names of reactants and products
+        reactants <- get_reactants(reactions[[i]])
+        products <- get_products(reactions[[i]])
+
+        # Get the domains of the reactants and products
+        # and add the species counter
+        reactant_domains <- c()
+        product_domains <- c()
+        for(r in reactants) {
+            reactant_domains <- c(reactant_domains, species_domains[[r]])
+            species_mod_counter[r] <- species_mod_counter[[r]] + 1
+        }
+        # If there is a product
+        if(p != '') {
+            for(p in products) {
+                product_domains <- c(product_domains, species_domains[[p]])
+                species_mod_counter[p] <- species_mod_counter[[p]] + 1
+            }
+        }
+
+        # Set module str
+        mod_str <- ''
+
+        # Analyse the reaction specifications
+        if(is_bimolecular(reactions[i])) {
+            # If there is a product
+            if(products != '') {
+                # If there is two products
+                if(length(products) == 2) {
+                    # Add a ApBeCpD module
+                    mod_str <- get_dsd_ApBeCpD_str(
+                        paste('k', as.character(i), sep = ''), 'qmax',
+                        paste('Ci', reactants[[1]], sep = ''),
+                        paste('Ci', reactants[[2]], sep = ''),
+                        paste('Ci', products[[1]], sep = ''),
+                        paste('Ci', products[[2]], sep = ''), 'Cmax',
+                        species_domains[[ reactants[[1]] ]],
+                        species_domains[[ reactants[[2]] ]],
+                        species_domains[[ products[[1]] ]],
+                        species_domains[[ products[[2]] ]]
+                    )
+                } else {
+                    # Otherwise (one product), add a ApBeC module
+                    mod_str <- get_dsd_ApBeC_str(
+                        paste('k', as.character(i), sep = ''), 'qmax',
+                        paste('Ci', reactants[[1]], sep = ''),
+                        paste('Ci', reactants[[2]], sep = ''),
+                        paste('Ci', products[[1]], sep = ''), 'Cmax',
+                        species_domains[[ reactants[[1]] ]],
+                        species_domains[[ reactants[[2]] ]],
+                        species_domains[[ products[[1]] ]]
+                    )
+                }
+            } else {
+                # In case of absence of product, Add a ApBe0 module
+                mod_str <- get_dsd_ApBe0_str(
+                    paste('k', as.character(i), sep = ''), 'qmax',
+                    paste('Ci', reactants[[1]], sep = ''),
+                    paste('Ci', reactants[[2]], sep = ''), 'Cmax',
+                    species_domains[[ reactants[[1]] ]],
+                    species_domains[[ reactants[[2]] ]]
+                )
+            }
+        } else {
+            # If the reaction is unimolecular,
+            # check if there is a product
+            if(products != '') {
+                # Check if there is two products
+                if(length(products) == 2) {
+                    # Add a AeBpC module
+                    mod_str <- get_dsd_AeBpC_str(
+                        paste('k', as.character(i), sep = ''), 'qmax',
+                        paste('Ci', reactants[[1]], sep = ''),
+                        paste('Ci', products[[1]], sep = ''),
+                        paste('Ci', products[[2]], sep = ''), 'Cmax',
+                        species_domains[[ reactants[[1]] ]],
+                        species_domains[[ products[[1]] ]],
+                        species_domains[[ products[[2]] ]]
+                    )
+                } else {
+                    # Otherwise (one product), add a AeB module
+                    mod_str <- get_dsd_AeB_str(
+                        paste('k', as.character(i), sep = ''), 'qmax',
+                        paste('Ci', reactants[[1]], sep = ''),
+                        paste('Ci', products[[1]], sep = ''), 'Cmax',
+                        species_domains[[ reactants[[1]] ]],
+                        species_domains[[ products[[1]] ]]
+                    )
+                }
+            } else {
+                # In case of absence of product, Add a Ae0 module
+                mod_str <- get_dsd_Ae0_str(
+                    paste('k', as.character(i), sep = ''),
+                    paste('Ci', reactants[[1]], sep = ''), 'Cmax',
+                    species_domains[[ reactants[[1]] ]]
+                )
+            }
+        }
+
+        # Put the current module string together with the other ones
+        modules_str <- paste(modules_str, mod_str, sep = '')
+
+        # Prepare the script for new modules, if necessary
+        if(i != length(reactions)) {
+            modules_str <- paste(modules_str, ' |\n', sep = '')
+        }
+    }
+
+    # Add buffer reactions (if necessary) to the script
+    if(!is.null(buffer_stuff)) {
+        # Prepare the script to receive more modules
+        modules_str <- paste(modules_str, ' |\n', sep = '')
+
+        # Set independent index for the rate constants
+        ii <- 0
+
+        # Iterate over the first reaction of each buffer module
+        for(i in seq(1, length(buffer_stuff$new_reactions), by = 2)) {
+            # Get the reactants of the first reaction of the buffer module
+            reactants <- get_reactants(buffer_stuff$new_reactions[[i]])
+
+            # Get the first reactant, must be one of the input species
+            first_reactant <- reactants[[1]]
+
+            # Get the domains of this species
+            spec_domains <- species_domains[[first_reactant]]
+
+            # Get buff str module
+            bff_mod_str <- get_dsd_buff_str(
+                bff_kis_str[[ii]], 'qmax', 'Cmax',
+                paste('Ci', first_reactant, sep = ''),
+                paste('d', as.character(domain_counter), sep = ''),
+                spec_domains
+            )
+
+            # Add the buffer module
+            modules_str <- paste(modules_str, bff_mod_str, sep = '')
+
+            # Add 1 to the independent counter and the domain counter
+            ii <- ii + 1
+            domain_counter <- domain_counter + 1
+
+            # If there is more modules prepare the script to it
+            if(i != (length(buffer_stuff$new_reactions) - 1)) {
+                modules_str <- paste(modules_str, ' |\n', sep = '')
+            }
+        }
+    }
+
+    modules_str <- paste(modules_str, '\n\n)\n', sep = '')
+
+    # TODO: Change the species Cis according ot their counters
+
+    # TODO: Add the modules into the script
+
+    # TODO: Save the script into the file
 }
