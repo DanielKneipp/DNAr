@@ -125,13 +125,6 @@ run_Lotka_4d <- function() {
         beta      = 1,
         t         = seq(0, 12600, 1)
     )
-    # save_reactions_txt(
-    #    result$species,
-    #    result$ci,
-    #    result$reactions,
-    #    result$ki,
-    #    'lotka-4domain'
-    # )
     behavior <- result$behavior[,1:(2 + 1)]
 }
 

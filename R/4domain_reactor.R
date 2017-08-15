@@ -346,20 +346,20 @@ directive concentration M
 directive compilation infinite'
 
     # Set time
-    stringr::str_replace(s, '%t', as.character(max(time)))
+    s <- stringr::str_replace(s, '%t', as.character(max(time)))
 
     # Add plot def template
-    paste(s, 'directive plot', sep = '\n')
+    s <- paste(s, 'directive plot', sep = '\n')
 
     # Add the species names to plot
     for(i in 1:length(species_to_plot)) {
         spec <- paste(species_to_plot[[i]], '()', sep = '')
-        paste(s, spec, sep = ' ')
+        s <- paste(s, spec, sep = ' ')
 
         # Check if it is the last species to plot
         if(i != length(species_to_plot)) {
             # If it isn't, add a ';'
-            paste(s, ';', sep = '')
+            s <- paste(s, ';', sep = '')
         }
     }
 
@@ -372,13 +372,13 @@ get_dsd_species_str <- function(species_name, domains) {
     s <- 'def %name() = (Signal(%domains))'
 
     # Set the species name
-    stringr::str_replace(s, '%name', species_name)
+    s <- stringr::str_replace(s, '%name', species_name)
 
     # Construct the domains string
     domains_str <- paste(domains, collapse = ', ')
 
     # Set the domains string
-    stringr::str_replace(s, '%domains', domains_str)
+    s <- stringr::str_replace(s, '%domains', domains_str)
 
     return(s)
 }
@@ -524,12 +524,38 @@ def ApB_e_0(
 }
 
 # TODO: Doc this function
+replace_module_markers <- function(template_str, marker_pattern, objs) {
+    # Iterate over the objects (variable names), replacing the markers
+    # by them.
+    for(obj_str in objs) {
+        template_str <- stringr::str_replace(
+            template_str, marker_pattern, obj_str
+        )
+    }
+
+    return(template_str)
+}
+
+# TODO: Doc this function
 get_dsd_AeB_str <- function(
     qi, qmax, CiA, CiB, Cmax,
     A_domains,
     B_domains
 ) {
-    # TODO: Implement this function
+    # String template
+    s <- 'A_e_B(
+    %qi, %qmax, %CiA, %CiB, %Cmax,
+    %unki, %ia, %ib, %ic,
+    %unko, %oa, %ob, %oc
+)'
+
+    # Put all variables in one vector
+    data <- c(qi, qmax, CiA, CiB, Cmax, A_domains, B_domains)
+
+    # Replace the marker by the actual variable names
+    s <- replace_module_markers(s, '%[a-zA-Z0-9]+', data)
+
+    return(s)
 }
 
 # TODO: Doc this function
@@ -539,7 +565,21 @@ get_dsd_AeBpC_str <- function(
     B_domains,
     C_domains
 ) {
-    # TODO: Implement this function
+    # String template
+    s <- 'A_e_BpC(
+    %qi, %qmax, %CiA, %CiB, %CiC, %Cmax,
+    %unki, %ia, %ib, %ic,
+    %unko1, %o1a, %o1b, %o1c,
+    %unko2, %o2a, %o2b, %o2c
+)'
+
+    # Put all variables in one vector
+    data <- c(qi, qmax, CiA, CiB, CiC, Cmax, A_domains, B_domains, C_domains)
+
+    # Replace the marker by the actual variable names
+    s <- replace_module_markers(s, '%[a-zA-Z0-9]+', data)
+
+    return(s)
 }
 
 # TODO: Doc this function
@@ -549,7 +589,21 @@ get_dsd_ApBeC_str <- function(
     B_domains,
     C_domains
 ) {
-    # TODO: Implement this function
+    # String template
+    s <- 'ApB_e_C(
+    %qi, %qmax, %CiA, %CiB, %CiC, %Cmax,
+    %unka, %i1a, %i1b, %i1c,
+    %unkb, %i2a, %i2b, %i2c,
+    %unkc, %c1, %c2, %c3
+)'
+
+    # Put all variables in one vector
+    data <- c(qi, qmax, CiA, CiB, CiC, Cmax, A_domains, B_domains, C_domains)
+
+    # Replace the marker by the actual variable names
+    s <- replace_module_markers(s, '%[a-zA-Z0-9]+', data)
+
+    return(s)
 }
 
 # TODO: Doc this function
@@ -560,7 +614,55 @@ get_dsd_ApBeCpD_str <- function(
     C_domains,
     D_domains
 ) {
-    # TODO: Implement this function
+    # String template
+    s <- 'ApB_e_CpD(
+    %qi, %qmax, %CiA, %CiB, %CiC, %CiD, %Cmax,
+    %unka, %i1a, %i1b, %i1c,
+    %unkb, %i2a, %i2b, %i2c,
+    %unkc, %o1a, %o1b, %o1c,
+    %unkd, %o2a, %o2b, %o2c
+)'
+
+    # Put all variables in one vector
+    data <- c(
+        qi, qmax, CiA, CiB, CiC, CiD, Cmax,
+        A_domains, B_domains, C_domains, D_domains
+    )
+
+    # Replace the marker by the actual variable names
+    s <- replace_module_markers(s, '%[a-zA-Z0-9]+', data)
+
+    return(s)
+
+    # # Replace the initial template markers by the actual values
+    # var_names <- c('qi', 'qmax', 'CiA', 'CiB','CiC', 'CiD', 'Cmax')
+    # for(var_name in var_names) {
+    #     s <- stringr::str_replace(
+    #         string = s,
+    #         pattern = paste('$', var_name, sep = ''),
+    #         replacement = get(var_name)
+    #     )
+    # }
+    #
+    # # Replace the domain markers
+    # domain_markers <- c(
+    #     c('%unka', '%i1a', '%i1b', '%i1c'),
+    #     c('%unkb', '%i2a', '%i2b', '%i2c'),
+    #     c('%unkc', '%o1a', '%o1b', '%o1c'),
+    #     c('%unkd', '%o2a', '%o2b', '%o2c')
+    # )
+    # input_domains <- c(A_domains, B_domains, C_domains, D_domains)
+    # for(i in 1:length(domain_markers)) {
+    #     for(j in 1:length(domain_markers[[i]])) {
+    #         s <- stringr::str_replace(
+    #             string = s,
+    #             pattern = domain_markers[[i]][[j]],
+    #             replacement = input_domains[[i]][[j]]
+    #         )
+    #     }
+    # }
+    #
+    # return(s)
 }
 
 # TODO: Doc this function
@@ -568,7 +670,19 @@ get_dsd_buff_str <- function(
     qs, qmax, Cmax, Cii, d,
     domains
 ) {
+    # Template string
+    s <- 'Buff(
+    %qs, %qmax, %Cmax, %Cii, %d,
+    %unki, %ia, %ib, %ic
+)'
 
+    # Put all variables in one vector
+    data <- c(qs, qmax, Cmax, Cii, d, domains)
+
+    # Replace the marker by the actual variable names
+    s <- replace_module_markers(s, '%[a-zA-Z0-9]+', data)
+
+    return(s)
 }
 
 # TODO: Doc this function
@@ -576,7 +690,18 @@ get_dsd_Ae0_str <- function(
     qi, CiA, Cmax,
     A_domains
 ) {
-    # TODO: Implement this function
+    # Template string
+    s <- 'A_e_0(
+    %qi, %CiA, %Cmax, %unki, %ia, %ib, %ic
+)'
+
+    # Put all variables in one vector
+    data <- c(qi, CiA, Cmax, A_domains)
+
+    # Replace the marker by the actual variable names
+    s <- replace_module_markers(s, '%[a-zA-Z0-9]+', data)
+
+    return(s)
 }
 
 # TODO: Doc this function
@@ -585,7 +710,18 @@ get_dsd_ApBe0_str <- function(
     A_domains,
     B_domains
 ) {
-    # TODO: Implement this function
+    # Template string
+    s <- 'ApB_e_0(
+    %qi, %qmax, %CiA, %CiB, %Cmax,
+    %unka, %i1a, %i1b, %i1c,
+    %unkb, %i2a, %i2b, %i2c
+)'
+
+    # Put all variables in one vector
+    data <- c(qi, qmax, CiA, CiB, Cmax, A_domains, B_domains)
+
+    # Replace the marker by the actual variable names
+    s <- replace_module_markers(s, '%[a-zA-Z0-9]+', data)
 }
 
 # TODO: Doc this function
@@ -601,6 +737,7 @@ get_dsd_def_str <- function(key, val) {
 }
 
 # TODO: Doc this function
+#' @export
 save_dsd_script <- function(
     species,
     ci,
@@ -722,7 +859,7 @@ save_dsd_script <- function(
     species_domains <- list()
     for(spec in species) {
         # Each species has 4 domains
-        species_domains[spec] <- c(
+        species_domains[[spec]] <- c(
             paste('d', as.character(domain_counter), sep = ''),
             paste('d', as.character(domain_counter + 1), sep = ''),
             paste('d', as.character(domain_counter + 2), sep = ''),
@@ -731,7 +868,7 @@ save_dsd_script <- function(
 
         # Set the species definition to the script
         script_str <- paste(script_str, get_dsd_species_str(
-                spec, species_domains[spec]
+                spec, species_domains[[spec]]
             ), sep = '\n'
         )
 
@@ -741,34 +878,39 @@ save_dsd_script <- function(
 
     # Add reactions into another variable to be added
     # to the script afterwards
-    modules_str <- '\n\n(\n'
+    modules_str <- '\n\n(\n\n'
 
     # Set counters for each input species to count how many times
     # they are used on the modules. This counters will be used
     # to change the initial concentration ('Ci') of each species.
     species_mod_counter <- list()
     for(spec in species) {
-        species_mod_counter[spec] <- 0
+        species_mod_counter[[spec]] <- 0
     }
 
     for(i in 1:length(reactions)) {
         # Get the species names of reactants and products
-        reactants <- get_reactants(reactions[[i]])
-        products <- get_products(reactions[[i]])
+        reactants <- unique(get_reactants(reactions[[i]]))
+        products <- unique(get_products(reactions[[i]]))
+
+        # Update the counters accoding to the species stoichiometry.
+        unique_specs_in_react <- unique(reactants, products)
+        for(spec in unique_specs_in_react) {
+            num <- get_stoichiometry_onespecies(spec, reactions[[i]])
+            num <- Reduce('+', num)
+            species_mod_counter[[spec]] <- species_mod_counter[[spec]] + num
+        }
 
         # Get the domains of the reactants and products
-        # and add the species counter
         reactant_domains <- c()
         product_domains <- c()
         for(r in reactants) {
             reactant_domains <- c(reactant_domains, species_domains[[r]])
-            species_mod_counter[r] <- species_mod_counter[[r]] + 1
         }
         # If there is a product
-        if(p != '') {
+        if(products != '') {
             for(p in products) {
                 product_domains <- c(product_domains, species_domains[[p]])
-                species_mod_counter[p] <- species_mod_counter[[p]] + 1
             }
         }
 
@@ -776,11 +918,18 @@ save_dsd_script <- function(
         mod_str <- ''
 
         # Analyse the reaction specifications
-        if(is_bimolecular(reactions[i])) {
+        if(is_bimolecular(reactions[[i]])) {
             # If there is a product
             if(products != '') {
                 # If there is two products
-                if(length(products) == 2) {
+                second_part <- get_second_part(reactions[[i]])
+                num_prod <- get_stoichiometry_part(second_part)
+                if(num_prod == 2) {
+                    # If there is two products but only one species
+                    if(length(products) == 1) {
+                        products <- c(products, products[[1]])
+                    }
+
                     # Add a ApBeCpD module
                     mod_str <- get_dsd_ApBeCpD_str(
                         paste('k', as.character(i), sep = ''), 'qmax',
@@ -820,7 +969,14 @@ save_dsd_script <- function(
             # check if there is a product
             if(products != '') {
                 # Check if there is two products
-                if(length(products) == 2) {
+                second_part <- get_second_part(reactions[[i]])
+                num_prod <- get_stoichiometry_part(second_part)
+                if(num_prod == 2) {
+                    # If there is two products but only one species
+                    if(length(products) == 1) {
+                        products <- c(products, products[[1]])
+                    }
+
                     # Add a AeBpC module
                     mod_str <- get_dsd_AeBpC_str(
                         paste('k', as.character(i), sep = ''), 'qmax',
@@ -866,7 +1022,7 @@ save_dsd_script <- function(
         modules_str <- paste(modules_str, ' |\n', sep = '')
 
         # Set independent index for the rate constants
-        ii <- 0
+        ii <- 1
 
         # Iterate over the first reaction of each buffer module
         for(i in seq(1, length(buffer_stuff$new_reactions), by = 2)) {
@@ -875,6 +1031,10 @@ save_dsd_script <- function(
 
             # Get the first reactant, must be one of the input species
             first_reactant <- reactants[[1]]
+
+            # Add one to the counter of this species
+            species_mod_counter[[first_reactant]] <-
+                species_mod_counter[[first_reactant]] + 1
 
             # Get the domains of this species
             spec_domains <- species_domains[[first_reactant]]
