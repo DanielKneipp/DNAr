@@ -337,7 +337,20 @@ react_4domain <- function(
     return(result)
 }
 
-# TODO: Doc this function
+#' Get the DSD script header
+#'
+#' Use this function to get the header of the DSD script.
+#' This header comes with simulation time, ODE solver,
+#' the concentration unit measure, type of compilation and
+#' the species to be plotted.
+#'
+#' @param time             The time sequence that simulation will occour.
+#'                         this parameter can be exactly the same used in
+#'                         the parameter `t` of the \code{\link{react}()}
+#'                         or \code{\link{react_4domain}()} functions.
+#' @param species_to_plot  A vector with the species names to be plotted.
+#'
+#' @return  A string with the DSD script header.
 get_dsd_header_str <- function(time, species_to_plot) {
     # Set template string
     s <- 'directive duration %t points 1000
@@ -366,7 +379,16 @@ directive compilation infinite'
     return(s)
 }
 
-# TODO: Doc this function
+#' Get the DSD definition of a species
+#'
+#' Use this function to get a string representing the definition
+#' of a species.
+#'
+#' @param species_name  The species name.
+#' @param domains       A vector of four string representing the
+#'                      domain names of this species.
+#'
+#' @return  A string with the species definition.
 get_dsd_species_str <- function(species_name, domains) {
     # Set the string template
     s <- 'def %name() = (Signal(%domains))'
@@ -383,7 +405,12 @@ get_dsd_species_str <- function(species_name, domains) {
     return(s)
 }
 
-# TODO: Doc this function
+#' Get the 4-domain modules for the DSD script.
+#'
+#' Use this function to get a string with all 4-domain
+#' modules for the DSD script.
+#'
+#' @return String with the 4-domain modules.
 get_dsd_4domain_modules_str <- function() {
     s <- '(* Input and output *)
 def Signal(unk, i1, i2, i3) = <unk i1^ i2 i3^>
@@ -523,7 +550,22 @@ def ApB_e_0(
     return(s)
 }
 
-# TODO: Doc this function
+#' Replaces markers on a template string by other strings
+#'
+#' This function can be used to replace markers in a string to other
+#' strings according to a pattern.
+#'
+#' @param template_str   The template string (string with the markers).
+#' @param marker_pattern  The pattern of the markers. It is a regular
+#'                        expression rule.
+#' @param objs            A vector with the strings that will replace the
+#'                        markers. The replacement is made in order, that is,
+#'                        the first markers will be replaced by the first
+#'                        strings specified in this vector. This vector
+#'                        must have a number of strings less or equal
+#'                        the number of markers in the template string.
+#'
+#' @return  The template string with the markers replaced.
 replace_module_markers <- function(template_str, marker_pattern, objs) {
     # Iterate over the objects (variable names), replacing the markers
     # by them.
@@ -536,7 +578,27 @@ replace_module_markers <- function(template_str, marker_pattern, objs) {
     return(template_str)
 }
 
-# TODO: Doc this function
+#' Instantiate a 'A -> B' module in the DSD script
+#'
+#' This function returns a string representing an addition of a
+#' 'A -> B' reaction in the DSD script. It creates a `A_e_B()` module
+#' in the script, replacing all the parameter strings by the ones
+#' specified in this function.
+#'
+#' @param qi         String representing a variable name for the `qi`
+#'                   parameter of the module signature.
+#' @param qmax       String representing a variable name for the `qmax`
+#'                   parameter of the module signature.
+#' @param CiA        String representing a variable name for the `CiA`
+#'                   parameter of the module signature.
+#' @param CiB        String representing a variable name for the `CiB`
+#'                   parameter of the module signature.
+#' @param Cmax       String representing a variable name for the `Cmax`
+#'                   parameter of the module signature.
+#' @param A_domains  Vector of strings representing the species domains of A.
+#' @param B_domains  Vector of strings representing the species domains of B.
+#'
+#' @return  A string representing the instantiation of a `A_e_B()` module.
 get_dsd_AeB_str <- function(
     qi, qmax, CiA, CiB, Cmax,
     A_domains,
@@ -558,7 +620,30 @@ get_dsd_AeB_str <- function(
     return(s)
 }
 
-# TODO: Doc this function
+#' Instantiate a 'A -> B + C' module in the DSD script
+#'
+#' This function returns a string representing an addition of a
+#' 'A -> B + C' reaction in the DSD script. It creates a `A_e_BpC()` module
+#' in the script, replacing all the parameter strings by the ones
+#' specified in this function.
+#'
+#' @param qi         String representing a variable name for the `qi`
+#'                   parameter of the module signature.
+#' @param qmax       String representing a variable name for the `qmax`
+#'                   parameter of the module signature.
+#' @param CiA        String representing a variable name for the `CiA`
+#'                   parameter of the module signature.
+#' @param CiB        String representing a variable name for the `CiB`
+#'                   parameter of the module signature.
+#' @param CiC        String representing a variable name for the `CiC`
+#'                   parameter of the module signature.
+#' @param Cmax       String representing a variable name for the `Cmax`
+#'                   parameter of the module signature.
+#' @param A_domains  Vector of strings representing the species domains of A.
+#' @param B_domains  Vector of strings representing the species domains of B.
+#' @param C_domains  Vector of strings representing the species domains of C.
+#'
+#' @return  A string representing the instantiation of a `A_e_BpC()` module.
 get_dsd_AeBpC_str <- function(
     qi, qmax, CiA, CiB, CiC, Cmax,
     A_domains,
@@ -582,7 +667,30 @@ get_dsd_AeBpC_str <- function(
     return(s)
 }
 
-# TODO: Doc this function
+#' Instantiate a 'A + B -> C' module in the DSD script
+#'
+#' This function returns a string representing an addition of a
+#' 'A + B -> C' reaction in the DSD script. It creates a `ApB_e_C()` module
+#' in the script, replacing all the parameter strings by the ones
+#' specified in this function.
+#'
+#' @param qi         String representing a variable name for the `qi`
+#'                   parameter of the module signature.
+#' @param qmax       String representing a variable name for the `qmax`
+#'                   parameter of the module signature.
+#' @param CiA        String representing a variable name for the `CiA`
+#'                   parameter of the module signature.
+#' @param CiB        String representing a variable name for the `CiB`
+#'                   parameter of the module signature.
+#' @param CiC        String representing a variable name for the `CiC`
+#'                   parameter of the module signature.
+#' @param Cmax       String representing a variable name for the `Cmax`
+#'                   parameter of the module signature.
+#' @param A_domains  Vector of strings representing the species domains of A.
+#' @param B_domains  Vector of strings representing the species domains of B.
+#' @param C_domains  Vector of strings representing the species domains of C.
+#'
+#' @return  A string representing the instantiation of a `ApB_e_C()` module.
 get_dsd_ApBeC_str <- function(
     qi, qmax, CiA, CiB, CiC, Cmax,
     A_domains,
@@ -606,7 +714,33 @@ get_dsd_ApBeC_str <- function(
     return(s)
 }
 
-# TODO: Doc this function
+#' Instantiate a 'A + B -> C + D' module in the DSD script
+#'
+#' This function returns a string representing an addition of a
+#' 'A + B -> C + D' reaction in the DSD script. It creates a `ApB_e_CpD()`
+#' module in the script, replacing all the parameter strings by the ones
+#' specified in this function.
+#'
+#' @param qi         String representing a variable name for the `qi`
+#'                   parameter of the module signature.
+#' @param qmax       String representing a variable name for the `qmax`
+#'                   parameter of the module signature.
+#' @param CiA        String representing a variable name for the `CiA`
+#'                   parameter of the module signature.
+#' @param CiB        String representing a variable name for the `CiB`
+#'                   parameter of the module signature.
+#' @param CiC        String representing a variable name for the `CiC`
+#'                   parameter of the module signature.
+#' @param CiD        String representing a variable name for the `CiD`
+#'                   parameter of the module signature.
+#' @param Cmax       String representing a variable name for the `Cmax`
+#'                   parameter of the module signature.
+#' @param A_domains  Vector of strings representing the species domains of A.
+#' @param B_domains  Vector of strings representing the species domains of B.
+#' @param C_domains  Vector of strings representing the species domains of C.
+#' @param D_domains  Vector of strings representing the species domains of D.
+#'
+#' @return  A string representing the instantiation of a `ApB_e_CpD()` module.
 get_dsd_ApBeCpD_str <- function(
     qi, qmax, CiA, CiB, CiC, CiD, Cmax,
     A_domains,
@@ -633,39 +767,29 @@ get_dsd_ApBeCpD_str <- function(
     s <- replace_module_markers(s, '%[a-zA-Z0-9]+', data)
 
     return(s)
-
-    # # Replace the initial template markers by the actual values
-    # var_names <- c('qi', 'qmax', 'CiA', 'CiB','CiC', 'CiD', 'Cmax')
-    # for(var_name in var_names) {
-    #     s <- stringr::str_replace(
-    #         string = s,
-    #         pattern = paste('$', var_name, sep = ''),
-    #         replacement = get(var_name)
-    #     )
-    # }
-    #
-    # # Replace the domain markers
-    # domain_markers <- c(
-    #     c('%unka', '%i1a', '%i1b', '%i1c'),
-    #     c('%unkb', '%i2a', '%i2b', '%i2c'),
-    #     c('%unkc', '%o1a', '%o1b', '%o1c'),
-    #     c('%unkd', '%o2a', '%o2b', '%o2c')
-    # )
-    # input_domains <- c(A_domains, B_domains, C_domains, D_domains)
-    # for(i in 1:length(domain_markers)) {
-    #     for(j in 1:length(domain_markers[[i]])) {
-    #         s <- stringr::str_replace(
-    #             string = s,
-    #             pattern = domain_markers[[i]][[j]],
-    #             replacement = input_domains[[i]][[j]]
-    #         )
-    #     }
-    # }
-    #
-    # return(s)
 }
 
-# TODO: Doc this function
+#' Instantiate a buffer module in the DSD script
+#'
+#' This function returns a string representing an addition of
+#' a buffer reaction module in the DSD script. It creates a `Buff()`
+#' module in the script, replacing all the parameter strings by the ones
+#' specified in this function.
+#'
+#' @param qs         String representing a variable name for the `qs`
+#'                   parameter of the module signature.
+#' @param qmax       String representing a variable name for the `qmax`
+#'                   parameter of the module signature.
+#' @param Cii        String representing a variable name for the `Cii`
+#'                   parameter of the module signature.
+#' @param d          String representing a variable name for the `d`
+#'                   parameter of the module signature.
+#' @param Cmax       String representing a variable name for the `Cmax`
+#'                   parameter of the module signature.
+#' @param domains    Vector of strings representing the domains of
+#'                   the input species.
+#'
+#' @return  A string representing the instantiation of a `Buff()` module.
 get_dsd_buff_str <- function(
     qs, qmax, Cmax, Cii, d,
     domains
@@ -685,7 +809,22 @@ get_dsd_buff_str <- function(
     return(s)
 }
 
-# TODO: Doc this function
+#' Instantiate a 'A -> 0' module in the DSD script
+#'
+#' This function returns a string representing an addition of a
+#' 'A -> 0' reaction in the DSD script. It creates a `A_e_0()` module
+#' in the script, replacing all the parameter strings by the ones
+#' specified in this function.
+#'
+#' @param qi         String representing a variable name for the `qi`
+#'                   parameter of the module signature.
+#' @param CiA        String representing a variable name for the `CiA`
+#'                   parameter of the module signature.
+#' @param Cmax       String representing a variable name for the `Cmax`
+#'                   parameter of the module signature.
+#' @param A_domains  Vector of strings representing the species domains of A.
+#'
+#' @return  A string representing the instantiation of a `A_e_0()` module.
 get_dsd_Ae0_str <- function(
     qi, CiA, Cmax,
     A_domains
@@ -704,7 +843,27 @@ get_dsd_Ae0_str <- function(
     return(s)
 }
 
-# TODO: Doc this function
+#' Instantiate a 'A + B -> 0' module in the DSD script
+#'
+#' This function returns a string representing an addition of a
+#' 'A + B -> 0' reaction in the DSD script. It creates a `ApB_e_0()` module
+#' in the script, replacing all the parameter strings by the ones
+#' specified in this function.
+#'
+#' @param qi         String representing a variable name for the `qi`
+#'                   parameter of the module signature.
+#' @param qmax       String representing a variable name for the `qmax`
+#'                   parameter of the module signature.
+#' @param CiA        String representing a variable name for the `CiA`
+#'                   parameter of the module signature.
+#' @param CiB        String representing a variable name for the `CiB`
+#'                   parameter of the module signature.
+#' @param Cmax       String representing a variable name for the `Cmax`
+#'                   parameter of the module signature.
+#' @param A_domains  Vector of strings representing the species domains of A.
+#' @param B_domains  Vector of strings representing the species domains of B.
+#'
+#' @return  A string representing the instantiation of a `ApB_e_0()` module.
 get_dsd_ApBe0_str <- function(
     qi, qmax, CiA, CiB, Cmax,
     A_domains,
@@ -724,7 +883,20 @@ get_dsd_ApBe0_str <- function(
     s <- replace_module_markers(s, '%[a-zA-Z0-9]+', data)
 }
 
-# TODO: Doc this function
+#' Get a definition string for the DSD script
+#'
+#' This function returns a string representing a definition in the
+#' DSD script.
+#'
+#' A definition is made by the following construction:
+#' `def *key* = *value*`. passing a key and value to this function,
+#' it returns a definition construction replacing the *key* and *value*
+#' by the parameters `key` and `value` specified.
+#'
+#' @param key  String representing the key of the definition.
+#' @param val  String representing the value of the definition.
+#'
+#' @return The definition string.
 get_dsd_def_str <- function(key, val) {
     # String template
     s <- 'def %k = %v'
@@ -736,7 +908,14 @@ get_dsd_def_str <- function(key, val) {
     return(s)
 }
 
-# TODO: Doc this function
+#' Export a DSD script for a CRN
+#'
+#' Use this function to export a CRN to a DSD script using the 4-domain
+#' approach of implementing CRNs using DNA. The parameters are the same
+#' of \code{\link{react_4domain}()}, except for the `filename`, which is
+#' the name of the file that will be exported and should be specified with
+#' an extension, since there is no standard extension for DSD scripts.
+#'
 #' @export
 save_dsd_script <- function(
     species,
@@ -893,7 +1072,7 @@ save_dsd_script <- function(
         reactants <- unique(get_reactants(reactions[[i]]))
         products <- unique(get_products(reactions[[i]]))
 
-        # Update the counters accoding to the species stoichiometry.
+        # Update the counters according to the species stoichiometry.
         unique_specs_in_react <- unique(reactants, products)
         for(spec in unique_specs_in_react) {
             num <- get_stoichiometry_onespecies(spec, reactions[[i]])

@@ -466,11 +466,14 @@ save_reactions_txt <- function(species, cis, reactions, kis, filename) {
     # the other with the species and initial concentrations.
     spec_data <- data.frame(species, cis)
     react_data <- data.frame(reactions, kis)
+
     # Rename the data frame columns
     names(react_data) <- c('Reaction', 'Rate Constant')
     names(spec_data) <- c('Species', 'Initial Concentration')
+
     # Get the file name
     filename <- paste(filename, '.txt', sep = '')
+
     # Store the data frame
     capture.output(
         print(spec_data, row.names = FALSE, print.gap = 4),
