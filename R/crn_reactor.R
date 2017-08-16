@@ -506,6 +506,27 @@ save_behavior_csv <- function(behavior, filename) {
     write.csv(behavior, file = filename, row.names = FALSE)
 }
 
+#' Load a reaction behavior
+#'
+#' This function loads a reaction behavior saved by
+#' \code{\link{save_behavior_csv}()}.
+#'
+#' @param filename  The name of the file that will be loaded. You don't need
+#'                  to specify the extension of the file, the `.csv` extension
+#'                  will be added automatically at the end of the name
+#'                  specified.
+#'
+#' @return  A data frame with the reaction behavior.
+#'
+#' @export
+#'
+#' @importFrom utils read.csv
+load_behavior_csv <- function(filename) {
+    filename <- paste(filename, '.csv', sep = '')
+    data <- read.csv(filename, header = TRUE)
+    return(data)
+}
+
 #' Calculate the root-mean-square error of two data sets
 #'
 #' This function is used to calculate the root-mean-square error (RMSE)
