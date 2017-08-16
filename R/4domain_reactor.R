@@ -1089,7 +1089,7 @@ save_dsd_script <- function(
             reactant_domains <- c(reactant_domains, species_domains[[r]])
         }
         # If there is a product
-        if(products != '') {
+        if(products[[1]] != '') {
             for(p in products) {
                 product_domains <- c(product_domains, species_domains[[p]])
             }
@@ -1101,7 +1101,7 @@ save_dsd_script <- function(
         # Analyse the reaction specifications
         if(is_bimolecular(reactions[[i]])) {
             # If there is a product
-            if(products != '') {
+            if(products[[1]] != '') {
                 # If there is two products
                 second_part <- get_second_part(reactions[[i]])
                 num_prod <- get_stoichiometry_part(second_part)
@@ -1148,7 +1148,7 @@ save_dsd_script <- function(
         } else {
             # If the reaction is unimolecular,
             # check if there is a product
-            if(products != '') {
+            if(products[[1]] != '') {
                 # Check if there is two products
                 second_part <- get_second_part(reactions[[i]])
                 num_prod <- get_stoichiometry_part(second_part)
