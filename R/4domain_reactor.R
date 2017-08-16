@@ -462,7 +462,7 @@ def A_e_BpC(
 
 (* Bimolecular to one product reaction *)
 def L_1(i1a, i1b, i1c, i2a, i2b, i2c, unko, oa) = {i1a^*}[i1b i1c^ i2a^]:[i2b i2c^]<unko oa^>
-def B(i1b, i1c, i2a) = <i1b i1c^ i2a^>
+def W(i1b, i1c, i2a) = <i1b i1c^ i2a^>
 
 (* Intermediate states *)
 def H_1(unki1, i1a, i1b, i1c, i2a, i2b, i2c, unko, oa) = <unki1>[i1a^ i1b i1c^]:{i2a^*}[i2b i2c^]<unko oa^>
@@ -478,9 +478,9 @@ def ApB_e_C(
     | CiB  * Signal(unkb, i2a, i2b, i2c)
     | CiC  * Signal(unkc, c1, c2, c3)
     | Cmax * L_1(i1a, i1b, i1c, i2a, i2b, i2c, unkc, c1)
-    | Cmax * B(i1b, i1c, i2a)
+    | Cmax * W(i1b, i1c, i2a)
     | Cmax * T_1(i2c, unkc, c1, c2 ,c3)
-    | rxn Signal(unka, i1a, i1b, i1c) + L_1(i1a, i1b, i1c, i2a, i2b, i2c, unkc, c1) <->{qi}{qmax} H_1(unka, i1a, i1b, i1c, i2a, i2b, i2c, unkc, c1) + B(i1b, i1c, i2a)
+    | rxn Signal(unka, i1a, i1b, i1c) + L_1(i1a, i1b, i1c, i2a, i2b, i2c, unkc, c1) <->{qi}{qmax} H_1(unka, i1a, i1b, i1c, i2a, i2b, i2c, unkc, c1) + W(i1b, i1c, i2a)
     | rxn Signal(unkb, i2a, i2b, i2c) + H_1(unka, i1a, i1b, i1c, i2a, i2b, i2c, unkc, c1) ->{qmax} Waste1_bi(unka, unkb, i1a, i1b, i1c, i2a, i2b, i2c) + P_1(ib, ic, unkc, c1)
     | rxn P_1(ib, ic, unkc, c1) + T_1(i2c, unkc, c1, c2 ,c3) ->{qmax} Waste2_1(i2b, i2c, unkc, c1) + Signal(unkc, c1, c2, c3)
 )
@@ -503,9 +503,9 @@ def ApB_e_CpD(
     | CiC  * Signal(unkc, o1a, o1b, o1c)
     | CiD  * Signal(unkd, o2a, o2b, o2c)
     | Cmax * L_2(i1a, i1b, i1c, i2a, i2b, i2c, unkc, o1a, unkd, o2a)
-    | Cmax * B(i1b, i1c, i2a)
+    | Cmax * W(i1b, i1c, i2a)
     | Cmax * T_2(i2c, unkc, o1a, o1b, o1c, unkd, o2a, o2b, o2c)
-    | rxn Signal(unka, i1a, i1b, i1c) + L_2(i1a, i1b, i1c, i2a, i2b, i2c, unkc, o1a, unkd, o2a) <->{qi}{qmax} H_2(unka, i1a, i1b, i1c, i2a, i2b, i2c, unkc, o1a, unkd, o2a) + B(i1b, i1c, i2a)
+    | rxn Signal(unka, i1a, i1b, i1c) + L_2(i1a, i1b, i1c, i2a, i2b, i2c, unkc, o1a, unkd, o2a) <->{qi}{qmax} H_2(unka, i1a, i1b, i1c, i2a, i2b, i2c, unkc, o1a, unkd, o2a) + W(i1b, i1c, i2a)
     | rxn Signal(unkb, i2a, i2b, i2c) + H_2(unka, i1a, i1b, i1c, i2a, i2b, i2c, unkc, o1a, unkd, o2a) ->{qmax} Waste1_bi(unka, unkb, i1a, i1b, i1c, i2a, i2b, i2c) + P_2(i2b, i2c, unkc, o1a, unkd, o2a)
     | rxn P_2(i2b, i2c, unkc, o1a, unkd, o2a) + T_2(i2c, unkc, o1a, o1b, o1c, unkd, o2a, o2b, o2c) ->{qmax} Waste2_2(i2b, i2c, unkc, o1a, unkd, o2a) + Signal(unkc, o1a, o1b, o1c) + Signal(unkd, o2a, o2b, o2c)
 )
@@ -542,8 +542,8 @@ def ApB_e_0(
       CiA  * Signal(unka, i1a, i1b, i1c)
     | CiB  * Signal(unkb, i2a, i2b, i2c)
     | Cmax * L_1(i1a, i1b, i1c, i2a, i2b, i2c, unko, oa)
-    | Cmax * B(i1b, i1c, i2a)
-    | rxn Signal(unka, i1a, i1b, i1c) + L_1(i1a, i1b, i1c, i2a, i2b, i2c, unko, oa) <->{qi}{qmax} H_1(unka, i1a, i1b, i1c, i2a, i2b, i2c, unko, oa) + B(i1b, i1c, i2a)
+    | Cmax * W(i1b, i1c, i2a)
+    | rxn Signal(unka, i1a, i1b, i1c) + L_1(i1a, i1b, i1c, i2a, i2b, i2c, unko, oa) <->{qi}{qmax} H_1(unka, i1a, i1b, i1c, i2a, i2b, i2c, unko, oa) + W(i1b, i1c, i2a)
     | rxn Signal(unkb, i2a, i2b, i2c) + H_1(unka, i1a, i1b, i1c, i2a, i2b, i2c, unko, oa) ->{qmax} Waste1_bi(unka, unkb, i1a, i1b, i1c, i2a, i2b, i2c) + P_1(ib, ic, unko, oa)
 )'
 
