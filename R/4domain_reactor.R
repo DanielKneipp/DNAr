@@ -1075,7 +1075,7 @@ save_dsd_script <- function(
         products <- unique(get_products(reactions[[i]]))
 
         # Update the counters according to the species stoichiometry.
-        unique_specs_in_react <- unique(reactants, products)
+        unique_specs_in_react <- unique(c(reactants, products))
         for(spec in unique_specs_in_react) {
             num <- get_stoichiometry_onespecies(spec, reactions[[i]])
             num <- Reduce('+', num)
