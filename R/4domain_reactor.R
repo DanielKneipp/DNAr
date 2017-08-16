@@ -966,7 +966,9 @@ save_dsd_script <- function(
     for(i in 1:length(species)) {
         key <- paste('Ci', species[[i]], sep = '')
         script_str <- paste(
-            script_str, get_dsd_def_str(key, new_cis[[i]]), sep = '\n'
+            script_str, get_dsd_def_str(
+                key, format(new_cis[[i]], nsmall = 1)
+            ), sep = '\n'
         )
     }
 
