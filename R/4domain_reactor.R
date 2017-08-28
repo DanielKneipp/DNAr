@@ -1100,6 +1100,11 @@ save_dsd_script <- function(
 
         # Analyse the reaction specifications
         if(is_bimolecular(reactions[[i]])) {
+            # If there is two reactants but only one species
+            if(length(reactants) == 1) {
+                reactants <- c(reactants, reactants[[1]])
+            }
+
             # If there is a product
             if(products[[1]] != '') {
                 # If there is two products
