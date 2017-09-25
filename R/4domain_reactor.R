@@ -93,7 +93,7 @@ get_buff_modules <- function(reactions, ki, qmax, cmax) {
     new_species <- c()
     new_cis <- c()
     for(i in 1:length(sigmas)) {
-        if(!sigmas[[i]] == reaction_sigma) {
+        if(!(sigmas[[i]] == reaction_sigma)) {
             qs <- lambda_1 * (reaction_sigma - sigmas[[i]])
             aux_specs <- paste(bff_aux_species, as.character(i), sep = '')
             input_spec <- names(sigmas)[i]
@@ -114,13 +114,20 @@ get_buff_modules <- function(reactions, ki, qmax, cmax) {
         }
     }
 
-    ret <- list(
-        lambda_1 = lambda_1,
-        new_species = new_species,
-        new_cis = new_cis,
-        new_reactions = new_bff_reactions,
-        new_ks = new_ks
-    )
+    # If even with bimolecular reactions, there is no buffer module
+    # to add.
+    if(length(new_ks) == 0) {
+        return(NULL)
+    } else {
+        ret <- list(
+            lambda_1 = lambda_1,
+            new_species = new_species,
+            new_cis = new_cis,
+            new_reactions = new_bff_reactions,
+            new_ks = new_ks
+        )
+        return(ret)
+    }
 }
 
 #' Translate a formal CRN into a set of DNA based reactions according to the
