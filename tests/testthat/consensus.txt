@@ -1,0 +1,9 @@
+    Species    Initial Concentration
+          X                  5.6e-08
+          Y                  2.4e-08
+          B                  0.0e+00
+
+       Reaction    Rate Constant
+    X + Y -> 2B             2000
+    B + X -> 2X             2000
+    B + Y -> 2Y             2000
