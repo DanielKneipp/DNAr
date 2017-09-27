@@ -426,16 +426,14 @@ plot_behavior <- function(
     df <- behavior[,c('time', species)]
     dfm <- reshape2::melt(df, id.vars = 'time')
 
-    # Show the plot
-    print(
-        g <- ggplot2::ggplot(dfm, ggplot2::aes(
-            time, value, color = variable
-        )) +
-        ggplot2::geom_line(size = 1.3) +
-        ggplot2::theme_minimal(base_size = 18) +
-        ggplot2::labs(x = x_label, y = y_label, color = legend_name) +
-        ggplot2::scale_color_brewer(palette="Dark2")
-    )
+    # Create the plot
+    g <- ggplot2::ggplot(dfm, ggplot2::aes(
+        time, value, color = variable
+    )) +
+    ggplot2::geom_line(size = 1.3) +
+    ggplot2::theme_minimal(base_size = 18) +
+    ggplot2::labs(x = x_label, y = y_label, color = legend_name) +
+    ggplot2::scale_color_brewer(palette="Dark2")
 
     # if a name file was specified, save the plot there.
     if(!is.null(save_file_name)) {
