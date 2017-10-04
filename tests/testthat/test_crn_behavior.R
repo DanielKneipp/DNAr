@@ -68,7 +68,7 @@ test_that(
 )
 
 test_that(
-    'react reproduces correctly the behavior of the Consensus CRN ',
+    'react reproduces correctly the behavior of the Consensus CRN',
     {
         parms <- list(
             species   = c('X', 'Y', 'B'),
@@ -81,5 +81,63 @@ test_that(
         )
         behaviors <- run_reaction(parms, 'behavior_consensus')
         expect_equal(behaviors[[1]], behaviors[[2]])
+    }
+)
+
+test_that(
+    'analyze_behavior correctly returns the derivatives of A + B -> C',
+    {
+        d <- analyze_behavior(
+            species   = c('A', 'B', 'C'),
+            ci        = c(1e3, 1e3, 0),
+            reactions = c('A + B -> C'),
+            ki        = c(1e-7)
+        )
+
+        expect_equal(d[['A']], 'd[A]/dt = (-1e-07 * [A] * [B])')
+        expect_equal(d[['B']], 'd[B]/dt = (-1e-07 * [A] * [B])')
+        expect_equal(d[['C']], 'd[C]/dt = (1e-07 * [A] * [B])')
+    }
+)
+
+test_that(
+    'analyze_behavior correctly returns the derivatives of A + B -> C
+    with the concentration values at the time point 0',
+    {
+        behavior <- react(
+            species   = c('A', 'B', 'C'),
+            ci        = c(1e3, 1e3, 0),
+            reactions = c('A + B -> C'),
+            ki        = c(1e-7),
+            t         = seq(0, 72000, 10)
+        )
+        d <- analyze_behavior(
+            species   = c('A', 'B', 'C'),
+            ci        = c(1e3, 1e3, 0),
+            reactions = c('A + B -> C'),
+            ki        = c(1e-7),
+            time_point = 1,
+            behavior = behavior
+        )
+
+        expect_equal(d[['A']], 'd[A]/dt = (-1e-07 * 1000[A] * 1000[B])')
+        expect_equal(d[['B']], 'd[B]/dt = (-1e-07 * 1000[A] * 1000[B])')
+        expect_equal(d[['C']], 'd[C]/dt = (1e-07 * 1000[A] * 1000[B])')
+    }
+)
+
+test_that(
+    'analyze_behavior throws an exception when the time_point parameter is
+    passed but behavior isn\'t',
+    {
+        expect_error(
+            analyze_behavior(
+                species   = c('A', 'B', 'C'),
+                ci        = c(1e3, 1e3, 0),
+                reactions = c('A + B -> C'),
+                ki        = c(1e-7),
+                time_point = 1
+            )
+        )
     }
 )
