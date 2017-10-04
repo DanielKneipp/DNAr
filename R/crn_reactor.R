@@ -247,6 +247,107 @@ reactants_in_reaction <- function(species, reaction) {
     return(r)
 }
 
+#' Returns the matrix M.
+#'
+#' The matrix M is used for the calculations made on \code{\link{react}()}.
+#' This matrix  has #lines = #reactions and #columns = #species and it
+#' represents the stoichiometry of each species at each reaction.
+get_M <- function(reactions, species) {
+    products <- matrix(data = 0,
+                       nrow = length(reactions),
+                       ncol = length(species))
+    reactants <- matrix(data = 0,
+                        nrow = length(reactions),
+                        ncol = length(species))
+
+    for(i in 1:length(reactions)) {
+        for(j in 1:length(species)) {
+            stoc <- get_stoichiometry_onespecies(species[j], reactions[i])
+            products[i,j] <- stoc$right_sto
+            reactants[i,j] <- stoc$left_sto
+        }
+    }
+
+    M <- products - reactants
+    return(M)
+}
+
+#' This function returns the concentration derivative of each species
+#'
+#' This function can be used for study what is impacting each species and
+#' how much. this is useful to analyse medium size (dozens of reactions) CRNs.
+#' all parameters follows the parameters of \code{\link{react}()}, except
+#' the optional `time_point` and `behavior`. If a `time_point` is passed,
+#' a `behavior` must be passed as well. If both parameter are set,
+#' this functions returns the concentration of each species
+#' at a specific point in time within the derivative.
+#'
+#' @param behavior    The data returned by \code{\link{react}()}.
+#' @param time_point  An index (representing a point in time) used to access
+#'                    a specific line of `behavior`.
+#'
+#' @return A data frame with the derivatives. To access the derivative
+#'         of a species `'A'`, you just have to access `df['A']`.
+#'
+#' @export
+analyze_behavior <- function(
+    species,
+    ci,
+    reactions,
+    ki,
+    time_point = NULL,
+    behavior = NULL
+) {
+    # Helper function to concat strings
+    jn <- function(...) { paste(..., sep = '') }
+
+    # Check if behavior exists (in case of a time_point has been passed)
+    if(!is.null(time_point)) {
+        assertthat::assert_that(!is.null(behavior))
+    }
+
+    # Get the transpose of the M matrix
+    Mt <- t(get_M(reactions, species))
+
+    # Set the output data frame
+    df <- data.frame(matrix(nrow = 1, ncol = length(species)))
+    names(df) <- species
+
+    for(i in 1:length(species)) {
+        # Set the left part of the derivative equation
+        s <- jn('d[', species[i], ']/dt = ')
+        for(j in 1:length(reactions)) {
+            s <- jn(s, '(')
+
+            # Set the k with stoichiometry
+            k <- ki[j] * Mt[i]
+
+            s <- jn(s, k)
+
+            # Get the reactant names or value
+            fp <- get_first_part(reactions[j])
+            fp_spec <- get_species(fp)
+            for(fp_s in fp_spec) {
+                if(is.null(time_point)) {
+                    s <- jn(s, ' * [', fp_s, ']')
+                } else {
+                    s <- jn(s, ' * ', behavior[time_point, fp_s],
+                            '[', fp_s, ']')
+                }
+            }
+
+            s <- jn(s, ')')
+
+            if(j < length(reactions)) {
+                s <- jn(s, ' + ')
+            }
+        }
+        df[i] <- s
+    }
+
+    return(df)
+}
+
 #' Simulate a CRN
 #'
 #' This is the function used to actually simulate the chemical reaction network.
@@ -279,23 +380,7 @@ reactants_in_reaction <- function(species, reaction) {
 #'
 #' @example demo/main_crn.R
 react <- function(species, ci, reactions, ki, t) {
-    products <- matrix(data = 0,
-                       nrow = length(reactions),
-                       ncol = length(species))
-    reactants <- matrix(data = 0,
-                        nrow = length(reactions),
-                        ncol = length(species))
-
-    for(i in 1:length(reactions)) {
-        for(j in 1:length(species)) {
-            stoc <- get_stoichiometry_onespecies(species[j], reactions[i])
-            products[i,j] <- stoc$right_sto
-            reactants[i,j] <- stoc$left_sto
-        }
-    }
-
-    M <- products - reactants
-    Mt <- t(M)
+    Mt <- t(get_M(reactions, species))
 
     fx <- function(t, y, parms) {
         dy <- numeric(length(y))

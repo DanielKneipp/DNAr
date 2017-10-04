@@ -6,9 +6,9 @@ library(DNAr)
 
 run_ApBeC <- function() {
     behavior <- react(
-        species   = c('A2', 'B', 'C'),
+        species   = c('A', 'B', 'C'),
         ci        = c(1e3, 1e3, 0),
-        reactions = c('A2 + B -> C'),
+        reactions = c('A + B -> C'),
         ki        = c(1e-7),
         t         = seq(0, 72000, 10)
     )
