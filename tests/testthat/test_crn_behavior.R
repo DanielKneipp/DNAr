@@ -27,6 +27,51 @@ test_that(
 )
 
 test_that(
+    'react reproduces correctly the behavior of the reaction 2A -> 2B',
+    {
+        parms <- list(
+            species   = c('A', 'B'),
+            ci        = c(1e3, 0),
+            reactions = c('2A -> 2B'),
+            ki        = c(1e-7),
+            t         = seq(0, 72000, 10)
+        )
+        behaviors <- run_reaction(parms, 'behavior_2Ae2B')
+        expect_equal(behaviors[[1]], behaviors[[2]])
+    }
+)
+
+test_that(
+    'react reproduces correctly the behavior of the reaction 0 -> A',
+    {
+        parms <- list(
+            species   = c('A'),
+            ci        = c(0),
+            reactions = c('0 -> A'),
+            ki        = c(1),
+            t         = seq(0, 100, 1)
+        )
+        behaviors <- run_reaction(parms, 'behavior_0eA', TRUE)
+        expect_equal(behaviors[[1]], behaviors[[2]])
+    }
+)
+
+test_that(
+    'react reproduces correctly the behavior of the reaction A -> 0',
+    {
+        parms <- list(
+            species   = c('A'),
+            ci        = c(1e3),
+            reactions = c('A -> 0'),
+            ki        = c(1),
+            t         = seq(0, 100, 1)
+        )
+        behaviors <- run_reaction(parms, 'behavior_Ae0', TRUE)
+        expect_equal(behaviors[[1]], behaviors[[2]])
+    }
+)
+
+test_that(
     'react reproduces correctly the behavior of the Lotka CRN',
     {
         parms <- list(
@@ -97,6 +142,67 @@ test_that(
         expect_equal(d[['A']], 'd[A]/dt = (-1e-07 * [A] * [B])')
         expect_equal(d[['B']], 'd[B]/dt = (-1e-07 * [A] * [B])')
         expect_equal(d[['C']], 'd[C]/dt = (1e-07 * [A] * [B])')
+    }
+)
+
+test_that(
+    'analyze_behavior correctly returns the derivatives of 0 -> A',
+    {
+        d <- analyze_behavior(
+            species   = c('A'),
+            ci        = c(0),
+            reactions = c('0 -> A'),
+            ki        = c(1)
+        )
+
+        expect_equal(d[['A']], 'd[A]/dt = (1)')
+    }
+)
+
+test_that(
+    'analyze_behavior correctly returns the derivatives of A -> 0',
+    {
+        d <- analyze_behavior(
+            species   = c('A'),
+            ci        = c(1e3),
+            reactions = c('A -> 0'),
+            ki        = c(1)
+        )
+
+        expect_equal(d[['A']], 'd[A]/dt = (-1 * [A])')
+    }
+)
+
+test_that(
+    'analyze_behavior correctly returns the derivatives of 2A -> 2B',
+    {
+        d <- analyze_behavior(
+            species   = c('A', 'B'),
+            ci        = c(1e3, 0),
+            reactions = c('2A -> 2B'),
+            ki        = c(1e-7)
+        )
+
+        expect_equal(d[['A']], 'd[A]/dt = (-1e-07 * [A]^2)')
+        expect_equal(d[['B']], 'd[B]/dt = (2e-07 * [A]^2)')
+    }
+)
+
+test_that(
+    'analyze_behavior correctly returns the derivatives of Consensus',
+    {
+        d <- analyze_behavior(
+            species   = c('X', 'Y', 'B'),
+            ci        = c(0.7 * 80e-9, 0.3 * 80e-9, 0.0),
+            reactions = c('X + Y -> 2B',
+                          'B + X -> 2X',
+                          'B + Y -> 2Y'),
+            ki        = c(2e3, 2e3, 2e3)
+        )
+
+        expect_equal(d[['X']], 'd[X]/dt = (-2000 * [X] * [Y]) + (2000 * [B] * [X])')
+        expect_equal(d[['Y']], 'd[Y]/dt = (-2000 * [X] * [Y]) + (2000 * [B] * [Y])')
+        expect_equal(d[['B']], 'd[B]/dt = (4000 * [X] * [Y]) + (-2000 * [B] * [X]) + (-2000 * [B] * [Y])')
     }
 )
 
