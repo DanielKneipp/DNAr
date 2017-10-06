@@ -6,6 +6,11 @@
 \usage{
 get_M(reactions, species)
 }
+\value{
+A list with the named indexes \code{prod} (stoichiometry matrix of the
+products), \code{react} (stoichiometry matrix of reactants) and \code{M}
+(the M matrix generate from the difference of theses two matrices).
+}
 \description{
 The matrix M is used for the calculations made on \code{\link{react}()}.
 This matrix  has #lines = #reactions and #columns = #species and it

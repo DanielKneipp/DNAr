@@ -252,6 +252,10 @@ reactants_in_reaction <- function(species, reaction) {
 #' The matrix M is used for the calculations made on \code{\link{react}()}.
 #' This matrix  has #lines = #reactions and #columns = #species and it
 #' represents the stoichiometry of each species at each reaction.
+#'
+#' @return A list with the named indexes `prod` (stoichiometry matrix of the
+#'         products), `react` (stoichiometry matrix of reactants) and `M`
+#'         (the M matrix generate from the difference of theses two matrices).
 get_M <- function(reactions, species) {
     products <- matrix(data = 0,
                        nrow = length(reactions),
@@ -269,7 +273,8 @@ get_M <- function(reactions, species) {
     }
 
     M <- products - reactants
-    return(M)
+    data <- list(prod = products, react = reactants, M = M)
+    return(data)
 }
 
 #' This function returns the concentration derivative of each species
@@ -307,7 +312,7 @@ analyze_behavior <- function(
     }
 
     # Get the transpose of the M matrix
-    Mt <- t(get_M(reactions, species))
+    Mt <- t(get_M(reactions, species)$M)
 
     # Set the output data frame
     df <- data.frame(matrix(nrow = 1, ncol = length(species)))
@@ -318,9 +323,10 @@ analyze_behavior <- function(
         s <- jn('d[', species[i], ']/dt = ')
         for(j in 1:length(reactions)) {
             # Set the k with stoichiometry
-            k <- ki[j] * Mt[i, j]
+            k <- ki[j] * max(-1, Mt[i,j])
 
-            # Go to the next reactions of this one has k = 0
+            # Go to the next reactions if this one has k = 0
+            # (this reaction doesn't impact this species)
             if(k == 0) {
                 next
             }
@@ -330,15 +336,28 @@ analyze_behavior <- function(
             }
             s <- jn(s, '(', k)
 
-            # Get the reactant names or value
-            fp <- get_first_part(reactions[j])
-            fp_spec <- get_species(fp)
-            for(fp_s in fp_spec) {
+            # Get the reactant names or values
+            reactants <- get_reactants(reactions[j])
+            for(reactant in reactants) {
+                reactant_idx <- match(reactant, species)
+
+                # If the reactant is not in the species list
+                if(is.na(reactant_idx)) {
+                    break
+                }
+
                 if(is.null(time_point)) {
-                    s <- jn(s, ' * [', fp_s, ']')
+                    s <- jn(s, ' * [', reactant, ']')
                 } else {
-                    s <- jn(s, ' * ', behavior[time_point, fp_s],
-                            '[', fp_s, ']')
+                    n <- 1
+                    if(Mt[reactant_idx, j] < -1) {
+                        n <- abs(Mt[reactant_idx, j])
+                    }
+                    s <- jn(s, ' * ', behavior[time_point, reactant]^n,
+                            '[', reactant, ']')
+                }
+                if(Mt[reactant_idx, j] < -1) {
+                    s <- jn(s, '^', abs(Mt[reactant_idx, j]))
                 }
             }
 
@@ -382,18 +401,35 @@ analyze_behavior <- function(
 #'
 #' @example demo/main_crn.R
 react <- function(species, ci, reactions, ki, t) {
-    Mt <- t(get_M(reactions, species))
+    Mt <- t(get_M(reactions, species)$M)
 
     fx <- function(t, y, parms) {
         dy <- numeric(length(y))
+        Mt_aux <- Mt
 
         v <- matrix(data = 0, nrow = length(reactions), ncol = 1)
         for(i in 1:length(reactions)) {
             s_is_reac <- reactants_in_reaction(species, reactions[i])
-            v[i,1] <- ki[i] * prod(y[s_is_reac])
+            y_reac <- y[s_is_reac]
+            v[i,1] <- ki[i] * prod(y_reac)
+
+            # If a species A is consumed n times in a reaction,
+            # the speed of the reaction will be -k[A]^n
+            j <- 1
+            for(m in Mt_aux[s_is_reac, i]) {
+                if(m < -1) {
+                    # + 1 because this species has already been
+                    # multiplied once
+                    n <- abs(m + 1)
+                    v[i,1] <- v[i,1] * y_reac[j]^n
+
+                    Mt_aux[j,i] < -1
+                }
+                j <- j + 1
+            }
         }
 
-        dy <- Mt %*% v
+        dy <- Mt_aux %*% v
 
         return(list(dy))
     }
