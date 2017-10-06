@@ -278,7 +278,7 @@ get_M <- function(reactions, species) {
 #' how much. this is useful to analyse medium size (dozens of reactions) CRNs.
 #' all parameters follows the parameters of \code{\link{react}()}, except
 #' the optional `time_point` and `behavior`. If a `time_point` is passed,
-#' a `behavior` must be passed as well. If both parameter are set,
+#' a `behavior` must be passed as well. If both parameters are set,
 #' this functions returns the concentration of each species
 #' at a specific point in time within the derivative.
 #'
@@ -317,12 +317,18 @@ analyze_behavior <- function(
         # Set the left part of the derivative equation
         s <- jn('d[', species[i], ']/dt = ')
         for(j in 1:length(reactions)) {
-            s <- jn(s, '(')
-
             # Set the k with stoichiometry
-            k <- ki[j] * Mt[i]
+            k <- ki[j] * Mt[i, j]
 
-            s <- jn(s, k)
+            # Go to the next reactions of this one has k = 0
+            if(k == 0) {
+                next
+            }
+
+            if(j != 1) {
+                s <- jn(s, ' + ')
+            }
+            s <- jn(s, '(', k)
 
             # Get the reactant names or value
             fp <- get_first_part(reactions[j])
@@ -337,10 +343,6 @@ analyze_behavior <- function(
             }
 
             s <- jn(s, ')')
-
-            if(j < length(reactions)) {
-                s <- jn(s, ' + ')
-            }
         }
         df[i] <- s
     }

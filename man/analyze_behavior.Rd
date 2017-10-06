@@ -22,7 +22,7 @@ This function can be used for study what is impacting each species and
 how much. this is useful to analyse medium size (dozens of reactions) CRNs.
 all parameters follows the parameters of \code{\link{react}()}, except
 the optional \code{time_point} and \code{behavior}. If a \code{time_point} is passed,
-a \code{behavior} must be passed as well. If both parameter are set,
+a \code{behavior} must be passed as well. If both parameters are set,
 this functions returns the concentration of each species
 at a specific point in time within the derivative.
 }
