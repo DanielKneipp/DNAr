@@ -14,7 +14,9 @@ column order of the returned behavior.}
 \item{ci}{A vector specifying the initial concentrations of the
 \code{species} specified, in order.}
 
-\item{reactions}{A vector with the reactions of the CRN.}
+\item{reactions}{A vector with the reactions of the CRN. If a reaction has
+has only reactants that are non in \code{species}, this
+reaction will be treated as \code{0 -> products}.}
 
 \item{ki}{A vector defining the constant rate of each reaction
 in \code{reactions}, in order.}

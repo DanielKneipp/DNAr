@@ -323,7 +323,7 @@ analyze_behavior <- function(
         s <- jn('d[', species[i], ']/dt = ')
         for(j in 1:length(reactions)) {
             # Set the k with stoichiometry
-            k <- ki[j] * max(-1, Mt[i,j])
+            k <- ki[j] * Mt[i,j]
 
             # Go to the next reactions if this one has k = 0
             # (this reaction doesn't impact this species)
@@ -386,7 +386,9 @@ analyze_behavior <- function(
 #'                   column order of the returned behavior.
 #' @param ci         A vector specifying the initial concentrations of the
 #'                   \code{species} specified, in order.
-#' @param reactions  A vector with the reactions of the CRN.
+#' @param reactions  A vector with the reactions of the CRN. If a reaction has
+#'                   has only reactants that are non in `species`, this
+#'                   reaction will be treated as `0 -> products`.
 #' @param ki         A vector defining the constant rate of each reaction
 #'                   in \code{reactions}, in order.
 #' @param t          A vector specifying the time interval. Each value
@@ -397,41 +399,55 @@ analyze_behavior <- function(
 #'         species. The first column is the time interval. The column names
 #'         are filled with the species's names.
 #'
+#' @importFrom magrittr "%>%"
+#'
 #' @export
 #'
 #' @example demo/main_crn.R
 react <- function(species, ci, reactions, ki, t) {
     Mt <- t(get_M(reactions, species)$M)
 
-    fx <- function(t, y, parms) {
-        dy <- numeric(length(y))
-        Mt_aux <- Mt
+    # Matrix that works as a map, specifying the reactants
+    # of each reaction.
+    reactant_map <- lapply(reactions, function(reaction) {
+        reactants_in_reaction(species, reaction)
+    })
 
-        v <- matrix(data = 0, nrow = length(reactions), ncol = 1)
-        for(i in 1:length(reactions)) {
-            s_is_reac <- reactants_in_reaction(species, reactions[i])
-            y_reac <- y[s_is_reac]
-            v[i,1] <- ki[i] * prod(y_reac)
-
-            # If a species A is consumed n times in a reaction,
-            # the speed of the reaction will be -k[A]^n
-            j <- 1
-            for(m in Mt_aux[s_is_reac, i]) {
-                if(m < -1) {
-                    # + 1 because this species has already been
-                    # multiplied once
-                    n <- abs(m + 1)
-                    v[i,1] <- v[i,1] * y_reac[j]^n
-
-                    Mt_aux[j,i] < -1
-                }
-                j <- j + 1
+    # If a species A is consumed n times in a reaction,
+    # the speed of the reaction will be -k[A]^n
+    v_exp_reactants <- lapply(seq_along(reactant_map), function(i) {
+        # Get the reactant lines of Mt for each reaction
+        Mt[reactant_map[[i]], i]
+    }) %>% lapply(function(Mt_map) {
+        # For each row of Mt, get the exponents for each reactant
+        # sapply() because I don't want one list for each m element
+        sapply(Mt_map, function(m) {
+            if(m < -1) {
+                n <- abs(m)
+            } else {
+                n <- 1
             }
-        }
+        })
+    })
 
-        dy <- Mt_aux %*% v
+    # Define function for deSolve
+    fx <- function(t, y, parms) {
+        # Define the vector, wich specifies the impact magnitude of
+        # each reaction
+        v <- matrix(mapply(function(react_map, k, v_exp) {
+            if (length(react_map) != 0) {
+                vi <- k * prod(y[react_map]^v_exp)
+            } else {
+                # In case of the reactants are not registred in the
+                # species vector (the reaction will occurr like 0 -> products)
+                vi <- 1
+            }
+        }, reactant_map, ki, v_exp_reactants))
 
-        return(list(dy))
+        # Multiply the impact magnitude of each reaction with the sochiometry
+        # of each species to get the new species concentrations
+        dy <- Mt %*% v
+        list(dy)
     }
 
     result <- deSolve::ode(times = t, y = ci, func = fx, parms = NULL)

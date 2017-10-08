@@ -1,7 +1,7 @@
 Package: DNAr
 Type: Package
 Title: Simulates chemical reaction networks constructed with DNA
-Version: 0.2.0
+Version: 0.3.0
 Authors@R: c(person("Daniel", "Kneipp", email = "danielv@dcc.ufmg.br",
                     role = c("aut", "cre")),
              person("Marcos", "Guterres", email = "mguterres@yahoo.com",
@@ -22,7 +22,8 @@ Imports:
     ggplot2  (>= 2.2.1),
     reshape2 (>= 1.4.2),
     RColorBrewer (>= 1.1.2),
-    assertthat (>= 0.2.0)
+    assertthat (>= 0.2.0),
+    magrittr (>= 1.5)
 Collate:
     'crn_reactor.R'
     '4domain_reactor.R'

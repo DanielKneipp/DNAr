@@ -183,7 +183,7 @@ test_that(
             ki        = c(1e-7)
         )
 
-        expect_equal(d[['A']], 'd[A]/dt = (-1e-07 * [A]^2)')
+        expect_equal(d[['A']], 'd[A]/dt = (-2e-07 * [A]^2)')
         expect_equal(d[['B']], 'd[B]/dt = (2e-07 * [A]^2)')
     }
 )
