@@ -48,10 +48,10 @@ test_that(
             species   = c('A'),
             ci        = c(0),
             reactions = c('0 -> A'),
-            ki        = c(1),
+            ki        = c(2),
             t         = seq(0, 100, 1)
         )
-        behaviors <- run_reaction(parms, 'behavior_0eA', TRUE)
+        behaviors <- run_reaction(parms, 'behavior_0eA')
         expect_equal(behaviors[[1]], behaviors[[2]])
     }
 )
@@ -63,10 +63,10 @@ test_that(
             species   = c('A'),
             ci        = c(1e3),
             reactions = c('A -> 0'),
-            ki        = c(1),
+            ki        = c(2),
             t         = seq(0, 100, 1)
         )
-        behaviors <- run_reaction(parms, 'behavior_Ae0', TRUE)
+        behaviors <- run_reaction(parms, 'behavior_Ae0')
         expect_equal(behaviors[[1]], behaviors[[2]])
     }
 )
@@ -152,10 +152,10 @@ test_that(
             species   = c('A'),
             ci        = c(0),
             reactions = c('0 -> A'),
-            ki        = c(1)
+            ki        = c(2)
         )
 
-        expect_equal(d[['A']], 'd[A]/dt = (1)')
+        expect_equal(d[['A']], 'd[A]/dt = (2)')
     }
 )
 
@@ -166,10 +166,10 @@ test_that(
             species   = c('A'),
             ci        = c(1e3),
             reactions = c('A -> 0'),
-            ki        = c(1)
+            ki        = c(2)
         )
 
-        expect_equal(d[['A']], 'd[A]/dt = (-1 * [A])')
+        expect_equal(d[['A']], 'd[A]/dt = (-2 * [A])')
     }
 )
 

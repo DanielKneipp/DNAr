@@ -117,7 +117,7 @@ react <- function(species, ci, reactions, ki, t) {
             } else {
                 # In case of the reactants are not registred in the
                 # species vector (the reaction will occurr like 0 -> products)
-                vi <- 1
+                vi <- k
             }
         }, reactant_map, ki, v_exp_reactants))
 
