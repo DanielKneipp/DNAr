@@ -144,7 +144,7 @@ analyze_behavior <- function(
                 next
             }
 
-            if(j != 1) {
+            if(j != 1 && substr(s, nchar(s) - 1, nchar(s)) != '= ') {
                 s <- jn(s, ' + ')
             }
             s <- jn(s, '(', k)

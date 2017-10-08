@@ -189,6 +189,24 @@ test_that(
 )
 
 test_that(
+    'analyze_behavior correctly returns the derivatives of a CRN
+    which the first reaction don\'t have all the species',
+    {
+        d <- analyze_behavior(
+            species   = c('A', 'B', 'C'),
+            ci        = c(1e3, 0, 0),
+            reactions = c('A -> 2B',
+                          'B -> 2C'),
+            ki        = c(1e-7, 1e-7)
+        )
+
+        expect_equal(d[['A']], 'd[A]/dt = (-1e-07 * [A])')
+        expect_equal(d[['B']], 'd[B]/dt = (2e-07 * [A]) + (-1e-07 * [B])')
+        expect_equal(d[['C']], 'd[C]/dt = (2e-07 * [B])')
+    }
+)
+
+test_that(
     'analyze_behavior correctly returns the derivatives of Consensus',
     {
         d <- analyze_behavior(
