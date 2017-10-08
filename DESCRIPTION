@@ -27,6 +27,10 @@ Imports:
 Collate:
     'crn_reactor.R'
     '4domain_reactor.R'
+    'analysis.R'
+    'dsd.R'
+    'io.R'
+    'parser.R'
 RoxygenNote: 6.0.1
 RdMacros: Rdpack
 Roxygen: list(markdown = TRUE)
