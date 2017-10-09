@@ -68,7 +68,7 @@ isempty_part <- function(react_part) {
 #' begin equal to 'A', this function would return 1. On the case of '2A ' it
 #' would return 2.
 get_onespecies_count <- function(one_species, reaction_part) {
-    m <- gregexpr(paste('[1-9]*', one_species, sep = ''), reaction_part)
+    m <- gregexpr(paste('\\b[1-9]*', one_species, '\\b', sep = ''), reaction_part)
     matches <- regmatches(reaction_part, m)
     nums <- array(0, length(matches[[1]]))
     if(length(nums) > 0) {
