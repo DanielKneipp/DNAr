@@ -2,6 +2,7 @@
 
 export(analyze_behavior)
 export(compare_behaviors_nrmse)
+export(eval_derivative)
 export(load_behavior_csv)
 export(nrmse)
 export(plot_behavior)

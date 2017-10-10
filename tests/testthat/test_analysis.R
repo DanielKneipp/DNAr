@@ -182,3 +182,47 @@ test_that(
         )
     }
 )
+
+test_that(
+    'eval_derivative correct calculates the derivatives of A + B -> C',
+    {
+        parms <- list(
+            species   = c('A', 'B', 'C'),
+            ci        = c(1e3, 1e3, 0),
+            reactions = c('A + B -> C'),
+            ki        = c(1e-7),
+            t         = seq(0, 72000, 10)
+        )
+        behavior <- do.call(react, parms)
+
+        parms$t <- NULL
+        parms$time_point <- 1
+        parms$behavior <- behavior
+        d <- do.call(analyze_behavior, parms)
+
+        expect_equal(eval_derivative(d[['A']]), -0.1)
+        expect_equal(eval_derivative(d[['B']]), -0.1)
+        expect_equal(eval_derivative(d[['C']]), 0.1)
+})
+
+test_that(
+    'eval_derivative correct calculates the derivatives of 2A + B -> C',
+    {
+        parms <- list(
+            species   = c('A', 'B', 'C'),
+            ci        = c(1e3, 1e3, 0),
+            reactions = c('2A + B -> C'),
+            ki        = c(1e-7),
+            t         = seq(0, 72000, 10)
+        )
+        behavior <- do.call(react, parms)
+
+        parms$t <- NULL
+        parms$time_point <- 1
+        parms$behavior <- behavior
+        d <- do.call(analyze_behavior, parms)
+
+        expect_equal(eval_derivative(d[['A']]), -200)
+        expect_equal(eval_derivative(d[['B']]), -100)
+        expect_equal(eval_derivative(d[['C']]), 100)
+    })

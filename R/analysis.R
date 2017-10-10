@@ -191,3 +191,31 @@ analyze_behavior <- function(
     return(df)
 }
 
+#' Evaluate an expression a derivative returned by
+#' \code{\link{analyze_behavior}()}
+#'
+#' If \code{\link{analyze_behavior}()} was used with a `behavior` and
+#' `time_point`, you can use this function to calculate the result of
+#' the derivative.
+#'
+#' @param derivative  Derivative with concentration values returned by
+#'                    \code{\link{analyze_behavior}()}.
+#'
+#' @return A numeric value representing the result of the derivative.
+#'
+#' @export
+eval_derivative <- function(derivative) {
+    # Get the part after the '='
+    right_part <- stringr::str_split(derivative, '=')[[1]][2]
+
+    # Remove the concentration names (with exponent, if they have)
+    express <- stringr::str_replace_all(
+        right_part,
+        '\\[[^\\[\\]]*\\](\\^[0-9]+)?',
+        ''
+    )
+
+    # Evaluate expression
+    return(eval(parse(text = express)))
+}
+
