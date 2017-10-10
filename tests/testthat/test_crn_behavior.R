@@ -42,6 +42,36 @@ test_that(
 )
 
 test_that(
+    'react reproduces correctly the behavior of the reaction 2A -> 2B + A',
+    {
+        parms <- list(
+            species   = c('A', 'B'),
+            ci        = c(1e3, 0),
+            reactions = c('2A -> 2B + A'),
+            ki        = c(1e-7),
+            t         = seq(0, 72000, 10)
+        )
+        behaviors <- run_reaction(parms, 'behavior_2Ae2BpA')
+        expect_equal(behaviors[[1]], behaviors[[2]])
+    }
+)
+
+test_that(
+    'react reproduces correctly the behavior of the reaction A -> 2B',
+    {
+        parms <- list(
+            species   = c('A', 'B'),
+            ci        = c(1e3, 0),
+            reactions = c('A -> 2B'),
+            ki        = c(1e-7),
+            t         = seq(0, 72000, 10)
+        )
+        behaviors <- run_reaction(parms, 'behavior_Ae2B')
+        expect_equal(behaviors[[1]], behaviors[[2]])
+    }
+)
+
+test_that(
     'react reproduces correctly the behavior of the reaction 0 -> A',
     {
         parms <- list(
