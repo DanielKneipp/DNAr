@@ -124,8 +124,12 @@ analyze_behavior <- function(
         assertthat::assert_that(!is.null(behavior))
     }
 
+    # Get stoichiometry information
+    sto_info <- get_M(reactions, species)
+    sto_prod <- t(sto_info$prod)
+    sto_react <- t(sto_info$react)
     # Get the transpose of the M matrix
-    Mt <- t(get_M(reactions, species)$M)
+    Mt <- t(sto_info$M)
 
     # Set the output data frame
     df <- data.frame(matrix(nrow = 1, ncol = length(species)))
@@ -159,23 +163,28 @@ analyze_behavior <- function(
                     break
                 }
 
+                # Set exponent
+                react_exp <- sto_react[reactant_idx, j]
+
+                # Set concentration wit exponent
                 if(is.null(time_point)) {
                     s <- jn(s, ' * [', reactant, ']')
                 } else {
-                    n <- 1
-                    if(Mt[reactant_idx, j] < -1) {
-                        n <- abs(Mt[reactant_idx, j])
-                    }
-                    s <- jn(s, ' * ', behavior[time_point, reactant]^n,
+                    s <- jn(s, ' * ', behavior[time_point, reactant]^react_exp,
                             '[', reactant, ']')
                 }
-                if(Mt[reactant_idx, j] < -1) {
-                    s <- jn(s, '^', abs(Mt[reactant_idx, j]))
+                if(react_exp > 1) {
+                    s <- jn(s, '^', react_exp)
                 }
             }
 
             s <- jn(s, ')')
         }
+
+        if(substr(s, nchar(s) - 1, nchar(s)) == '= ') {
+            s <- jn(s, '0')
+        }
+
         df[i] <- s
     }
 
