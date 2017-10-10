@@ -16,7 +16,10 @@ column order of the returned behavior.}
 
 \item{reactions}{A vector with the reactions of the CRN. If a reaction has
 has only reactants that are non in \code{species}, this
-reaction will be treated as \code{0 -> products}.}
+reaction will be treated as \code{0 -> products}. Furthermore,
+this function treats a reaction \code{non_registered_species + registered_species -> products} equally to
+\code{registered_species -> products}, ignoring the species non
+registered on the \code{species} vector.}
 
 \item{ki}{A vector defining the constant rate of each reaction
 in \code{reactions}, in order.}
