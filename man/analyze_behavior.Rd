@@ -4,14 +4,12 @@
 \alias{analyze_behavior}
 \title{This function returns the concentration derivative of each species}
 \usage{
-analyze_behavior(species, ci, reactions, ki, time_point = NULL,
+analyze_behavior(species, ci, reactions, ki, time_points = NULL,
   behavior = NULL)
 }
 \arguments{
-\item{time_point}{An index (representing a point in time) used to access
-a specific line of \code{behavior}. If \code{time_point = -1},
-A list will be returned with the derivatives of all
-the time points.}
+\item{time_points}{A vector of indexes (representing multiple points in
+time) used for access lines of \code{behavior}.}
 
 \item{behavior}{The data returned by \code{\link{react}()}.}
 }

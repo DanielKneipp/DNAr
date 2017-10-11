@@ -100,11 +100,9 @@ compare_behaviors_nrmse <- function(bhv_sim, bhv_obs) {
 #' this functions returns the concentration of each species
 #' at a specific point in time within the derivative.
 #'
-#' @param behavior    The data returned by \code{\link{react}()}.
-#' @param time_point  An index (representing a point in time) used to access
-#'                    a specific line of `behavior`. If `time_point = -1`,
-#'                    A list will be returned with the derivatives of all
-#'                    the time points.
+#' @param behavior     The data returned by \code{\link{react}()}.
+#' @param time_points  A vector of indexes (representing multiple points in
+#'                     time) used for access lines of `behavior`.
 #'
 #' @return A data frame with the derivatives. To access the derivative
 #'         of a species `'A'`, you just have to access `df['A']`.
@@ -115,14 +113,14 @@ analyze_behavior <- function(
     ci,
     reactions,
     ki,
-    time_point = NULL,
+    time_points = NULL,
     behavior = NULL
 ) {
     # Helper function to concat strings
     jn <- function(...) { paste(..., sep = '') }
 
     # Check if behavior exists (in case of a time_point has been passed)
-    if(!is.null(time_point)) {
+    if(!is.null(time_points)) {
         assertthat::assert_that(!is.null(behavior))
     }
 
@@ -133,29 +131,21 @@ analyze_behavior <- function(
     # Get the transpose of the M matrix
     Mt <- t(sto_info$M)
 
-    # Set the output data frame
-    series_range_top <- 1
-    series_range_bottom <- 1
-    if(!is.null(time_point)) {
-        if(time_point == -1) {
-            series_range_top <- dim(behavior)[[1]]
-            series_range_bottom <- 1
-        } else {
-            series_range_top <- time_point
-            series_range_bottom <- time_point
-        }
+    # Get a list of data frames (one for each time point)
+    # If no time point was passed, only one data frame should
+    # be instantiated
+    n_df <- 1
+    if(!is.null(time_points)) {
+        n_df <- length(time_points)
     }
-
-    # If time_point == -1 get the derivatives of all time points,
-    # storing the derivatives of each time point in a list
-    series_range <- series_range_bottom:series_range_top
-    df_list <- lapply(series_range, function(x) {
+    df_list <- lapply(rep(1, n_df), function(nothing) {
         df <- data.frame(matrix(nrow = 1, ncol = length(species)))
         names(df) <- species
         return(df)
     })
 
-    for(t in series_range) {
+    filtered_time_points <- if(is.null(time_points)) 1:1 else time_points
+    for(t in filtered_time_points) {
         for(i in 1:length(species)) {
             # Set the left part of the derivative equation
             s <- jn('d[', species[i], ']/dt = ')
@@ -188,7 +178,7 @@ analyze_behavior <- function(
                     react_exp <- sto_react[reactant_idx, j]
 
                     # Set concentration wit exponent
-                    if(is.null(time_point)) {
+                    if(is.null(time_points)) {
                         s <- jn(s, ' * [', reactant, ']')
                     } else {
                         s <- jn(s, ' * ',
