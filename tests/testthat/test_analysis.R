@@ -157,7 +157,7 @@ test_that(
             ci        = c(1e3, 1e3, 0),
             reactions = c('A + B -> C'),
             ki        = c(1e-7),
-            time_point = 1,
+            time_points = 1,
             behavior = behavior
         )
 
@@ -168,7 +168,7 @@ test_that(
 )
 
 test_that(
-    'analyze_behavior throws an exception when the time_point parameter is
+    'analyze_behavior throws an exception when the time_points parameter is
     passed but behavior isn\'t',
     {
         expect_error(
@@ -177,7 +177,7 @@ test_that(
                 ci        = c(1e3, 1e3, 0),
                 reactions = c('A + B -> C'),
                 ki        = c(1e-7),
-                time_point = 1
+                time_points = 1
             )
         )
     }
@@ -196,7 +196,7 @@ test_that(
         behavior <- do.call(react, parms)
 
         parms$t <- NULL
-        parms$time_point <- 1
+        parms$time_points <- 1
         parms$behavior <- behavior
         d <- do.call(analyze_behavior, parms)
 
@@ -218,7 +218,7 @@ test_that(
         behavior <- do.call(react, parms)
 
         parms$t <- NULL
-        parms$time_point <- 1
+        parms$time_points <- 1
         parms$behavior <- behavior
         d <- do.call(analyze_behavior, parms)
 
