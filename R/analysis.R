@@ -102,7 +102,9 @@ compare_behaviors_nrmse <- function(bhv_sim, bhv_obs) {
 #'
 #' @param behavior    The data returned by \code{\link{react}()}.
 #' @param time_point  An index (representing a point in time) used to access
-#'                    a specific line of `behavior`.
+#'                    a specific line of `behavior`. If `time_point = -1`,
+#'                    A list will be returned with the derivatives of all
+#'                    the time points.
 #'
 #' @return A data frame with the derivatives. To access the derivative
 #'         of a species `'A'`, you just have to access `df['A']`.
@@ -132,63 +134,89 @@ analyze_behavior <- function(
     Mt <- t(sto_info$M)
 
     # Set the output data frame
-    df <- data.frame(matrix(nrow = 1, ncol = length(species)))
-    names(df) <- species
-
-    for(i in 1:length(species)) {
-        # Set the left part of the derivative equation
-        s <- jn('d[', species[i], ']/dt = ')
-        for(j in 1:length(reactions)) {
-            # Set the k with stoichiometry
-            k <- ki[j] * Mt[i,j]
-
-            # Go to the next reactions if this one has k = 0
-            # (this reaction doesn't impact this species)
-            if(k == 0) {
-                next
-            }
-
-            if(j != 1 && substr(s, nchar(s) - 1, nchar(s)) != '= ') {
-                s <- jn(s, ' + ')
-            }
-            s <- jn(s, '(', k)
-
-            # Get the reactant names or values
-            reactants <- get_reactants(reactions[j])
-            for(reactant in reactants) {
-                reactant_idx <- match(reactant, species)
-
-                # If the reactant is not in the species list
-                if(is.na(reactant_idx)) {
-                    break
-                }
-
-                # Set exponent
-                react_exp <- sto_react[reactant_idx, j]
-
-                # Set concentration wit exponent
-                if(is.null(time_point)) {
-                    s <- jn(s, ' * [', reactant, ']')
-                } else {
-                    s <- jn(s, ' * ', behavior[time_point, reactant]^react_exp,
-                            '[', reactant, ']')
-                }
-                if(react_exp > 1) {
-                    s <- jn(s, '^', react_exp)
-                }
-            }
-
-            s <- jn(s, ')')
+    series_range_top <- 1
+    series_range_bottom <- 1
+    if(!is.null(time_point)) {
+        if(time_point == -1) {
+            series_range_top <- dim(behavior)[[1]]
+            series_range_bottom <- 1
+        } else {
+            series_range_top <- time_point
+            series_range_bottom <- time_point
         }
-
-        if(substr(s, nchar(s) - 1, nchar(s)) == '= ') {
-            s <- jn(s, '0')
-        }
-
-        df[i] <- s
     }
 
-    return(df)
+    # If time_point == -1 get the derivatives of all time points,
+    # storing the derivatives of each time point in a list
+    series_range <- series_range_bottom:series_range_top
+    df_list <- lapply(series_range, function(x) {
+        df <- data.frame(matrix(nrow = 1, ncol = length(species)))
+        names(df) <- species
+        return(df)
+    })
+
+    for(t in series_range) {
+        for(i in 1:length(species)) {
+            # Set the left part of the derivative equation
+            s <- jn('d[', species[i], ']/dt = ')
+            for(j in 1:length(reactions)) {
+                # Set the k with stoichiometry
+                k <- ki[j] * Mt[i,j]
+
+                # Go to the next reactions if this one has k = 0
+                # (this reaction doesn't impact this species)
+                if(k == 0) {
+                    next
+                }
+
+                if(j != 1 && substr(s, nchar(s) - 1, nchar(s)) != '= ') {
+                    s <- jn(s, ' + ')
+                }
+                s <- jn(s, '(', k)
+
+                # Get the reactant names or values
+                reactants <- get_reactants(reactions[j])
+                for(reactant in reactants) {
+                    reactant_idx <- match(reactant, species)
+
+                    # If the reactant is not in the species list
+                    if(is.na(reactant_idx)) {
+                        break
+                    }
+
+                    # Set exponent
+                    react_exp <- sto_react[reactant_idx, j]
+
+                    # Set concentration wit exponent
+                    if(is.null(time_point)) {
+                        s <- jn(s, ' * [', reactant, ']')
+                    } else {
+                        s <- jn(s, ' * ',
+                                behavior[t, reactant]^react_exp,
+                                '[', reactant, ']')
+                    }
+                    if(react_exp > 1) {
+                        s <- jn(s, '^', react_exp)
+                    }
+                }
+
+                s <- jn(s, ')')
+            }
+
+            if(substr(s, nchar(s) - 1, nchar(s)) == '= ') {
+                s <- jn(s, '0')
+            }
+
+            df_list[[t]][i] <- s
+        }
+    }
+
+    # Return the data frame if there is only oen time point in the list
+    if(length(df_list) == 1) {
+        return(df_list[[1]])
+    } else {
+        return(df_list)
+    }
 }
 
 #' Evaluate an expression a derivative returned by

@@ -9,7 +9,9 @@ analyze_behavior(species, ci, reactions, ki, time_point = NULL,
 }
 \arguments{
 \item{time_point}{An index (representing a point in time) used to access
-a specific line of \code{behavior}.}
+a specific line of \code{behavior}. If \code{time_point = -1},
+A list will be returned with the derivatives of all
+the time points.}
 
 \item{behavior}{The data returned by \code{\link{react}()}.}
 }
