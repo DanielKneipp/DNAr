@@ -247,3 +247,78 @@ reactants_in_reaction <- function(species, reaction) {
     }
     return(r)
 }
+
+#' Check if a CRN is respecting the limitations of the function
+#' \code{\link{react}()}
+#'
+#' This function can be used to check the crn parameters passed to
+#' \code{\link{react}()}. It checks:
+#'  - If all the parameters are correctly defined
+#' and of the correct type;
+#'  - If the length of `species` and `reactions` are equal to the length
+#' of `ci` and `ki`, respectively;
+#'  - If there is no duplicate of species names on the `species` parameter.
+#' The parameters of this function are the same of \code{\link{react}()}.
+check_crn <- function(species, ci, reactions, ki, t) {
+    # Check if all parameters were set correctly
+    # This is a helper function to check the parameters
+    check_var <- function(vec, type_checker, err_msgs) {
+        # Check if the vec parameter is if the type vector
+        assertthat::assert_that(is.vector(species), msg = err_msg[[1]])
+
+        # Check if all vector elements are of the correct type
+        # using the type_checker function
+        assertthat::assert_that(all(
+                sapply(vec, function(x) type_checker(x))
+        ), msg = err_msgs[[2]])
+    }
+
+    check_var(
+        species,
+        is.character,
+        list('species parameter should be a vector',
+             'All elements of species must be text')
+    )
+    check_var(
+        ci,
+        is.numeric,
+        list('ci parameter should be a vector',
+             'All elements of ci must be numbers')
+    )
+    check_var(
+        reactions,
+        is.character,
+        list('reactions parameter should be a vector',
+             'All elements of reactions must be text')
+    )
+    check_var(
+        ki,
+        is.numeric,
+        list('ki parameter should be a vector',
+             'All elements of ki must be numbers')
+    )
+    check_var(
+        t,
+        is.numeric,
+        list('t parameter should be a vector',
+             'All elements of t must be numbers')
+    )
+
+    # Check if there is any species duplicate
+    assertthat::assert_that(
+        !any(duplicated(species)),
+        msg = 'species parameter has a duplicate element'
+    )
+
+    # Check if the length of species and ci are the same
+    assertthat::assert_that(
+        length(species) == length(ci),
+        msg = 'The length of species and ci are not equal'
+    )
+
+    # Check if the length of reactions and ki are the same
+    assertthat::assert_that(
+        length(reactions) == length(ki),
+        msg = 'The length of reactions and ki are not equal'
+    )
+}

@@ -84,6 +84,9 @@ get_M <- function(reactions, species) {
 #'
 #' @example demo/main_crn.R
 react <- function(species, ci, reactions, ki, t) {
+    # Check the crn specification
+    check_crn(species, ci, reactions, ki, t)
+
     # Get stoichiometry information
     sto_info <- get_M(reactions, species)
     sto_react <- t(sto_info$react)
