@@ -122,6 +122,12 @@ analyze_behavior <- function(
     # Check if behavior exists (in case of a time_point has been passed)
     if(!is.null(time_points)) {
         assertthat::assert_that(!is.null(behavior))
+
+        # Check if all time_points are within the behavior data
+        assertthat::assert_that(
+            max(time_points) <= dim(behavior)[[1]],
+            msg = 'All the time points must be within the behavior data.'
+        )
     }
 
     # Get stoichiometry information
@@ -144,8 +150,7 @@ analyze_behavior <- function(
         return(df)
     })
 
-    filtered_time_points <- if(is.null(time_points)) 1:1 else time_points
-    for(t in filtered_time_points) {
+    for(t in (if(is.null(time_points)) 1:1 else 1:length(time_points))) {
         for(i in 1:length(species)) {
             # Set the left part of the derivative equation
             s <- jn('d[', species[i], ']/dt = ')
@@ -182,7 +187,7 @@ analyze_behavior <- function(
                         s <- jn(s, ' * [', reactant, ']')
                     } else {
                         s <- jn(s, ' * ',
-                                behavior[t, reactant]^react_exp,
+                                behavior[time_points[[t]], reactant]^react_exp,
                                 '[', reactant, ']')
                     }
                     if(react_exp > 1) {
