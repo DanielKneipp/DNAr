@@ -322,3 +322,13 @@ check_crn <- function(species, ci, reactions, ki, t) {
         msg = 'The length of reactions and ki are not equal'
     )
 }
+
+#' Helper function to concatenate strings
+#'
+#' this function should be used for string concatenation without
+#' space between the strings as the default behavior.
+#'
+#' @param ...  The strings to be concatenated.
+#'
+#' @return  A string with all the input strings concatenated.
+jn <- function(...) { paste(..., sep = '') }

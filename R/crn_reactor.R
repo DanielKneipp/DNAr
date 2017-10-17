@@ -126,6 +126,7 @@ react <- function(species, ci, reactions, ki, t) {
         # Multiply the impact magnitude of each reaction with the stoichiometry
         # of each species to get the new species concentrations
         dy <- Mt %*% v
+
         list(dy)
     }
 
@@ -136,4 +137,34 @@ react <- function(species, ci, reactions, ki, t) {
     names(df_result) <- c('time', species)
 
     return(df_result)
+}
+
+#' Combine CRNs into one single larger CRN
+#'
+#' Use this function to combine multiple crns into a larger crn which
+#' has all the reactions, species and other parameters of all other CRNs.
+#'
+#' @param ...  Other CRNs.
+#'
+#' @return  Another CRN representing the input CRNs combined
+#'
+#' @export
+combine_crns <- function(...) {
+    # Initialize the parameters
+    parms <- list(
+        species   = c(),
+        ci        = c(),
+        reactions = c(),
+        ki        = c()
+    )
+
+    # Combine the CRNs
+    for(crn in list(...)) {
+        parms$species   <- c(parms$species, crn$species)
+        parms$ci        <- c(parms$ci, crn$ci)
+        parms$reactions <- c(parms$reactions, crn$reactions)
+        parms$ki        <- c(parms$ki, crn$ki)
+    }
+
+    return(parms)
 }

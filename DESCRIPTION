@@ -31,6 +31,7 @@ Collate:
     'dsd.R'
     'io.R'
     'parser.R'
+    'neuron_hjelmfelt.R'
 RoxygenNote: 6.0.1
 RdMacros: Rdpack
 Roxygen: list(markdown = TRUE)
