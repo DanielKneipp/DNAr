@@ -4,12 +4,12 @@
 \alias{update_neuron_input_hje}
 \title{Update the neuron input according to the bindings}
 \usage{
-update_neuron_input_hje(neuron, ...)
+update_neuron_input_hje(neuron, bindings)
 }
 \arguments{
 \item{neuron}{The neuron which its input will be replaced}
 
-\item{...}{The bindings}
+\item{bindings}{List of bindings}
 }
 \value{
 The neuron received as input but whith its input changed.

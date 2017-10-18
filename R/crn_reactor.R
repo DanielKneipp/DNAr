@@ -144,12 +144,12 @@ react <- function(species, ci, reactions, ki, t) {
 #' Use this function to combine multiple crns into a larger crn which
 #' has all the reactions, species and other parameters of all other CRNs.
 #'
-#' @param ...  Other CRNs.
+#' @param crns  List of CRNs.
 #'
 #' @return  Another CRN representing the input CRNs combined
 #'
 #' @export
-combine_crns <- function(...) {
+combine_crns <- function(crns) {
     # Initialize the parameters
     parms <- list(
         species   = c(),
@@ -159,7 +159,7 @@ combine_crns <- function(...) {
     )
 
     # Combine the CRNs
-    for(crn in list(...)) {
+    for(crn in crns) {
         parms$species   <- c(parms$species, crn$species)
         parms$ci        <- c(parms$ci, crn$ci)
         parms$reactions <- c(parms$reactions, crn$reactions)

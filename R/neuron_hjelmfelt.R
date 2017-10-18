@@ -32,6 +32,8 @@
 #' @references
 #'   - `[1]` \insertRef{hjelmfelt1991chemical}{DNAr}
 get_neuron_hje <- function(name, input_ci) {
+    # TODO: Check input
+
     # Define the species names based on the neuron name
     sn <- list(
         C  = jn('C', name),
@@ -89,13 +91,15 @@ get_neuron_hje <- function(name, input_ci) {
 #' @return  The binding CRN.
 #'
 #' @export
-get_binding_hje <- function(
+get_neuron_binding_hje <- function(
     neuron1,
     neuron2,
     enzyme_config,
     ci,
     bind_inhibitory = FALSE
 ) {
+    # TODO: check the input variables
+
     # Get the neuron names
     n1n <- neuron1$name
     n2n <- neuron2$name
@@ -131,14 +135,14 @@ get_binding_hje <- function(
 #' reactions (one for each binding), replacing the `C` by the output species
 #' of the binding.
 #'
-#' @param neuron  The neuron which its input will be replaced
-#' @param ...     The bindings
+#' @param neuron    The neuron which its input will be replaced
+#' @param bindings  List of bindings
 #'
 #' @return  The neuron received as input but whith its input changed.
 #'
 #' @export
-update_neuron_input_hje <- function(neuron, ...) {
-    bindings <- list(...)
+update_neuron_input_hje <- function(neuron, bindings) {
+    # TODO: Check input
 
     # Updating species (remove the input species, since it will come
     # from the binding)
@@ -173,4 +177,209 @@ update_neuron_input_hje <- function(neuron, ...) {
     neuron$ki <- c(new_kis, neuron$ki[3:length(neuron$ki)])
 
     return(neuron)
+}
+
+get_neuron_generic_gate_hje <- function(
+    input_neuron_names,
+    output_neuron_name,
+    input_neuron_cis,
+    binding_enzyme_configs,
+    binding_cis,
+    binding_inhibit = NULL
+) {
+    #
+    # Input checking
+    #
+
+    # Check if output_neuron_name is only a string
+    assertthat::assert_that(
+        is.character(output_neuron_name),
+        msg = 'output_neuron_name must be a string'
+    )
+
+    # Check if the length of input_neuron_cis and input_neuron_names
+    # are equal
+    assertthat::assert_that(
+        length(input_neuron_names) == length(input_neuron_cis),
+        msg = 'The number of input initial concentrations (input_neuron_cis)
+               must be equal to the number of input neurons
+               (input_neuron_names)'
+    )
+
+    # Check if the length of binding_enzyme_configs and input_neuron_names
+    # are equal
+    assertthat::assert_that(
+        length(input_neuron_names) == length(binding_enzyme_configs),
+        msg = 'The number of enzyme configurations
+               (binding_enzyme_configs) must be equal to the number of
+               input neurons (input_neuron_names)'
+    )
+
+    # Check if the length of binding_cis and input_neuron_names
+    # are equal
+    assertthat::assert_that(
+        length(input_neuron_names) == length(binding_cis),
+        msg = 'The number of initial concentration of the bindings
+        (binding_cis) must be equal to the number of
+        input neurons (input_neuron_names)'
+    )
+
+    # If a binding_inhibit wasn't passed,
+    if(is.null(binding_inhibit)) {
+        binding_inhibit <- rep(FALSE, length(input_neuron_names))
+    } else {
+        # Check if the length of binding_inhibit and input_neuron_names
+        # are equal
+        assertthat::assert_that(
+            length(input_neuron_names) == length(binding_inhibit),
+            msg = 'The number of binding inhibition specification
+            (binding_inhibit) must be equal to the number of
+            input neurons (input_neuron_names)'
+        )
+    }
+
+    # Check if there is any neuron name duplicate
+    assertthat::assert_that(
+        !any(duplicated(input_neuron_names)),
+        msg = 'Input neuron names must be all unique'
+    )
+
+    #
+    # CRN construction
+    #
+
+    # Get the CRNs of the input neurons
+    input_neuron_crns <- mapply(function(neuron_name, neuron_ci) {
+        get_neuron_hje(neuron_name, neuron_ci)
+    }, input_neuron_names, input_neuron_cis, SIMPLIFY = FALSE)
+
+    # Get the output neuron CRN
+    output_neuron_crn <- get_neuron_hje(output_neuron_name, 0)
+
+    # Get the bindings
+    binding_crns <- mapply(function(neuron_crn, e_conf, ci, inhibit) {
+        get_neuron_binding_hje(
+            neuron_crn,
+            output_neuron_crn,
+            e_conf,
+            ci,
+            inhibit
+        )
+    }, input_neuron_crns, binding_enzyme_configs,
+       binding_cis, binding_inhibit, SIMPLIFY = FALSE)
+
+    # Update input of the output neuron according to the input neurons
+    output_neuron_crn <- update_neuron_input_hje(
+        output_neuron_crn,
+        binding_crns
+    )
+
+    # Get the gate specification
+    gate <- list(
+        output_neuron_crn = output_neuron_crn,
+        input_neuron_crns = input_neuron_crns,
+        binding_crns = binding_crns
+    )
+
+    return(gate)
+}
+
+#' @export
+get_crn_from_neuron_gate_hje <- function(gate) {
+    # Combine all the gate CRNs
+    gate_crn <- combine_crns(c(
+        list(gate$output_neuron_crn),
+        gate$input_neuron_crns,
+        gate$binding_crns
+    ))
+
+    return(gate_crn)
+}
+
+#' Check gates specification
+#'
+check_gate_hje <- function(gate, gate_id_str) {
+    # Check if the the gate is a list and it has length > 0
+    assertthat::assert_that(
+        is.list(gate) && length(gate) > 0,
+        msg = paste('The gate', gate_id_str, 'must be a list with at least
+                    three named elements (output_neuron_crn,
+                    input_neuron_crns, binding_crns) in it')
+    )
+
+    # Check if output_neuron_crn is set
+    assertthat::assert_that(
+        is.list(gate$output_neuron_crn) &&
+            length(gate$output_neuron_crn) > 0,
+        msg = paste('The gate', gate_id_str, 'list must have an elemnt
+                    with the name output_neuron_crn which is a list
+                    with length > 0')
+    )
+
+    # Check if output_neuron_crn is set
+    assertthat::assert_that(
+        is.list(gate$input_neuron_crns) &&
+            length(gate$input_neuron_crns) > 0,
+        msg = paste('The gate', gate_id_str, 'list must have an elemnt
+                    with the name input_neuron_crns which is a list
+                    with length > 0')
+    )
+
+    # Check if output_neuron_crn is set
+    assertthat::assert_that(
+        is.list(gate$binding_crns) &&
+            length(gate$binding_crns) > 0,
+        msg = paste('The gate', gate_id_str, 'list must have an elemnt
+                    with the name binding_crns which is a list
+                    with length > 0')
+    )
+}
+
+#' @export
+get_gate_binding_hje <- function(gate1, gate2, input_neuron_idx, ...) {
+    # Check the gate specification
+    check_gate_hje(gate1, 'gate1')
+    check_gate_hje(gate2, 'gate2')
+
+    # Check if input_neuron_idx is whitin length(gate2$input_neuron_crns)
+    assertthat::assert_that(
+        input_neuron_idx <= length(gate2$input_neuron_crns),
+        msg = 'input_neuron_idx is out of limits of gate2$input_neuron_crns'
+    )
+
+    # Get the input (signal) and ouput neurons (which will receive the signal)
+    gate1_output_neuron <- gate1$output_neuron_crn
+    gate2_input_neuron <- gate2$input_neuron_crns[[input_neuron_idx]]
+
+    # Get the binding between these two neurons, which will be the binding
+    # between the gates
+    binding <- get_neuron_binding_hje(
+        gate1_output_neuron,
+        gate2_input_neuron,
+        ...
+    )
+
+    return(binding)
+}
+
+#' @export
+get_neuron_AND_gate <- function(gate_name, input_cis) {
+    # Define the input and output names
+    input1_name <- jn(gate_name, 'i1')
+    input2_name <- jn(gate_name, 'i2')
+    output_name <- jn(gate_name, 'o')
+
+    # Get the gate
+    gate <- get_neuron_generic_gate_hje(
+        input_neuron_names = list(input1_name, input2_name),
+        output_neuron_name = output_name,
+        input_neuron_cis = input_cis,
+        binding_enzyme_configs = list(
+            list(ci = 1/3, k = c(200, 100)),
+            list(ci = 1/3, k = c(200, 100))
+        ),
+        binding_cis = c(2/3, 2/3)
+    )
+
+    return(gate)
 }

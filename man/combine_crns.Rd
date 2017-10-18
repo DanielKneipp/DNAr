@@ -4,10 +4,10 @@
 \alias{combine_crns}
 \title{Combine CRNs into one single larger CRN}
 \usage{
-combine_crns(...)
+combine_crns(crns)
 }
 \arguments{
-\item{...}{Other CRNs.}
+\item{crns}{List of CRNs.}
 }
 \value{
 Another CRN representing the input CRNs combined
