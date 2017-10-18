@@ -138,7 +138,7 @@ get_neuron_binding_hje <- function(
 #' @param neuron    The neuron which its input will be replaced
 #' @param bindings  List of bindings
 #'
-#' @return  The neuron received as input but whith its input changed.
+#' @return  The neuron received as input but with its input changed.
 #'
 #' @export
 update_neuron_input_hje <- function(neuron, bindings) {
@@ -179,6 +179,50 @@ update_neuron_input_hje <- function(neuron, bindings) {
     return(neuron)
 }
 
+#' Get a generic neuron gate with n inputs and 1 output
+#'
+#' This function returns a generic neuron gate. Generic because the
+#' number of inputs of this gate will be specified as an argument
+#' (length of `input_neuron_names`).
+#'
+#' A neuron gate is a gate made with neurons, more specifically, 1 + n neurons,
+#' where n is the number of inputs. Each input is a binary neuron that passes
+#' its output to the last neuron, the output neuron. This neuron has as input
+#' the sum of the output of all input neurons.
+#'
+#' @param input_neuron_name       A list of string. Each string specifies
+#' @param output_neuron_name      A string being the output neuron name
+#' @param input_neuron_cis        A vector of number representing the
+#'                                initial concentration of each neuron
+#' @param binding_enzyme_configs  A list where each element represents
+#'                                a enzyme configuration. Each configuration
+#'                                is a list with the following parameters:
+#'                                \itemize{
+#'                                  \item `ci`: Initial concentration of the
+#'                                    enzyme
+#'                                  \item `k`: Vector with the rate constants
+#'                                    of forward and backward reactions,
+#'                                    respectively.
+#'                                }
+#' @param binding_cis             Numeric vector with the initial concentration
+#'                                of the bindings
+#' @param binding_inhibit         Boolean vector where each elements specifies
+#'                                whether the binding with the same index will
+#'                                be an inhibitory binding or not. If no vector
+#'                                is passed, no binding will be inhibited.
+#'
+#' @return  A list representing the gate. This list comes with three parameters:
+#'          \itemize{
+#'            \item `output_neuron_crn`: A neuron CRN returned by
+#'              `\link{get_neuron_hje}()`;
+#'            \item `input_neuron_crns`: A list of neuron CRNs also returned by
+#'              `\link{get_neuron_hje}()`;
+#'            \item `binding_crns`: A list of binding CRNs returned by
+#'              `\link{get_neuron_binding_hje}()`, which are the binding
+#'              of each input neuron with the output neuron.
+#'          }
+#'
+#' @seealso `\link{react}()` for more about the neuron behavior.
 get_neuron_generic_gate_hje <- function(
     input_neuron_names,
     output_neuron_name,
@@ -244,6 +288,8 @@ get_neuron_generic_gate_hje <- function(
         msg = 'Input neuron names must be all unique'
     )
 
+    # TODO: Check the content of binding_enzyme_configs
+
     #
     # CRN construction
     #
@@ -284,6 +330,17 @@ get_neuron_generic_gate_hje <- function(
     return(gate)
 }
 
+#' Get a CRN given a gate
+#'
+#' This function returns a list specifying a CRN given a list
+#' specifying a gate as a parameter, combining all the CRNs of the gate
+#' into one single CRN.
+#'
+#' @param gate  List representing the gate (returned by
+#'              `\link{get_neuron_generic_gate_hje}()`, for example).
+#'
+#' @return  A CRN representing the `gate`.
+#'
 #' @export
 get_crn_from_neuron_gate_hje <- function(gate) {
     # Combine all the gate CRNs
@@ -296,9 +353,15 @@ get_crn_from_neuron_gate_hje <- function(gate) {
     return(gate_crn)
 }
 
-#' Check gates specification
+#' Checks the gate specification
 #'
-check_gate_hje <- function(gate, gate_id_str) {
+#' This function is used to verify the list that represents a gate is
+#' correct defined.
+#'
+#' @param gate         The list to be verified
+#' @param gate_id_str  A string to identify the gate. I is used to generate
+#'                     customized error messages.
+check_neuron_gate_hje <- function(gate, gate_id_str) {
     # Check if the the gate is a list and it has length > 0
     assertthat::assert_that(
         is.list(gate) && length(gate) > 0,
@@ -335,19 +398,37 @@ check_gate_hje <- function(gate, gate_id_str) {
     )
 }
 
+#' Get the binding between two neuron gates
+#'
+#' This function returns a CRN which represents a binding between the
+#' output neuron of one gate (`gate1`) to one of the input neurons of
+#' the other gate (`gate2`).
+#'
+#' @param gate1,gate2       The gates which will be binded
+#' @param input_neuron_idx  The index of the input neuron of `gate2` which
+#'                          will be binded.
+#' @param ...               The parameters `enzyme_config`, `ci` and optionally
+#'                          `bind_inhibitory`, which will be passed to
+#'                          `\link{get_neuron_binding_hje}()`
+#'
+#' @return  Get the binding CRN between gates.
+#'
+#' @seealso  `\link{get_neuron_binding_hje}()` for details about the parameter
+#'           that it s expecting.
+#'
 #' @export
-get_gate_binding_hje <- function(gate1, gate2, input_neuron_idx, ...) {
+get_neuron_gate_binding_hje <- function(gate1, gate2, input_neuron_idx, ...) {
     # Check the gate specification
-    check_gate_hje(gate1, 'gate1')
-    check_gate_hje(gate2, 'gate2')
+    check_neuron_gate_hje(gate1, 'gate1')
+    check_neuron_gate_hje(gate2, 'gate2')
 
-    # Check if input_neuron_idx is whitin length(gate2$input_neuron_crns)
+    # Check if input_neuron_idx is within length(gate2$input_neuron_crns)
     assertthat::assert_that(
         input_neuron_idx <= length(gate2$input_neuron_crns),
         msg = 'input_neuron_idx is out of limits of gate2$input_neuron_crns'
     )
 
-    # Get the input (signal) and ouput neurons (which will receive the signal)
+    # Get the input (signal) and output neurons (which will receive the signal)
     gate1_output_neuron <- gate1$output_neuron_crn
     gate2_input_neuron <- gate2$input_neuron_crns[[input_neuron_idx]]
 
@@ -362,8 +443,35 @@ get_gate_binding_hje <- function(gate1, gate2, input_neuron_idx, ...) {
     return(binding)
 }
 
+# TODO: Function to combine gates and gate bindings (logic circuit)
+
+# TODO: Function to return a CRN given a logic circuit.
+
+#' Get a AND neuron gate
+#'
+#' This function returns an AND gate using neurons based on McCullogh-Pitts
+#' model (neurons returned by `\link{get_neuron_hje}()`). The two input neurons
+#' have the name `i1` and `i2`, and the output neuron has the `o` name. This
+#' (with the gate name) determines the species names created for the CRNs
+#' that represent them.
+#'
+#' @param gate_name  The name of the gate
+#' @param input_cis  A numeric vector representing the initial concentration
+#'                   of the inputs.
+#'
+#' @return  A list representing the gate. To transform this representation into
+#'          a CRN (to simulate with `\link{react}()`, for example) you have
+#'          to use the function `\link{get_crn_from_neuron_gate_hje}()`.
+#'
 #' @export
-get_neuron_AND_gate <- function(gate_name, input_cis) {
+#'
+#' @examples
+#' g         <- DNAr::get_neuron_AND_gate_hje('_AND', c(0.5, 1.5))
+#' and_crn   <- DNAr::get_crn_from_neuron_gate_hje(g)
+#' and_crn$t <- seq(0, 1, length.out = 100)
+#' b         <- do.call(DNAr::react, and_crn)
+#' DNAr::plot_behavior(b, c('A_ANDo'))
+get_neuron_AND_gate_hje <- function(gate_name, input_cis) {
     # Define the input and output names
     input1_name <- jn(gate_name, 'i1')
     input2_name <- jn(gate_name, 'i2')

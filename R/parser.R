@@ -259,6 +259,7 @@ reactants_in_reaction <- function(species, reaction) {
 #' of `ci` and `ki`, respectively;
 #'  - If there is no duplicate of species names on the `species` parameter.
 #' The parameters of this function are the same of \code{\link{react}()}.
+#'
 check_crn <- function(species, ci, reactions, ki, t) {
     # Check if all parameters were set correctly
     # This is a helper function to check the parameters

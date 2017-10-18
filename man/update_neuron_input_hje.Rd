@@ -12,7 +12,7 @@ update_neuron_input_hje(neuron, bindings)
 \item{bindings}{List of bindings}
 }
 \value{
-The neuron received as input but whith its input changed.
+The neuron received as input but with its input changed.
 }
 \description{
 Use this function to update the neuron (returned by
