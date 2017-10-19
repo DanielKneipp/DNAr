@@ -492,6 +492,16 @@ define_neuron_gate_binding_hje <- function(
     return(gate2)
 }
 
+#' Add a gate binding into a neuron
+#'
+#' Use this function to add a binding into a list called `gate_bindings`
+#' within the neuron. this list will be create if it doesn't exists
+#'
+#' @param neuron   The neuron which will have a gate binding added.
+#' @param binding  A list representing the binding. The structure
+#'                 can be anything.
+#'
+#' @return  The neuron passed as parameter but with the binding in it.
 add_gate_binding_on_neuron_hje <- function(neuron, binding) {
     # Creates a empty list called gate_bindings in the neuron
     # if there is no such list
@@ -505,6 +515,14 @@ add_gate_binding_on_neuron_hje <- function(neuron, binding) {
     return(neuron)
 }
 
+#' Check the gate binding structure
+#'
+#' This function checks if a given object has the structure of a gate binding.
+#'
+#' It is checked if the fields `gate1_name`, `gate2_name`, `input_neuron_idx`
+#' `neuron_binding_crn` are all set and with the correct types.
+#'
+#' @param gate_binding  A list representing a gate binding.
 check_neuron_gate_binding_hje <- function(gate_binding) {
     # Check if the gate is a list
     assertthat::assert_that(
@@ -542,7 +560,19 @@ check_neuron_gate_binding_hje <- function(gate_binding) {
     )
 }
 
-# TODO: Function to combine gates and gate bindings (logic circuit)
+#' Get a circuit from a list of gates
+#'
+#' This function checks if the gates and gate bindings are correctly defined
+#' (using `\link{check_neuron_gate_hje}()` and `\link{check_neuron_gate_hje}()`
+#' functions). Then, it structures all gates into one single list called
+#' circuit. The circuit represents all the gates and their interactions,
+#' defining one single object containing all the gate network.
+#'
+#' @param gates  A list of gates.
+#'
+#' @return  A circuit, which is a list with the following fields in it:
+#'  - `gates`: The list of gates.
+#'
 #' @export
 get_circuit_from_neuron_gates_hje <- function(gates) {
     # Check the structure of all gates and gate bindings
@@ -574,6 +604,15 @@ get_circuit_from_neuron_gates_hje <- function(gates) {
     return(circuit)
 }
 
+#' Checks the circuit structure
+#'
+#' This function checks if the circuit passed as a parameter has the correct
+#' structure.
+#'
+#' Currently, it is checking if `circuit` is a list and if it has a list
+#' called `gates` in it.
+#'
+#' @param circuit  Circuit object to be checked.
 check_neuron_circuit_hje <- function(circuit) {
     # Check if the circuit is a list
     assertthat::assert_that(
@@ -589,7 +628,19 @@ check_neuron_circuit_hje <- function(circuit) {
     )
 }
 
-# TODO: Function to return a CRN given a logic circuit.
+#' Get a CRN from a circuit
+#'
+#' This function returns a CRN given a circuit as a parameter.
+#'
+#' In this function, the gate bindings are correctly set, updating
+#' the neuron which will receive the bindings as input. The bindings
+#' within the gates are assumed to be already setted.
+#'
+#' @param circuit  The circuit (returned by
+#'                 `\link{get_circuit_from_neuron_gates_hje}()`)
+#'
+#' @return  A list specifying the CRN.
+#'
 #' @export
 get_crn_from_neuron_circuit_hje <- function(circuit) {
     # Check the circuit structure
