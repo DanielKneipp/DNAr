@@ -4,13 +4,10 @@
 \alias{check_neuron_gate_hje}
 \title{Checks the gate specification}
 \usage{
-check_neuron_gate_hje(gate, gate_id_str)
+check_neuron_gate_hje(gate)
 }
 \arguments{
 \item{gate}{The list to be verified}
-
-\item{gate_id_str}{A string to identify the gate. I is used to generate
-customized error messages.}
 }
 \description{
 This function is used to verify the list that represents a gate is

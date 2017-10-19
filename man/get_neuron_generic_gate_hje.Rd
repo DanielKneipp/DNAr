@@ -4,11 +4,14 @@
 \alias{get_neuron_generic_gate_hje}
 \title{Get a generic neuron gate with n inputs and 1 output}
 \usage{
-get_neuron_generic_gate_hje(input_neuron_names, output_neuron_name,
+get_neuron_generic_gate_hje(gate_name, input_neuron_names, output_neuron_name,
   input_neuron_cis, binding_enzyme_configs, binding_cis,
   binding_inhibit = NULL)
 }
 \arguments{
+\item{gate_name}{String specifying the gate name. Used for
+identification purpose.}
+
 \item{output_neuron_name}{A string being the output neuron name}
 
 \item{input_neuron_cis}{A vector of number representing the

@@ -71,7 +71,9 @@ get_neuron_hje <- function(name, input_ci) {
 #'
 #' This function generates a CRN which represents a binding between two neurons
 #' returned by `\link{get_neuron_hje}()`. The output of the neuron 1 will be
-#' binded to the input of neuron 2.
+#' binded to the input of neuron 2. The default values of `enzyme_config` and
+#' `ci` define a binding which  is capable of activate the next neuron without
+#' dependence of any other binding.
 #'
 #' The binding is made by creating the reaction `E_{ij} + A_{j} -> C_{ij}`.
 #'
@@ -84,9 +86,10 @@ get_neuron_hje <- function(name, input_ci) {
 #'                             forward and backward reactions, respectively.
 #'                         }
 #' @param ci               The initial concentration of the C species (the
-#' the binding output which will be used as input of neuron 2).
+#'                         the binding output which will be used as input of
+#'                         neuron 2).
 #' @param bind_inhibitory  If `TRUE`, the inhibitory signal `B` will be binded
-#' instead of the activatory one `A`.
+#'                         instead of the activatory one `A`.
 #'
 #' @return  The binding CRN.
 #'
@@ -94,8 +97,8 @@ get_neuron_hje <- function(name, input_ci) {
 get_neuron_binding_hje <- function(
     neuron1,
     neuron2,
-    enzyme_config,
-    ci,
+    enzyme_config = list(ci = 2/3, k = c(200, 100)),
+    ci = 4/3,
     bind_inhibitory = FALSE
 ) {
     # TODO: check the input variables
@@ -190,6 +193,8 @@ update_neuron_input_hje <- function(neuron, bindings) {
 #' its output to the last neuron, the output neuron. This neuron has as input
 #' the sum of the output of all input neurons.
 #'
+#' @param gate_name               String specifying the gate name. Used for
+#'                                identification purpose.
 #' @param input_neuron_name       A list of string. Each string specifies
 #' @param output_neuron_name      A string being the output neuron name
 #' @param input_neuron_cis        A vector of number representing the
@@ -224,6 +229,7 @@ update_neuron_input_hje <- function(neuron, bindings) {
 #'
 #' @seealso `\link{react}()` for more about the neuron behavior.
 get_neuron_generic_gate_hje <- function(
+    gate_name,
     input_neuron_names,
     output_neuron_name,
     input_neuron_cis,
@@ -234,6 +240,12 @@ get_neuron_generic_gate_hje <- function(
     #
     # Input checking
     #
+
+    # Check if gate_name is only a string
+    assertthat::assert_that(
+        is.character(gate_name),
+        msg = 'gate_name must be a string'
+    )
 
     # Check if output_neuron_name is only a string
     assertthat::assert_that(
@@ -322,6 +334,7 @@ get_neuron_generic_gate_hje <- function(
 
     # Get the gate specification
     gate <- list(
+        name = gate_name,
         output_neuron_crn = output_neuron_crn,
         input_neuron_crns = input_neuron_crns,
         binding_crns = binding_crns
@@ -345,8 +358,8 @@ get_neuron_generic_gate_hje <- function(
 get_crn_from_neuron_gate_hje <- function(gate) {
     # Combine all the gate CRNs
     gate_crn <- combine_crns(c(
-        list(gate$output_neuron_crn),
         gate$input_neuron_crns,
+        list(gate$output_neuron_crn),
         gate$binding_crns
     ))
 
@@ -359,22 +372,27 @@ get_crn_from_neuron_gate_hje <- function(gate) {
 #' correct defined.
 #'
 #' @param gate         The list to be verified
-#' @param gate_id_str  A string to identify the gate. I is used to generate
-#'                     customized error messages.
-check_neuron_gate_hje <- function(gate, gate_id_str) {
+check_neuron_gate_hje <- function(gate) {
     # Check if the the gate is a list and it has length > 0
     assertthat::assert_that(
         is.list(gate) && length(gate) > 0,
-        msg = paste('The gate', gate_id_str, 'must be a list with at least
-                    three named elements (output_neuron_crn,
+        msg = paste('The gate', 'must be a list with at least
+                    four named elements (name, output_neuron_crn,
                     input_neuron_crns, binding_crns) in it')
+    )
+
+    # Check if the the gate has a name field
+    assertthat::assert_that(
+        is.character(gate$name),
+        msg = paste('The gate', gate$name, 'list must have an element
+                    called name which is a string representing the gate name')
     )
 
     # Check if output_neuron_crn is set
     assertthat::assert_that(
         is.list(gate$output_neuron_crn) &&
             length(gate$output_neuron_crn) > 0,
-        msg = paste('The gate', gate_id_str, 'list must have an elemnt
+        msg = paste('The gate', gate$name, 'list must have an element
                     with the name output_neuron_crn which is a list
                     with length > 0')
     )
@@ -383,7 +401,7 @@ check_neuron_gate_hje <- function(gate, gate_id_str) {
     assertthat::assert_that(
         is.list(gate$input_neuron_crns) &&
             length(gate$input_neuron_crns) > 0,
-        msg = paste('The gate', gate_id_str, 'list must have an elemnt
+        msg = paste('The gate', gate$name, 'list must have an element
                     with the name input_neuron_crns which is a list
                     with length > 0')
     )
@@ -392,7 +410,7 @@ check_neuron_gate_hje <- function(gate, gate_id_str) {
     assertthat::assert_that(
         is.list(gate$binding_crns) &&
             length(gate$binding_crns) > 0,
-        msg = paste('The gate', gate_id_str, 'list must have an elemnt
+        msg = paste('The gate', gate$name, 'list must have an element
                     with the name binding_crns which is a list
                     with length > 0')
     )
@@ -400,9 +418,16 @@ check_neuron_gate_hje <- function(gate, gate_id_str) {
 
 #' Get the binding between two neuron gates
 #'
-#' This function returns a CRN which represents a binding between the
-#' output neuron of one gate (`gate1`) to one of the input neurons of
-#' the other gate (`gate2`).
+#' This function returns a modified gate of `gate2` input. this modified
+#' version has one of its input neurons binded to the output neuron of `gate2`.
+#'
+#' The binding is made using the function
+#' `\link{add_gate_binding_on_neuron_hje}()`. The binding is a list with
+#' the following structure:
+#'  - `gate1_name`, `gate2_name`: = gate 1 and 2 names, respectively;
+#'  - `input_neuron_idx`: the parameter `input_neuron_idx`,
+#'  - `neuron_binding_crn`: binding CRN returned by
+#'      `\link{get_neuron_binding_hje}()`
 #'
 #' @param gate1,gate2       The gates which will be binded
 #' @param input_neuron_idx  The index of the input neuron of `gate2` which
@@ -411,16 +436,22 @@ check_neuron_gate_hje <- function(gate, gate_id_str) {
 #'                          `bind_inhibitory`, which will be passed to
 #'                          `\link{get_neuron_binding_hje}()`
 #'
-#' @return  Get the binding CRN between gates.
+#' @return  The `gate2` received as input but with the specified input neuron
+#'          binded to the `gate1` output.
 #'
 #' @seealso  `\link{get_neuron_binding_hje}()` for details about the parameter
 #'           that it s expecting.
 #'
 #' @export
-get_neuron_gate_binding_hje <- function(gate1, gate2, input_neuron_idx, ...) {
+define_neuron_gate_binding_hje <- function(
+    gate1,
+    gate2,
+    input_neuron_idx,
+    ...
+) {
     # Check the gate specification
-    check_neuron_gate_hje(gate1, 'gate1')
-    check_neuron_gate_hje(gate2, 'gate2')
+    check_neuron_gate_hje(gate1)
+    check_neuron_gate_hje(gate2)
 
     # Check if input_neuron_idx is within length(gate2$input_neuron_crns)
     assertthat::assert_that(
@@ -434,18 +465,175 @@ get_neuron_gate_binding_hje <- function(gate1, gate2, input_neuron_idx, ...) {
 
     # Get the binding between these two neurons, which will be the binding
     # between the gates
-    binding <- get_neuron_binding_hje(
+    neuron_binding_crn <- get_neuron_binding_hje(
         gate1_output_neuron,
         gate2_input_neuron,
         ...
     )
 
-    return(binding)
+    # Construct the gate binding structure
+    binding <- list(
+        gate1_name = gate1$name,
+        gate2_name = gate2$name,
+        input_neuron_idx = input_neuron_idx,
+        neuron_binding_crn = neuron_binding_crn
+    )
+
+    # Update the neuron structure to add the bindings.
+    # This will be used for the CRN construction
+    gate2_input_neuron <- add_gate_binding_on_neuron_hje(
+        gate2_input_neuron,
+        binding
+    )
+
+    # Update the neuron on the gate
+    gate2$input_neuron_crns[[input_neuron_idx]] <- gate2_input_neuron
+
+    return(gate2)
+}
+
+add_gate_binding_on_neuron_hje <- function(neuron, binding) {
+    # Creates a empty list called gate_bindings in the neuron
+    # if there is no such list
+    if(is.null(neuron$bindings)) {
+        neuron$gate_bindings <- list()
+    }
+
+    # Add the binding
+    neuron$gate_bindings[[length(neuron$gate_bindings) + 1]] <- binding
+
+    return(neuron)
+}
+
+check_neuron_gate_binding_hje <- function(gate_binding) {
+    # Check if the gate is a list
+    assertthat::assert_that(
+        is.list(gate_binding) && length(gate_binding) > 0,
+        msg = 'The gate binding must be a list and has at least the following
+               parameters: gate1_name, gate2_name, input_neuron_idx,
+               neuron_binding_crn')
+
+    # Check if the gate has the gate1_name field and it is a string
+    assertthat::assert_that(
+        is.character(gate_binding$gate1_name),
+        msg = 'The gate binding must have a string parameter called
+               gate1_name'
+    )
+
+    # Check if the gate has the gate2_name field and it is a string
+    assertthat::assert_that(
+        is.character(gate_binding$gate2_name),
+        msg = 'The gate binding must have a string parameter called
+               gate2_name'
+    )
+
+    # Check if the gate has the input_neuron_idx field and it is a string
+    assertthat::assert_that(
+        is.numeric(gate_binding$input_neuron_idx),
+        msg = 'The gate binding must have a number parameter called
+               input_neuron_idx'
+    )
+
+    # Check if the gate has the neuron_binding_crn field and it is a list
+    assertthat::assert_that(
+        is.list(gate_binding$neuron_binding_crn),
+        msg = 'The gate binding must have a list parameter called
+               neuron_binding_crn (defined by define_neuron_gate_binding_hje())'
+    )
 }
 
 # TODO: Function to combine gates and gate bindings (logic circuit)
+#' @export
+get_circuit_from_neuron_gates_hje <- function(gates) {
+    # Check the structure of all gates and gate bindings
+    for(gate in gates) {
+        check_neuron_gate_hje(gate)
+
+        # Check the gate binding structures
+        for(neuron in gate$input_neuron_crns) {
+            if(!is.null(neuron$gate_bindings)) {
+                for(gate_binding in neuron$gate_bindings) {
+                    check_neuron_gate_binding_hje(gate_binding)
+                }
+            }
+        }
+    }
+
+    # Check if all gates have different names
+    gate_names <- lapply(gates, '[[', 'name')
+    assertthat::assert_that(
+        !any(duplicated(gate_names)),
+        msg = 'All gates must have unique names'
+    )
+
+    # Combine the gates and bindings into a list with specific structure
+    circuit <- list(
+        gates = gates
+    )
+
+    return(circuit)
+}
+
+check_neuron_circuit_hje <- function(circuit) {
+    # Check if the circuit is a list
+    assertthat::assert_that(
+        is.list(circuit),
+        msg = 'The circuit must be a list'
+    )
+
+    # Check if the circuit has the field gates and
+    # and if it is a list
+    assertthat::assert_that(
+        is.list(circuit$gates),
+        msg = 'The circuit list must have a list called gates'
+    )
+}
 
 # TODO: Function to return a CRN given a logic circuit.
+#' @export
+get_crn_from_neuron_circuit_hje <- function(circuit) {
+    # Check the circuit structure
+    check_neuron_circuit_hje(circuit)
+
+    # Update the gate inputs according to the gate bindings
+    circuit$gates <- lapply(circuit$gates, function(gate) {
+        new_neurons <- lapply(gate$input_neuron_crns, function(neuron) {
+            # If there is no gate binding, the neuron won't change
+            if(is.null(neuron$gate_bindings)){
+                return(neuron)
+            } else {
+                new_neuron <- update_neuron_input_hje(
+                    neuron,
+                    lapply(neuron$gate_bindings, '[[', 'neuron_binding_crn')
+                )
+                return(new_neuron)
+            }
+        })
+
+        # Update the input neurons
+        gate$input_neuron_crns <- new_neurons
+        return(gate)
+    })
+
+    # Get all CRNs (gates and bindings)
+    crns <- list()
+    for(gate in circuit$gates) {
+        # Get the gate CRNs (neurons and bindings between neurons within gates)
+        crns[[length(crns) + 1]] <- get_crn_from_neuron_gate_hje(gate)
+
+        # Get the binding CRNs
+        for(input_neuron in gate$input_neuron_crns) {
+            for(gate_binding in input_neuron$gate_bindings) {
+                crns[[length(crns) + 1]] <- gate_binding$neuron_binding_crn
+            }
+        }
+    }
+
+    # Combine all CRNs into one single CRN
+    g_crn <- combine_crns(crns)
+
+    return(g_crn)
+}
 
 #' Get a AND neuron gate
 #'
@@ -479,6 +667,7 @@ get_neuron_AND_gate_hje <- function(gate_name, input_cis) {
 
     # Get the gate
     gate <- get_neuron_generic_gate_hje(
+        gate_name = gate_name,
         input_neuron_names = list(input1_name, input2_name),
         output_neuron_name = output_name,
         input_neuron_cis = input_cis,

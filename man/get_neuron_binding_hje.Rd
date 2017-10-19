@@ -4,8 +4,8 @@
 \alias{get_neuron_binding_hje}
 \title{Get a binding of two neurons}
 \usage{
-get_neuron_binding_hje(neuron1, neuron2, enzyme_config, ci,
-  bind_inhibitory = FALSE)
+get_neuron_binding_hje(neuron1, neuron2, enzyme_config = list(ci = 2/3, k =
+  c(200, 100)), ci = 4/3, bind_inhibitory = FALSE)
 }
 \arguments{
 \item{neuron1}{The CRN which defines the neuron 1}
@@ -20,7 +20,8 @@ forward and backward reactions, respectively.
 }}
 
 \item{ci}{The initial concentration of the C species (the
-the binding output which will be used as input of neuron 2).}
+the binding output which will be used as input of
+neuron 2).}
 
 \item{bind_inhibitory}{If \code{TRUE}, the inhibitory signal \code{B} will be binded
 instead of the activatory one \code{A}.}
@@ -31,7 +32,9 @@ The binding CRN.
 \description{
 This function generates a CRN which represents a binding between two neurons
 returned by \code{\link{get_neuron_hje}()}. The output of the neuron 1 will be
-binded to the input of neuron 2.
+binded to the input of neuron 2. The default values of \code{enzyme_config} and
+\code{ci} define a binding which  is capable of activate the next neuron without
+dependence of any other binding.
 }
 \details{
 The binding is made by creating the reaction \code{E_{ij} + A_{j} -> C_{ij}}.
