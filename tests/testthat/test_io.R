@@ -1,9 +1,9 @@
 library(DNAr)
 context('Import and export tools')
 
-temp_txt_filename <- 'temp_txt'
-temp_csv_filename <- 'temp_csv'
-dummy_behavior_csv_filename <- 'dummy_behavior'
+temp_txt_filename <- 'data/temp_txt'
+temp_csv_filename <- 'data/temp_csv'
+dummy_behavior_csv_filename <- 'data/dummy_behavior'
 dummy_behavior <- data.frame(
     'A' = seq(1, 10, length.out = 10),
     'B' = seq(0, 1, length.out = 10)
@@ -30,7 +30,7 @@ test_that('save_reactions_txt correctly exports the Consensus CRN', {
         kis        = c(2e3, 2e3, 2e3),
         filename   = temp_txt_filename
     )
-    outs <- export_txt(parms, 'consensus.txt')
+    outs <- export_txt(parms, 'data/consensus.txt')
     expect_equal(outs[[1]], outs[[2]])
 })
 

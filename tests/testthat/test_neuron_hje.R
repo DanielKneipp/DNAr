@@ -15,17 +15,17 @@ test_that(
     'get_neuron_hje gives a neuron with the correct reaction behavior',
     {
         # Activated neuron
-        n <- get_neuron_hje('n', 1.1)
+        n <- DNAr::get_neuron_hje('n', 1.1)
         n$t <- seq(0, 1, length.out = 100)
         n$name <- NULL
-        b <- run_reaction(n, 'neuron_hje_activated')
+        b <- run_reaction(n, 'data/neuron_hje/neuron_hje_activated')
         expect_equal(b[[1]], b[[2]])
 
         # Deactivated neuron
-        n <- get_neuron_hje('n', 0.9)
+        n <- DNAr::get_neuron_hje('n', 0.9)
         n$t <- seq(0, 1, length.out = 100)
         n$name <- NULL
-        b <- run_reaction(n, 'neuron_hje_deactivated')
+        b <- run_reaction(n, 'data/neuron_hje/neuron_hje_deactivated')
         expect_equal(b[[1]], b[[2]])
     }
 )
@@ -42,22 +42,22 @@ test_that(
 
         # Input 0 0
         and_crn <- get_gate_crn(c(0.5, 0.5))
-        b <- run_reaction(and_crn, 'neuron_hje_AND_00')
+        b <- run_reaction(and_crn, 'data/neuron_hje/neuron_hje_AND_00')
         expect_equal(b[[1]], b[[2]])
 
         # Input 0 1
         and_crn <- get_gate_crn(c(0.5, 1.5))
-        b <- run_reaction(and_crn, 'neuron_hje_AND_01')
+        b <- run_reaction(and_crn, 'data/neuron_hje/neuron_hje_AND_01')
         expect_equal(b[[1]], b[[2]])
 
         # Input 1 0
         and_crn <- get_gate_crn(c(1.5, 0.5))
-        b <- run_reaction(and_crn, 'neuron_hje_AND_10')
+        b <- run_reaction(and_crn, 'data/neuron_hje/neuron_hje_AND_10')
         expect_equal(b[[1]], b[[2]])
 
         # Input 1 1
         and_crn <- get_gate_crn(c(1.5, 1.5))
-        b <- run_reaction(and_crn, 'neuron_hje_AND_11')
+        b <- run_reaction(and_crn, 'data/neuron_hje/neuron_hje_AND_11')
         expect_equal(b[[1]], b[[2]])
     }
 )
@@ -76,22 +76,22 @@ test_that(
         }
         # Input  0 0 0
         crn <- get_circ_crn(c(0.5, 0.5), c(0, 0.5))
-        b <- run_reaction(crn, 'neuron_hje_AND_AND_000')
+        b <- run_reaction(crn, 'data/neuron_hje/neuron_hje_AND_AND_000')
         expect_equal(b[[1]], b[[2]])
 
         # Input  0 0 1
         crn <- get_circ_crn(c(0.5, 1.5), c(0, 0.5))
-        b <- run_reaction(crn, 'neuron_hje_AND_AND_001')
+        b <- run_reaction(crn, 'data/neuron_hje/neuron_hje_AND_AND_001')
         expect_equal(b[[1]], b[[2]])
 
         # Input  0 1 1
         crn <- get_circ_crn(c(1.5, 1.5), c(0, 0.5))
-        b <- run_reaction(crn, 'neuron_hje_AND_AND_011')
+        b <- run_reaction(crn, 'data/neuron_hje/neuron_hje_AND_AND_011')
         expect_equal(b[[1]], b[[2]])
 
         # Input  1 1 1
         crn <- get_circ_crn(c(1.5, 1.5), c(0, 1.5))
-        b <- run_reaction(crn, 'neuron_hje_AND_AND_111')
+        b <- run_reaction(crn, 'data/neuron_hje/neuron_hje_AND_AND_111')
         expect_equal(b[[1]], b[[2]])
     }
 )

@@ -21,7 +21,7 @@ test_that(
             ki        = c(1e-7),
             t         = seq(0, 72000, 10)
         )
-        behaviors <- run_reaction(parms, 'behavior_ApBeC')
+        behaviors <- run_reaction(parms, 'data/behavior_ApBeC')
         expect_equal(behaviors[[1]], behaviors[[2]])
     }
 )
@@ -36,7 +36,7 @@ test_that(
             ki        = c(1e-7),
             t         = seq(0, 72000, 10)
         )
-        behaviors <- run_reaction(parms, 'behavior_2Ae2B')
+        behaviors <- run_reaction(parms, 'data/behavior_2Ae2B')
         expect_equal(behaviors[[1]], behaviors[[2]])
     }
 )
@@ -51,7 +51,7 @@ test_that(
             ki        = c(1e-7),
             t         = seq(0, 72000, 10)
         )
-        behaviors <- run_reaction(parms, 'behavior_2Ae2BpA')
+        behaviors <- run_reaction(parms, 'data/behavior_2Ae2BpA')
         expect_equal(behaviors[[1]], behaviors[[2]])
     }
 )
@@ -66,7 +66,7 @@ test_that(
             ki        = c(1e-7),
             t         = seq(0, 72000, 10)
         )
-        behaviors <- run_reaction(parms, 'behavior_Ae2B')
+        behaviors <- run_reaction(parms, 'data/behavior_Ae2B')
         expect_equal(behaviors[[1]], behaviors[[2]])
     }
 )
@@ -81,7 +81,7 @@ test_that(
             ki        = c(2),
             t         = seq(0, 100, 1)
         )
-        behaviors <- run_reaction(parms, 'behavior_0eA')
+        behaviors <- run_reaction(parms, 'data/behavior_0eA')
         expect_equal(behaviors[[1]], behaviors[[2]])
     }
 )
@@ -96,7 +96,7 @@ test_that(
             ki        = c(2),
             t         = seq(0, 100, 1)
         )
-        behaviors <- run_reaction(parms, 'behavior_Ae0')
+        behaviors <- run_reaction(parms, 'data/behavior_Ae0')
         expect_equal(behaviors[[1]], behaviors[[2]])
     }
 )
@@ -115,7 +115,7 @@ test_that(
                           1/300),
             t         = seq(0, 12600, 1)
         )
-        behaviors <- run_reaction(parms, 'behavior_lotka')
+        behaviors <- run_reaction(parms, 'data/behavior_lotka')
         expect_equal(behaviors[[1]], behaviors[[2]])
     }
 )
@@ -137,7 +137,7 @@ test_that(
                           1e-3),
             t         = seq(0, 72000, 10)
         )
-        behaviors <- run_reaction(parms, 'behavior_ApBeC_4d')
+        behaviors <- run_reaction(parms, 'data/behavior_ApBeC_4d')
         expect_equal(behaviors[[1]], behaviors[[2]])
     }
 )
@@ -154,7 +154,7 @@ test_that(
             ki        = c(2e3, 2e3, 2e3),
             t         = seq(0, 54000, 5)
         )
-        behaviors <- run_reaction(parms, 'behavior_consensus')
+        behaviors <- run_reaction(parms, 'data/behavior_consensus')
         expect_equal(behaviors[[1]], behaviors[[2]])
     }
 )

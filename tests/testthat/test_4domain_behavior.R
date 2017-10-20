@@ -27,7 +27,7 @@ test_that(
             beta      = 1,
             t         = seq(0, 72000, 10)
         )
-        behaviors <- run_reaction_4domain(parms, 'behavior_ApBeC_4domain')
+        behaviors <- run_reaction_4domain(parms, 'data/behavior_ApBeC_4domain')
         expect_equal(behaviors[[1]], behaviors[[2]])
     }
 )
@@ -46,7 +46,7 @@ test_that(
             beta      = 1,
             t         = seq(0, 72000, 10)
         )
-        behaviors <- run_reaction_4domain(parms, 'behavior_AeB_4domain')
+        behaviors <- run_reaction_4domain(parms, 'data/behavior_AeB_4domain')
         expect_equal(behaviors[[1]], behaviors[[2]])
     }
 )
@@ -69,7 +69,7 @@ test_that(
             beta      = 1,
             t         = seq(0, 12600, 1)
         )
-        behaviors <- run_reaction_4domain(parms, 'behavior_lotka_4domain')
+        behaviors <- run_reaction_4domain(parms, 'data/behavior_lotka_4domain')
         expect_equal(behaviors[[1]], behaviors[[2]])
     }
 )
@@ -90,7 +90,7 @@ test_that(
             beta      = 1,
             t         = seq(0, 54000, 5)
         )
-        behaviors <- run_reaction_4domain(parms, 'behavior_consensus_4domain')
+        behaviors <- run_reaction_4domain(parms, 'data/behavior_consensus_4domain')
         expect_equal(behaviors[[1]], behaviors[[2]])
     }
 )

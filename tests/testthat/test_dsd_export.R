@@ -26,7 +26,7 @@ test_that('save_dsd_script exports a dsd script of the reaction A + B -> C', {
         t         = seq(0, 72000, 10),
         filename  = temp_dsd_filename
     )
-    outs <- export_dsd(parms, 'ApBeC.dsd')
+    outs <- export_dsd(parms, 'data/ApBeC.dsd')
     expect_equal(outs[[1]], outs[[2]])
 })
 
@@ -45,6 +45,6 @@ test_that('save_dsd_script exports a dsd script of the Consensus CRN', {
         t         = seq(0, 54000, 5),
         filename  = temp_dsd_filename
     )
-    outs <- export_dsd(parms, 'consensus.dsd')
+    outs <- export_dsd(parms, 'data/consensus.dsd')
     expect_equal(outs[[1]], outs[[2]])
 })

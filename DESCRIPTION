@@ -25,14 +25,6 @@ Imports:
     assertthat (>= 0.2.0),
     magrittr (>= 1.5),
     Rdpack (>= 0.4.20)
-Collate:
-    'crn_reactor.R'
-    '4domain_reactor.R'
-    'analysis.R'
-    'dsd.R'
-    'io.R'
-    'parser.R'
-    'neuron_hjelmfelt.R'
 RoxygenNote: 6.0.1
 RdMacros: Rdpack
 Roxygen: list(markdown = TRUE)
