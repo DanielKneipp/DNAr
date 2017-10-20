@@ -1,7 +1,7 @@
 Package: DNAr
 Type: Package
 Title: Simulates chemical reaction networks constructed with DNA
-Version: 0.4.1
+Version: 0.5.0
 Authors@R: c(person("Daniel", "Kneipp", email = "danielv@dcc.ufmg.br",
                     role = c("aut", "cre")),
              person("Marcos", "Guterres", email = "mguterres@yahoo.com",
