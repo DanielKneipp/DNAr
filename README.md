@@ -1,4 +1,5 @@
 # DNAr
+[![Build Status](https://travis-ci.org/DanielKneipp/DNAr.svg?branch=master)](https://travis-ci.org/DanielKneipp/DNAr)
 
 This is a R package developed to simulate formal Chemical Reaction
 Networks (CRN) and DNA circuits designed to have the same behavior
