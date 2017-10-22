@@ -694,9 +694,15 @@ get_crn_from_neuron_circuit_hje <- function(circuit) {
 #' (with the gate name) determines the species names created for the CRNs
 #' that represent them.
 #'
-#' @param gate_name  The name of the gate
-#' @param input_cis  A numeric vector representing the initial concentration
-#'                   of the inputs.
+#' @param gate_name        The name of the gate
+#' @param input_cis        A numeric vector representing the initial
+#'                         concentration of the inputs.
+#' @param binding_inhibit  Boolean vector where each elements specifies
+#'                         whether the input with the same index will
+#'                         be an inhibitory binding or not. If no vector
+#'                         is passed, no binding will be inhibited. This
+#'                         parameter is passed to
+#'                         `\link{get_neuron_generic_gate_hje}()`.
 #'
 #' @return  A list representing the gate. To transform this representation into
 #'          a CRN (to simulate with `\link{react}()`, for example) you have
@@ -710,7 +716,7 @@ get_crn_from_neuron_circuit_hje <- function(circuit) {
 #' and_crn$t <- seq(0, 1, length.out = 100)
 #' b         <- do.call(DNAr::react, and_crn)
 #' DNAr::plot_behavior(b, c('A_ANDo'))
-get_neuron_AND_gate_hje <- function(gate_name, input_cis) {
+get_neuron_AND_gate_hje <- function(gate_name, input_cis, binding_inhibit = NULL) {
     # Define the input and output names
     input1_name <- jn(gate_name, 'i1')
     input2_name <- jn(gate_name, 'i2')
@@ -726,7 +732,8 @@ get_neuron_AND_gate_hje <- function(gate_name, input_cis) {
             list(ci = 1/3, k = c(200, 100)),
             list(ci = 1/3, k = c(200, 100))
         ),
-        binding_cis = c(2/3, 2/3)
+        binding_cis = c(2/3, 2/3),
+        binding_inhibit = binding_inhibit
     )
 
     return(gate)

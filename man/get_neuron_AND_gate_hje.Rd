@@ -4,13 +4,20 @@
 \alias{get_neuron_AND_gate_hje}
 \title{Get a AND neuron gate}
 \usage{
-get_neuron_AND_gate_hje(gate_name, input_cis)
+get_neuron_AND_gate_hje(gate_name, input_cis, binding_inhibit = NULL)
 }
 \arguments{
 \item{gate_name}{The name of the gate}
 
-\item{input_cis}{A numeric vector representing the initial concentration
-of the inputs.}
+\item{input_cis}{A numeric vector representing the initial
+concentration of the inputs.}
+
+\item{binding_inhibit}{Boolean vector where each elements specifies
+whether the input with the same index will
+be an inhibitory binding or not. If no vector
+is passed, no binding will be inhibited. This
+parameter is passed to
+\code{\link{get_neuron_generic_gate_hje}()}.}
 }
 \value{
 A list representing the gate. To transform this representation into
