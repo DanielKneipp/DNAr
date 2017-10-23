@@ -74,6 +74,50 @@ test_that(
 )
 
 test_that(
+    'react_4domain reproduces correctly the behavior of the reaction 0 -> 2A',
+    {
+        parms <- list(
+            species   = c('A'),
+            ci        = c(0),
+            reactions = c('0 -> 2A'),
+            ki        = c(2),
+            qmax      = 1e3,
+            cmax      = 1e4,
+            alpha     = 1,
+            beta      = 1,
+            t         = seq(0, 100, 1)
+        )
+        behaviors <- run_reaction_4domain(
+            parms,
+            'data/behavior_0e2A_4domain'
+        )
+        expect_equal(behaviors[[1]], behaviors[[2]])
+    }
+)
+
+test_that(
+    'react_4domain reproduces correctly the behavior of the reaction 0 -> A + B',
+    {
+        parms <- list(
+            species   = c('A', 'B'),
+            ci        = c(0, 0),
+            reactions = c('0 -> A + B'),
+            ki        = c(2),
+            qmax      = 1e3,
+            cmax      = 1e4,
+            alpha     = 1,
+            beta      = 1,
+            t         = seq(0, 100, 1)
+        )
+        behaviors <- run_reaction_4domain(
+            parms,
+            'data/behavior_0eApB_4domain'
+        )
+        expect_equal(behaviors[[1]], behaviors[[2]])
+    }
+)
+
+test_that(
     'react_4domain reproduces correctly the behavior of the reaction A -> 0',
     {
         parms <- list(
@@ -90,6 +134,50 @@ test_that(
         behaviors <- run_reaction_4domain(
             parms,
             'data/behavior_Ae0_4domain'
+        )
+        expect_equal(behaviors[[1]], behaviors[[2]])
+    }
+)
+
+test_that(
+    'react_4domain reproduces correctly the behavior of the reaction 2A -> 0',
+    {
+        parms <- list(
+            species   = c('A'),
+            ci        = c(1e3),
+            reactions = c('2A -> 0'),
+            ki        = c(1e-4),
+            qmax      = 1e1,
+            cmax      = 1e5,
+            alpha     = 1,
+            beta      = 1,
+            t         = seq(0, 100, 1)
+        )
+        behaviors <- run_reaction_4domain(
+            parms,
+            'data/behavior_2Ae0_4domain'
+        )
+        expect_equal(behaviors[[1]], behaviors[[2]])
+    }
+)
+
+test_that(
+    'react_4domain reproduces correctly the behavior of the reaction A + B -> 0',
+    {
+        parms <- list(
+            species   = c('A', 'B'),
+            ci        = c(1e3, 1e3),
+            reactions = c('A + B -> 0'),
+            ki        = c(1e-4),
+            qmax      = 1e1,
+            cmax      = 1e5,
+            alpha     = 1,
+            beta      = 1,
+            t         = seq(0, 100, 1)
+        )
+        behaviors <- run_reaction_4domain(
+            parms,
+            'data/behavior_ApBe0_4domain'
         )
         expect_equal(behaviors[[1]], behaviors[[2]])
     }
