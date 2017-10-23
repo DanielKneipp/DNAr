@@ -52,6 +52,50 @@ test_that(
 )
 
 test_that(
+    'react_4domain reproduces correctly the behavior of the reaction 0 -> A',
+    {
+        parms <- list(
+            species   = c('A'),
+            ci        = c(0),
+            reactions = c('0 -> A'),
+            ki        = c(2),
+            qmax      = 1e3,
+            cmax      = 1e4,
+            alpha     = 1,
+            beta      = 1,
+            t         = seq(0, 100, 1)
+        )
+        behaviors <- run_reaction_4domain(
+            parms,
+            'data/behavior_0eA_4domain'
+        )
+        expect_equal(behaviors[[1]], behaviors[[2]])
+    }
+)
+
+test_that(
+    'react_4domain reproduces correctly the behavior of the reaction A -> 0',
+    {
+        parms <- list(
+            species   = c('A'),
+            ci        = c(1e3),
+            reactions = c('A -> 0'),
+            ki        = c(1),
+            qmax      = 1e3,
+            cmax      = 1e5,
+            alpha     = 1,
+            beta      = 1,
+            t         = seq(0, 100, 1)
+        )
+        behaviors <- run_reaction_4domain(
+            parms,
+            'data/behavior_Ae0_4domain'
+        )
+        expect_equal(behaviors[[1]], behaviors[[2]])
+    }
+)
+
+test_that(
     'react_4domain reproduces correctly the behavior of the Lotka CRN',
     {
         parms <- list(
@@ -90,7 +134,10 @@ test_that(
             beta      = 1,
             t         = seq(0, 54000, 5)
         )
-        behaviors <- run_reaction_4domain(parms, 'data/behavior_consensus_4domain')
+        behaviors <- run_reaction_4domain(
+            parms,
+            'data/behavior_consensus_4domain'
+        )
         expect_equal(behaviors[[1]], behaviors[[2]])
     }
 )
