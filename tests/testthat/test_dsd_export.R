@@ -34,6 +34,26 @@ test_that(
 )
 
 test_that(
+    'save_dsd_script exports a dsd script of the reaction A -> B + C',
+    {
+        parms <- list(
+            species   = c('A', 'B', 'C'),
+            ci        = c(1e3, 0, 0),
+            reactions = c('A -> B + C'),
+            ki        = c(1e-4),
+            qmax      = 1e1,
+            cmax      = 1e5,
+            alpha     = 1,
+            beta      = 1,
+            t         = seq(0, 72000, 10),
+            filename  = temp_dsd_filename
+        )
+        outs <- export_dsd(parms, 'data/AeBpC.dsd')
+        expect_equal(outs[[1]], outs[[2]])
+    }
+)
+
+test_that(
     'save_dsd_script exports a dsd script of the Consensus CRN',
     {
         parms <- list(
