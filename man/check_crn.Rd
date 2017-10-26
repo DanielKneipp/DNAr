@@ -7,6 +7,11 @@
 \usage{
 check_crn(species, ci, reactions, ki, t)
 }
+\value{
+The reactions after the preprocessing made by
+\code{\link{check_fix_reaction}()} witch checks the reactions and fix
+them when it is possible.
+}
 \description{
 This function can be used to check the crn parameters passed to
 \code{\link{react}()}. It checks:

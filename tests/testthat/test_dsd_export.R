@@ -98,3 +98,28 @@ test_that(
         expect_equal(outs[[1]], outs[[2]])
     }
 )
+
+test_that(
+    'save_dsd_script correctly exports a dsd scripts of a CRN of
+    formation and degradation reactions (called dummy2)',
+    {
+        parms <- list(
+            species   = c('A', 'B', 'C', 'D', 'E', 'F'),
+            ci        = c(1e3,  0,  1e3, 1e3, 1e3,  0),
+            reactions = c('A -> 0',
+                          '0 -> B',
+                          '2C -> 0',
+                          'D + E -> 0',
+                          '0 -> 2F'),
+            ki =        c(1, 2, 1e-4, 1e-4, 2),
+            qmax      = 1e4,
+            cmax      = 1e6,
+            alpha     = 1,
+            beta      = 1,
+            t         = seq(0, 100, 1),
+            filename  = temp_dsd_filename
+        )
+        outs <- export_dsd(parms, 'data/dummy2.dsd')
+        expect_equal(outs[[1]], outs[[2]])
+    }
+)

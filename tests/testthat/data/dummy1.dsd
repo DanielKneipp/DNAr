@@ -139,6 +139,32 @@ def ApB_e_0(
     | rxn Signal(unkb, i2a, i2b, i2c) + H_1(unka, i1a, i1b, i1c, i2a, i2b, i2c, unko, oa) ->{qmax} Waste1_bi(unka, unkb, i1a, i1b, i1c, i2a, i2b, i2c) + P_1(ib, ic, unko, oa)
 )
 
+(* Formation reactions *)
+(* These reaction get unstable when G_1 or G_2 run out *)
+def r0_e_A(
+    qi, qmax, CiA, Cmax,
+    unko, oa, ob, oc
+) = new unki new ia new ib new ic (
+      CiA  * Signal(unko, oa, ob, oc)
+    | Cmax * G_1(ia, ib, ic, unko, oa)
+    | Cmax * T_1(ic, unko, oa, ob, oc)
+    | rxn G_1(ia, ib, ic, unko, oa) ->{qi} Waste1_uni(unki, ia, ib, ic) + P_1(ib, ic, unko, oa)
+    | rxn P_1(ib, ic, unko, oa) + T_1(ic, unko, oa, ob, oc) ->{qmax} Waste2_1(ib, ic, unko, oa) + Signal(unko, oa, ob, oc)
+)
+
+def r0_e_ApB(
+    qi, qmax, CiA, CiB, Cmax,
+    unko1, o1a, o1b, o1c,
+    unko2, o2a, o2b, o2c
+) = new unki new ia new ib new ic (
+      CiA  * Signal(unko1, o1a, o1b, o1c)
+    | CiB  * Signal(unko2, o2a, o2b, o2c)
+    | Cmax * G_2(ia, ib, ic, unko1, o1a, unko2, o2a)
+    | Cmax * T_2(ic, unko1, o1a, o1b, o1c, unko2, o2a, o2b, o2c)
+    | rxn G_2(ia, ib, ic, unko1, o1a, unko2, o2a) ->{qi} Waste1_uni(unki, ia, ib, ic) + P_2(ib, ic, unko1, o1a, unko2, o2a)
+    | rxn P_2(ib, ic, unko1, o1a, unko2, o2a) + T_2(ic, unko1, o1a, o1b, o1c, unko2, o2a, o2b, o2c) ->{qmax} Waste2_2(ib, ic, unko1, o1a, unko2, o2a) + Signal(unko1, o1a, o1b, o1c) + Signal(unko2, o2a, o2b, o2c)
+)
+
 
 def Cmax = 1e+05
 def qmax = 10

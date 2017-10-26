@@ -224,6 +224,32 @@ def ApB_e_0(
     | Cmax * W(i1b, i1c, i2a)
     | rxn Signal(unka, i1a, i1b, i1c) + L_1(i1a, i1b, i1c, i2a, i2b, i2c, unko, oa) <->{qi}{qmax} H_1(unka, i1a, i1b, i1c, i2a, i2b, i2c, unko, oa) + W(i1b, i1c, i2a)
     | rxn Signal(unkb, i2a, i2b, i2c) + H_1(unka, i1a, i1b, i1c, i2a, i2b, i2c, unko, oa) ->{qmax} Waste1_bi(unka, unkb, i1a, i1b, i1c, i2a, i2b, i2c) + P_1(ib, ic, unko, oa)
+)
+
+(* Formation reactions *)
+(* These reaction get unstable when G_1 or G_2 run out *)
+def r0_e_A(
+    qi, qmax, CiA, Cmax,
+    unko, oa, ob, oc
+) = new unki new ia new ib new ic (
+      CiA  * Signal(unko, oa, ob, oc)
+    | Cmax * G_1(ia, ib, ic, unko, oa)
+    | Cmax * T_1(ic, unko, oa, ob, oc)
+    | rxn G_1(ia, ib, ic, unko, oa) ->{qi} Waste1_uni(unki, ia, ib, ic) + P_1(ib, ic, unko, oa)
+    | rxn P_1(ib, ic, unko, oa) + T_1(ic, unko, oa, ob, oc) ->{qmax} Waste2_1(ib, ic, unko, oa) + Signal(unko, oa, ob, oc)
+)
+
+def r0_e_ApB(
+    qi, qmax, CiA, CiB, Cmax,
+    unko1, o1a, o1b, o1c,
+    unko2, o2a, o2b, o2c
+) = new unki new ia new ib new ic (
+      CiA  * Signal(unko1, o1a, o1b, o1c)
+    | CiB  * Signal(unko2, o2a, o2b, o2c)
+    | Cmax * G_2(ia, ib, ic, unko1, o1a, unko2, o2a)
+    | Cmax * T_2(ic, unko1, o1a, o1b, o1c, unko2, o2a, o2b, o2c)
+    | rxn G_2(ia, ib, ic, unko1, o1a, unko2, o2a) ->{qi} Waste1_uni(unki, ia, ib, ic) + P_2(ib, ic, unko1, o1a, unko2, o2a)
+    | rxn P_2(ib, ic, unko1, o1a, unko2, o2a) + T_2(ic, unko1, o1a, o1b, o1c, unko2, o2a, o2b, o2c) ->{qmax} Waste2_2(ib, ic, unko1, o1a, unko2, o2a) + Signal(unko1, o1a, o1b, o1c) + Signal(unko2, o2a, o2b, o2c)
 )'
 
     return(s)
@@ -562,6 +588,82 @@ get_dsd_ApBe0_str <- function(
     s <- replace_module_markers(s, '%[a-zA-Z0-9]+', data)
 }
 
+#' Instantiate a '0 -> A' module in the DSD script
+#'
+#' This function returns a string representing an addition of a
+#' '0 -> A' reaction in the DSD script. It creates a `r0_e_A()` module
+#' in the script, replacing all the parameter strings by the ones
+#' specified in this function.
+#'
+#' @param qi         String representing a variable name for the `qi`
+#'                   parameter of the module signature.
+#' @param qmax       String representing a variable name for the `qmax`
+#'                   parameter of the module signature.
+#' @param CiA        String representing a variable name for the `CiA`
+#'                   parameter of the module signature.
+#' @param Cmax       String representing a variable name for the `Cmax`
+#'                   parameter of the module signature.
+#' @param A_domains  Vector of strings representing the species domains of A.
+#'
+#' @return  A string representing the instantiation of a `r0_e_A()` module.
+get_dsd_0eA_str <- function(
+    qi, qmax, CiA, Cmax,
+    A_domains
+) {
+    # Template string
+    s <- 'r0_e_A(
+    %qi, %qmax, %CiA, %Cmax, %unko, %oa, %ob, %oc
+)'
+
+    # Put all variables in one vector
+    data <- c(qi, qmax, CiA, Cmax, A_domains)
+
+    # Replace the marker by the actual variable names
+    s <- replace_module_markers(s, '%[a-zA-Z0-9]+', data)
+
+    return(s)
+}
+
+#' Instantiate a '0 -> A + B' module in the DSD script
+#'
+#' This function returns a string representing an addition of a
+#' '0 -> A + B' reaction in the DSD script. It creates a `r0_e_ApB()` module
+#' in the script, replacing all the parameter strings by the ones
+#' specified in this function.
+#'
+#' @param qi         String representing a variable name for the `qi`
+#'                   parameter of the module signature.
+#' @param qmax       String representing a variable name for the `qmax`
+#'                   parameter of the module signature.
+#' @param CiA        String representing a variable name for the `CiA`
+#'                   parameter of the module signature.
+#' @param CiB        String representing a variable name for the `CiB`
+#'                   parameter of the module signature.
+#' @param Cmax       String representing a variable name for the `Cmax`
+#'                   parameter of the module signature.
+#' @param A_domains  Vector of strings representing the species domains of A.
+#' @param B_domains  Vector of strings representing the species domains of B.
+#'
+#' @return  A string representing the instantiation of a `r0_e_ApB()` module.
+get_dsd_0eApB_str <- function(
+    qi, qmax, CiA, CiB, Cmax,
+    A_domains,
+    B_domains
+) {
+    # Template string
+    s <- 'r0_e_ApB(
+    %qi, %qmax, %CiA, %CiB, %Cmax,
+    %unko1, %o1a, %o1b, %o1c,
+    %unko2, %o2a, %o2b, %o2c
+)'
+
+    # Put all variables in one vector
+    data <- c(qi, qmax, CiA, CiB, Cmax, A_domains, B_domains)
+
+    # Replace the marker by the actual variable names
+    s <- replace_module_markers(s, '%[a-zA-Z0-9]+', data)
+}
+
 #' Get a definition string for the DSD script
 #'
 #' This function returns a string representing a definition in the
@@ -608,6 +710,9 @@ save_dsd_script <- function(
     t,
     filename
 ) {
+    # Check the CRN
+    reactions <- check_crn(species, ci, reactions, ki, t)
+
     # Check if all reactions attend 4-domain requirements
     for(r in reactions) {
         if(!check_reaction_4domain(r)) {
@@ -828,6 +933,40 @@ save_dsd_script <- function(
                     species_domains[[ reactants[[1]] ]],
                     species_domains[[ reactants[[2]] ]]
                 )
+            }
+        } else if(isempty_part(get_first_part(reactions[[i]]))) {
+            # If there is no reactant (formation reaction)
+            # check if there is a product
+            if(products[[1]] != '') {
+                # Check if there is two products
+                second_part <- get_second_part(reactions[[i]])
+                num_prod <- get_stoichiometry_part(second_part)
+                if(num_prod == 2) {
+                    # If there is two products but only one species
+                    if(length(products) == 1) {
+                        products <- c(products, products[[1]])
+                    }
+
+                    # Add a 0eApB module
+                    mod_str <- get_dsd_0eApB_str(
+                        paste('k', as.character(i), sep = ''), 'qmax',
+                        paste('Ci', products[[1]], sep = ''),
+                        paste('Ci', products[[2]], sep = ''), 'Cmax',
+                        species_domains[[ products[[1]] ]],
+                        species_domains[[ products[[2]] ]]
+                    )
+                } else {
+                    # Otherwise (one product), add a 0eA module
+                    mod_str <- get_dsd_0eA_str(
+                        paste('k', as.character(i), sep = ''), 'qmax',
+                        paste('Ci', products[[1]], sep = ''), 'Cmax',
+                        species_domains[[ products[[1]] ]]
+                    )
+                }
+            } else {
+                # In case of absence of product, throw an error
+                stop(paste('Reaction \'', reactions[[1]], '\' is invalid',  
+                           'All reactions must have products and reactants'))
             }
         } else {
             # If the reaction is unimolecular,

@@ -6,9 +6,21 @@
 \usage{
 get_species(reaction_part)
 }
+\arguments{
+\item{reaction_part}{Left or right part of a reaction.}
+}
+\value{
+A vector with the species names. It will return an empty vector
+if there is no species (0 is considered a species) on the
+reaction or there is only bad formed names
+}
 \description{
 Given part of a reaction, this function returns
 the species of it without the stoichiometry.
+}
+\details{
+The species name must starts with a letter or be 0 (for special degradation
+and formation reactions).
 }
 \examples{
 DNAr:::get_species('A + 2B')  # Should return c('A', 'B')

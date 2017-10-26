@@ -2,12 +2,12 @@
 % Please edit documentation in R/parser.R
 \name{is_bimolecular}
 \alias{is_bimolecular}
-\title{Check if a reactions bimolecular.}
+\title{Check if a reaction is bimolecular.}
 \usage{
 is_bimolecular(react_str)
 }
 \description{
-Give a reaction, this functions checks if it is
+Given a reaction, this functions checks if it is
 a bimolecular reaction.
 }
 \examples{

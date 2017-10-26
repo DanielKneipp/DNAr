@@ -1,8 +1,8 @@
-directive duration 72000 points 1000
+directive duration 100 points 1000
 directive simulation deterministicstiff
 directive concentration M
 directive compilation infinite
-directive plot A(); B(); C()
+directive plot A(); B(); C(); D(); E(); F()
 
 (* Input and output *)
 def Signal(unk, i1, i2, i3) = <unk i1^ i2 i3^>
@@ -166,30 +166,63 @@ def r0_e_ApB(
 )
 
 
-def Cmax = 1e+05
-def qmax = 0.001
+def Cmax = 1e+06
+def qmax = 10000
 def CiA = 1000.0
-def CiB = 1000.0
-def CiC = 0.0
+def CiB = 0.0
+def CiC = 1000.0
+def CiD = 1000.0
+def CiE = 1000.0
+def CiF = 0.0
 
-def k1 = 1e-07
+def k1 = 1.00000001e-06
+def k2 = 2.00000002e-06
+def k3 = 0.000100000001
+def k4 = 0.000100000001
+def k5 = 2.00000002e-06
+def kb1 = 0.000100000001
 
 def A() = (Signal(d1, d2, d3, d4))
 def B() = (Signal(d5, d6, d7, d8))
 def C() = (Signal(d9, d10, d11, d12))
+def D() = (Signal(d13, d14, d15, d16))
+def E() = (Signal(d17, d18, d19, d20))
+def F() = (Signal(d21, d22, d23, d24))
 
 
-def CiA = CiA/1.0
+def CiA = CiA/2.0
 def CiB = CiB/1.0
-def CiC = CiC/1.0
+def CiC = CiC/2.0
+def CiD = CiD/1.0
+def CiE = CiE/1.0
+def CiF = CiF/2.0
 
 (
 
-ApB_e_C(
-    k1, qmax, CiA, CiB, CiC, Cmax,
-    d1, d2, d3, d4,
-    d5, d6, d7, d8,
+A_e_0(
+    k1, CiA, Cmax, d1, d2, d3, d4
+) |
+r0_e_A(
+    k2, qmax, CiB, Cmax, d5, d6, d7, d8
+) |
+ApB_e_0(
+    k3, qmax, CiC, CiC, Cmax,
+    d9, d10, d11, d12,
     d9, d10, d11, d12
+) |
+ApB_e_0(
+    k4, qmax, CiD, CiE, Cmax,
+    d13, d14, d15, d16,
+    d17, d18, d19, d20
+) |
+r0_e_ApB(
+    k5, qmax, CiF, CiF, Cmax,
+    d21, d22, d23, d24,
+    d21, d22, d23, d24
+) |
+Buff(
+    kb1, qmax, Cmax, CiA, d25,
+    d1, d2, d3, d4
 )
 
 )

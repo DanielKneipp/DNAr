@@ -32,9 +32,9 @@ get_second_part <- function(react_str) {
     return(sub('.*->', '', react_str))
 }
 
-#' Check if a reactions bimolecular.
+#' Check if a reaction is bimolecular.
 #'
-#' Give a reaction, this functions checks if it is
+#' Given a reaction, this functions checks if it is
 #' a bimolecular reaction.
 #'
 #' @examples
@@ -44,6 +44,47 @@ get_second_part <- function(react_str) {
 is_bimolecular <- function(react_str) {
     first_part <- get_first_part(react_str)
     return(get_stoichiometry_part(first_part) == 2)
+}
+
+#' Check if a reaction is unimolecular.
+#'
+#' Given a reaction, this functions checks if it is
+#' a unimolecular reaction.
+#'
+#' @examples
+#' DNAr:::is_bimolecular('2A -> B')     # Should return FALSE
+#' DNAr:::is_bimolecular('A + B -> C')  # Should return FALSE
+#' DNAr:::is_bimolecular('A -> B')      # Should return TRUE
+#' DNAr:::is_bimolecular('0 -> A')      # Should return FALSE
+is_unimolecular <- function(react_str) {
+    first_part <- get_first_part(react_str)
+    return(get_stoichiometry_part(first_part) == 1)
+}
+
+#' Check if a reaction is of the degradation type
+#'
+#' Given a reaction string, this function checks if this
+#' reaction is a degradation reaction.
+#'
+#' @param react_str  A string representing the reaction
+#'
+#' @return TRUE if the reaction is of degradation.
+is_degradation <- function(react_str) {
+    right_part <- get_second_part(react_str)
+    return(isempty_part(right_part))
+}
+
+#' Check if a reaction is of the formation type
+#'
+#' Given a reaction string, this function checks if this
+#' reaction is a formation reaction.
+#'
+#' @param react_str  A string representing the reaction
+#'
+#' @return TRUE if the reaction is of formation.
+is_formation <- function(react_str) {
+    left_part <- get_first_part(react_str)
+    return(isempty_part(left_part))
 }
 
 #' Check if part of a reaction is equal to 0.
@@ -68,7 +109,10 @@ isempty_part <- function(react_part) {
 #' begin equal to 'A', this function would return 1. On the case of '2A ' it
 #' would return 2.
 get_onespecies_count <- function(one_species, reaction_part) {
-    m <- gregexpr(paste('\\b[1-9]*', one_species, '\\b', sep = ''), reaction_part)
+    m <- gregexpr(
+        paste('\\b[1-9]*', one_species, '\\b', sep = ''),
+        reaction_part
+    )
     matches <- regmatches(reaction_part, m)
     nums <- array(0, length(matches[[1]]))
     if(length(nums) > 0) {
@@ -178,12 +222,36 @@ remove_stoichiometry <- function(species) {
 #' Given part of a reaction, this function returns
 #' the species of it without the stoichiometry.
 #'
+#' The species name must starts with a letter or be 0 (for special degradation
+#' and formation reactions).
+#'
+#' @param reaction_part  Left or right part of a reaction.
+#'
+#' @return  A vector with the species names. It will return an empty vector
+#'          if there is no species (0 is considered a species) on the
+#'          reaction or there is only bad formed names
+#'
 #' @examples
 #' DNAr:::get_species('A + 2B')  # Should return c('A', 'B')
 get_species <- function(reaction_part) {
     specs <- strsplit(reaction_part, '[^a-zA-Z0-9_]')[[1]]
     specs <- specs[specs != '']
     specs <- remove_stoichiometry(specs)
+
+    # If there is a species with empty name (bad formed name), warn the user
+    # and ignore the name
+    for(spec in specs) {
+        if(spec == '') {
+            warning(
+                paste('The reaction part \'', reaction_part, '\' has a bad',
+                       'formed species name. Species names must start with',
+                       'a letter or be 0 (for special degradation and',
+                       'formation reactions). I\'m ignoring the species name')
+            )
+        }
+    }
+    specs <- specs[specs != '']
+
     return(specs)
 }
 
@@ -260,6 +328,9 @@ reactants_in_reaction <- function(species, reaction) {
 #'  - If there is no duplicate of species names on the `species` parameter.
 #' The parameters of this function are the same of \code{\link{react}()}.
 #'
+#' @return  The reactions after the preprocessing made by
+#'          `\link{check_fix_reaction}()` witch checks the reactions and fix
+#'          them when it is possible.
 check_crn <- function(species, ci, reactions, ki, t) {
     # Check if all parameters were set correctly
     # This is a helper function to check the parameters
@@ -322,6 +393,13 @@ check_crn <- function(species, ci, reactions, ki, t) {
         length(reactions) == length(ki),
         msg = 'The length of reactions and ki are not equal'
     )
+
+    # Check the construction of each reaction
+    new_reactions <- lapply(reactions, function(reaction) {
+        check_fix_reaction(reaction)
+    })
+
+    return(new_reactions)
 }
 
 #' Helper function to concatenate strings
@@ -333,3 +411,117 @@ check_crn <- function(species, ci, reactions, ki, t) {
 #'
 #' @return  A string with all the input strings concatenated.
 jn <- function(...) { paste(..., sep = '') }
+
+#' Check and fix a reaction
+#'
+#' This function is used for the check and fix (if possible) of a reaction.
+#' It is checked if there is an empty side, if both sides only contains
+#' `0`'s, when the relation operator between sides (`->`) is missing. It also
+#' fix the reactions that has a `0` with other species in the same side,
+#' removing the 0 and warning the user.
+#'
+#' @param reaction  A string representing the reaction.
+#'
+#' @return  The fixed reaction if some fix was needed, or the
+#'          reaction received as input if everything is ok.
+check_fix_reaction <- function(reaction) {
+    # Helper function to fix reactions with a 0 and other species
+    # A + 0 ==> A; A + 2B + 0 => A + 2B
+    fix_species_0 <- function(reaction_part) {
+        species <- get_species(reaction_part)
+        if(any(species == '0') && length(species) != 1) {
+            return(stringr::str_replace_all(
+                reaction_part,
+                '\\+?\\s*0\\s*\\+?',
+                ''
+            ))
+        } else {
+            return(reaction_part)
+        }
+    }
+
+    # Evaluate a reaction part
+    eval_part <- function(get_part) {
+        part <- get_part(reaction)
+
+        # Check if the part only contain spaces
+        assertthat::assert_that(
+            trimws(part) != '',
+            msg = paste('The reaction \'', reaction, '\' is bad formed.',
+                        'It must have a left and right parts.')
+        )
+
+        new_part <- fix_species_0(part)
+        list(new_part = new_part, changed = new_part != part)
+    }
+
+    # Check if there is a 0 and a species as reactants or products.
+    # Constructions such as A + 0 are invalid and in this cases
+    # the 0 will be removed
+    eval_res_reactants <- eval_part(get_first_part)
+    eval_res_products <- eval_part(get_second_part)
+
+    # Check if the reactions has both sides 0
+    assertthat::assert_that(
+        !isempty_part(eval_res_reactants$new_part) ||
+        !isempty_part(eval_res_products$new_part),
+        msg = paste('Reaction \'', reaction, '\' is bad formed.',
+                    'Both sides are 0.')
+    )
+
+    # Combine the new reaction parts
+    new_reaction <- combine_reaction_parts(
+        eval_res_reactants$new_part,
+        eval_res_products$new_part,
+        relation_operator(reaction)
+    )
+
+    # If some part has been changed, warn the user
+    if(eval_res_products$changed || eval_res_reactants$changed) {
+        warning(paste('The reaction \'', reaction, '\' is invalid. It is being',
+                      'changed to \'', new_reaction, '\''))
+    }
+
+    return(new_reaction)
+}
+
+#' Gets the relation operator of the reaction
+#'
+#' The relation operator is the operator between two parts
+#' of a reaction. Each reaction must have only one operator.
+#' Currently, only the '->' operator is supported.
+#'
+#' @param reaction  A string representing a reaction.
+#'
+#' @return  A string which represents the relation operator of the reaction.
+relation_operator <- function(reaction) {
+    # Define the existent operators
+    operators <- list('->')
+
+    for (op in operators) {
+        # If an operator str matched, returns it
+        if(stringr::str_detect(reaction, op)) {
+            return(op)
+        }
+    }
+
+    # If no valid relation operator found
+    stop(paste('The reaction \'', reaction, '\' does not have a valid relation',
+               'operator'))
+}
+
+#' Combines two reaction parts to form a reaction
+#'
+#' This function combines two reaction parts and forms
+#' a complete reaction construction with a reaction operator
+#' which specifies the relation between the two parts.
+#'
+#' @param left_part   The first part of the reaction
+#' @param right_part  The second part of the reaction
+#' @param operator    A string specifying the relation between the parts.
+#'                    It will be concatenated between the string parts.
+#'
+#' @return  A string representing the complete construction of a reaction.
+combine_reaction_parts <- function(left_part, right_part, operator) {
+    paste0(left_part, operator, right_part)
+}

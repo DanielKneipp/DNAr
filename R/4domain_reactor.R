@@ -62,6 +62,8 @@ get_buff_modules <- function(reactions, ki, qmax, cmax) {
     #             LS   HS  WS
     bff_cis <- c(cmax, 0, cmax)
 
+    # Calculate the sigma for each species.
+    # Formation reactions (0 -> A) are ignored
     uni_count <- 0
     for(i in 1:length(reactions)) {
         reactants <- get_reactants(reactions[i])
@@ -73,7 +75,7 @@ get_buff_modules <- function(reactions, ki, qmax, cmax) {
             } else {
                 sigmas[first_reactant] <- sigmas[[first_reactant]] + ki[[i]]
             }
-        } else {
+        } else if(!is_formation(reactions[[i]])) {
             uni_count <- uni_count + 1
             if(is.null(sigmas[[first_reactant]])) {
                 sigmas[first_reactant] <- 0
@@ -81,8 +83,8 @@ get_buff_modules <- function(reactions, ki, qmax, cmax) {
         }
     }
 
-    # There is no bimolecular reactions
-    if(uni_count == length(reactions)) {
+    # There is no sigma (there is only formation or unimolecular reactions)
+    if(length(sigmas) == 0) {
         return(NULL)
     }
 
@@ -200,6 +202,8 @@ react_4domain <- function(
     beta,
     t
 ) {
+    reactions <- check_crn(species, ci, reactions, ki, t)
+
     for(r in reactions) {
         if(!check_reaction_4domain(r)) {
             stop(paste('Failed to process reaction', r))
@@ -286,8 +290,13 @@ react_4domain <- function(
             l_p_specs <- get_species(left_part)
             right_part <- get_second_part(reactions[i])
 
-            new_reactions_for_i <- c(paste(l_p_specs, '+', aux[1], '-->',
-                                           aux[2]))
+            # If the only 'species' is 0, doesn't add the 0 to the reaction
+            if(is_formation(reactions[[i]])) {
+                new_reactions_for_i <- c(paste(aux[1], '-->', aux[2]))
+            } else {
+                new_reactions_for_i <- c(paste(l_p_specs, '+', aux[1], '-->',
+                                               aux[2]))
+            }
             new_species_for_i <- c(aux[1], aux[2])
             #                    G    O
             new_cis_for_i <- c(cmax, 0.0)
