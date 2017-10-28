@@ -1,8 +1,8 @@
-directive duration 72000 points 1000
+directive duration 100 points 1000
 directive simulation deterministicstiff
 directive concentration M
 directive compilation infinite
-directive plot A(); B(); C()
+directive plot sA(); sB(); sC(); sD(); sE(); sF(); sG(); sH()
 
 (* Input and output *)
 def Signal(unk, i1, i2, i3) = <unk i1^ i2 i3^>
@@ -235,30 +235,67 @@ def r0_e_ApBpC(
 )
 
 
-def Cmax = 1e+05
-def qmax = 0.001
-def CiA = 1000.0
-def CiB = 1000.0
-def CiC = 0.0
+def Cmax = 1e+06
+def qmax = 1000
+def CisA = 0.0
+def CisB = 0.0
+def CisC = 0.0
+def CisD = 1000.0
+def CisE = 0.0
+def CisF = 0.0
+def CisG = 1000.0
+def CisH = 0.0
 
-def k1 = 1e-07
+def k1 = 1.00000010000001e-05
+def k2 = 1.00000010000001e-07
+def k3 = 0.000100000010000001
+def kb1 = 0.000100000010000001
 
-def A() = (Signal(d1, d2, d3, d4))
-def B() = (Signal(d5, d6, d7, d8))
-def C() = (Signal(d9, d10, d11, d12))
+def sA() = (Signal(d1, d2, d3, d4))
+def sB() = (Signal(d5, d6, d7, d8))
+def sC() = (Signal(d9, d10, d11, d12))
+def sD() = (Signal(d13, d14, d15, d16))
+def sE() = (Signal(d17, d18, d19, d20))
+def sF() = (Signal(d21, d22, d23, d24))
+def sG() = (Signal(d25, d26, d27, d28))
+def sH() = (Signal(d29, d30, d31, d32))
 
 
-def CiA = CiA/1.0
-def CiB = CiB/1.0
-def CiC = CiC/1.0
+def CisA = CisA/1.0
+def CisB = CisB/1.0
+def CisC = CisC/1.0
+def CisD = CisD/2.0
+def CisE = CisE/2.0
+def CisF = CisF/1.0
+def CisG = CisG/2.0
+def CisH = CisH/3.0
 
 (
 
-ApB_e_C(
-    k1, qmax, CiA, CiB, CiC, Cmax,
+r0_e_ApBpC(
+    k1, qmax, CisA, CisB, CisC, Cmax,
     d1, d2, d3, d4,
     d5, d6, d7, d8,
     d9, d10, d11, d12
+) |
+A_e_BpCpD(
+    k2, qmax, CisD, CisE, CisE, CisF, Cmax,
+    d13, d14, d15, d16,
+    d17, d18, d19, d20,
+    d17, d18, d19, d20,
+    d21, d22, d23, d24
+) |
+ApB_e_CpDpE(
+    k3, qmax, CisG, CisG, CisH, CisH, CisH, Cmax,
+    d25, d26, d27, d28,
+    d25, d26, d27, d28,
+    d29, d30, d31, d32,
+    d29, d30, d31, d32,
+    d29, d30, d31, d32
+) |
+Buff(
+    kb1, qmax, Cmax, CisD, d33,
+    d13, d14, d15, d16
 )
 
 )

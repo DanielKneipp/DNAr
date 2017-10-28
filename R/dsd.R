@@ -139,6 +139,32 @@ def A_e_BpC(
     | rxn P_2(ib, ic, unko1, o1a, unko2, o2a) + T_2(ic, unko1, o1a, o1b, o1c, unko2, o2a, o2b, o2c) ->{qmax} Waste2_2(ib, ic, unko1, o1a, unko2, o2a) + Signal(unko1, o1a, o1b, o1c) + Signal(unko2, o2a, o2b, o2c)
 )
 
+(* Unimolecular to three products reaction *)
+def G_3(ia, ib, ic, unko1, o1a, unko2, o2a, unko3, o3a) = {ia^*}[ib ic^]<unko1 o1a^ unko2 o2a^ unko3 o3a^>
+def T_3(ic, unko1, o1a, o1b, o1c, unko2, o2a, o2b, o2c, unko3, o3a, o3b, o3c) = {ic^*}[unko1 o1a^]<o1b o1c^>:[unko2 o2a^]<o2b o2c^>:[unko3 o3a^]<o3b o3c^>
+
+(* Intermediate states *)
+def Waste2_3(ib, ic, unko1, o1a, unko2, o2a, unko3, o3a) = <ib>[ic^ unko1 o1a^ unko2 o2a^ unko3 o3a^]
+def P_3(ib, ic, unko1, o1a, unko2, o2a, unko3, o3a) = <ib ic^ unko1 o1a^ unko2 o2a^ unko3 o3a^>
+
+def A_e_BpCpD(
+    qi, qmax, CiA, CiB, CiC, CiD, Cmax,
+    unki, ia, ib, ic,
+    unko1, o1a, o1b, o1c,
+    unko2, o2a, o2b, o2c,
+    unko3, o3a, o3b, o3c
+) = (
+      CiA  * Signal(unki, ia, ib, ic)
+    | CiB  * Signal(unko1, o1a, o1b, o1c)
+    | CiC  * Signal(unko2, o2a, o2b, o2c)
+    | CiD  * Signal(unko3, o3a, o3b, o3c)
+    | Cmax * G_3(ia, ib, ic, unko1, o1a, unko2, o2a, unko3, o3a)
+    | Cmax * T_3(ic, unko1, o1a, o1b, o1c, unko2, o2a, o2b, o2c, unko3, o3a, o3b, o3c)
+    | rxn Signal(unki, ia, ib, ic) + G_3(ia, ib, ic, unko1, o1a, unko2, o2a, unko3, o3a) ->{qi} Waste1_uni(unki, ia, ib, ic) + P_3(ib, ic, unko1, o1a, unko2, o2a, unko3, o3a)
+    | rxn P_3(ib, ic, unko1, o1a, unko2, o2a, unko3, o3a) + T_3(ic, unko1, o1a, o1b, o1c, unko2, o2a, o2b, o2c, unko3, o3a, o3b, o3c) ->{qmax} Waste2_3(ib, ic, unko1, o1a, unko2, o2a, unko3, o3a) + Signal(unko1, o1a, o1b, o1c) + Signal(unko2, o2a, o2b, o2c) + Signal(unko3, o3a, o3b, o3c)
+)
+
+
 (* Bimolecular to one product reaction *)
 def L_1(i1a, i1b, i1c, i2a, i2b, i2c, unko, oa) = {i1a^*}[i1b i1c^ i2a^]:[i2b i2c^]<unko oa^>
 def W(i1b, i1c, i2a) = <i1b i1c^ i2a^>
@@ -189,6 +215,34 @@ def ApB_e_CpD(
     | rxn P_2(i2b, i2c, unkc, o1a, unkd, o2a) + T_2(i2c, unkc, o1a, o1b, o1c, unkd, o2a, o2b, o2c) ->{qmax} Waste2_2(i2b, i2c, unkc, o1a, unkd, o2a) + Signal(unkc, o1a, o1b, o1c) + Signal(unkd, o2a, o2b, o2c)
 )
 
+(* Bimolecular to three products reaction *)
+def L_3(i1a, i1b, i1c, i2a, i2b, i2c, unko1, o1a, unko2, o2a, unko3, o3a) = {i1a^*}[i1b i1c^ i2a^]:[i2b i2c^]<unko1 o1a^ unko2 o2a^ unko3 o3a^>
+
+(* Intermediate states *)
+def H_3(unki1, i1a, i1b, i1c, i2a, i2b, i2c, unko1, o1a, unko2, o2a, unko3, o3a) = <unki1>[i1a^ i1b i1c^]:{i2a^*}[i2b i2c^]<unko1 o1a^ unko2 o2a^ unko3 o3a^>
+
+def ApB_e_CpDpE(
+    qi, qmax, CiA, CiB, CiC, CiD, CiE, Cmax,
+    unka, i1a, i1b, i1c,
+    unkb, i2a, i2b, i2c,
+    unkc, o1a, o1b, o1c,
+    unkd, o2a, o2b, o2c,
+    unke, o3a, o3b, o3c
+) = (
+      CiA  * Signal(unka, i1a, i1b, i1c)
+    | CiB  * Signal(unkb, i2a, i2b, i2c)
+    | CiC  * Signal(unkc, o1a, o1b, o1c)
+    | CiD  * Signal(unkd, o2a, o2b, o2c)
+    | CiE  * Signal(unke, o3a, o3b, o3c)
+    | Cmax * L_3(i1a, i1b, i1c, i2a, i2b, i2c, unkc, o1a, unkd, o2a, unke, o3a)
+    | Cmax * W(i1b, i1c, i2a)
+    | Cmax * T_3(i2c, unkc, o1a, o1b, o1c, unkd, o2a, o2b, o2c, unke, o3a, o3b, o3c)
+    | rxn Signal(unka, i1a, i1b, i1c) + L_3(i1a, i1b, i1c, i2a, i2b, i2c, unkc, o1a, unkd, o2a, unk3, o3a) <->{qi}{qmax} H_3(unka, i1a, i1b, i1c, i2a, i2b, i2c, unkc, o1a, unkd, o2a, unke, o3a) + W(i1b, i1c, i2a)
+    | rxn Signal(unkb, i2a, i2b, i2c) + H_3(unka, i1a, i1b, i1c, i2a, i2b, i2c, unkc, o1a, unkd, o2a, unke, o3a) ->{qmax} Waste1_bi(unka, unkb, i1a, i1b, i1c, i2a, i2b, i2c) + P_3(i2b, i2c, unkc, o1a, unkd, o2a, unke, o3a)
+    | rxn P_3(i2b, i2c, unkc, o1a, unkd, o2a, unke, o3a) + T_3(i2c, unkc, o1a, o1b, o1c, unkd, o2a, o2b, o2c, unke, o3a, o3b, o3c) ->{qmax} Waste2_3(i2b, i2c, unkc, o1a, unkd, o2a, unke, o3a) + Signal(unkc, o1a, o1b, o1c) + Signal(unkd, o2a, o2b, o2c) + Signal(unke, o3a, o3b, o3c)
+)
+
+
 (* Buffer module *)
 def LS(ia, ib, ic, d) = {ia^*}[ib ic^ d^]
 def BS(ib, ic, d) = <ib ic^ d^>
@@ -227,7 +281,7 @@ def ApB_e_0(
 )
 
 (* Formation reactions *)
-(* These reaction get unstable when G_1 or G_2 run out *)
+(* These reaction get unstable when G_1, G_2 or G_3 run out *)
 def r0_e_A(
     qi, qmax, CiA, Cmax,
     unko, oa, ob, oc
@@ -250,6 +304,21 @@ def r0_e_ApB(
     | Cmax * T_2(ic, unko1, o1a, o1b, o1c, unko2, o2a, o2b, o2c)
     | rxn G_2(ia, ib, ic, unko1, o1a, unko2, o2a) ->{qi} Waste1_uni(unki, ia, ib, ic) + P_2(ib, ic, unko1, o1a, unko2, o2a)
     | rxn P_2(ib, ic, unko1, o1a, unko2, o2a) + T_2(ic, unko1, o1a, o1b, o1c, unko2, o2a, o2b, o2c) ->{qmax} Waste2_2(ib, ic, unko1, o1a, unko2, o2a) + Signal(unko1, o1a, o1b, o1c) + Signal(unko2, o2a, o2b, o2c)
+)
+
+def r0_e_ApBpC(
+    qi, qmax, CiA, CiB, CiC, Cmax,
+    unko1, o1a, o1b, o1c,
+    unko2, o2a, o2b, o2c,
+    unko3, o3a, o3b, o3c
+) = new unki new ia new ib new ic (
+      CiA  * Signal(unko1, o1a, o1b, o1c)
+    | CiB  * Signal(unko2, o2a, o2b, o2c)
+    | CiC  * Signal(unko3, o3a, o3b, o3c)
+    | Cmax * G_3(ia, ib, ic, unko1, o1a, unko2, o2a, unko3, o3a)
+    | Cmax * T_3(ic, unko1, o1a, o1b, o1c, unko2, o2a, o2b, o2c, unko3, o3a, o3b, o3c)
+    | rxn G_3(ia, ib, ic, unko1, o1a, unko2, o2a, unko3, o3a) ->{qi} Waste1_uni(unki, ia, ib, ic) + P_3(ib, ic, unko1, o1a, unko2, o2a, unko3, o3a)
+    | rxn P_3(ib, ic, unko1, o1a, unko2, o2a, unko3, o3a) + T_3(ic, unko1, o1a, o1b, o1c, unko2, o2a, o2b, o2c, unko3, o3a, o3b, o3c) ->{qmax} Waste2_3(ib, ic, unko1, o1a, unko2, o2a, unko3, o3a) + Signal(unko1, o1a, o1b, o1c) + Signal(unko2, o2a, o2b, o2c) + Signal(unko3, o3a, o3b, o3c)
 )'
 
     return(s)
@@ -413,6 +482,53 @@ get_dsd_AeBpC_str <- function(
     do.call(dsd_4d_make_module_str, c(s, arg_list()))
 }
 
+#' Instantiate a 'A -> B + C + D' module in the DSD script
+#'
+#' This function returns a string representing an addition of a
+#' 'A -> B + C + D' reaction in the DSD script. It creates a `A_e_BpCpd()` module
+#' in the script, replacing all the parameter strings by the ones
+#' specified in this function.
+#'
+#' @param qi         String representing a variable name for the `qi`
+#'                   parameter of the module signature.
+#' @param qmax       String representing a variable name for the `qmax`
+#'                   parameter of the module signature.
+#' @param CiA        String representing a variable name for the `CiA`
+#'                   parameter of the module signature.
+#' @param CiB        String representing a variable name for the `CiB`
+#'                   parameter of the module signature.
+#' @param CiC        String representing a variable name for the `CiC`
+#'                   parameter of the module signature.
+#' @param CiD        String representing a variable name for the `CiD`
+#'                   parameter of the module signature.
+#' @param Cmax       String representing a variable name for the `Cmax`
+#'                   parameter of the module signature.
+#' @param A_domains  Vector of strings representing the species domains of A.
+#' @param B_domains  Vector of strings representing the species domains of B.
+#' @param C_domains  Vector of strings representing the species domains of C.
+#' @param D_domains  Vector of strings representing the species domains of D.
+#'
+#' @return  A string representing the instantiation of a `A_e_BpCpD()` module.
+get_dsd_AeBpCpD_str <- function(
+    qi, qmax, CiA, CiB, CiC, CiD, Cmax,
+    A_domains,
+    B_domains,
+    C_domains,
+    D_domains
+) {
+    # String template
+    s <- 'A_e_BpCpD(
+    %qi, %qmax, %CiA, %CiB, %CiC, %CiD, %Cmax,
+    %unki, %ia, %ib, %ic,
+    %unko1, %o1a, %o1b, %o1c,
+    %unko2, %o2a, %o2b, %o2c,
+    %unko3, %o3a, %o3b, %o3c
+)'
+
+    # Get dsd module string
+    do.call(dsd_4d_make_module_str, c(s, arg_list()))
+}
+
 #' Instantiate a 'A + B -> C' module in the DSD script
 #'
 #' This function returns a string representing an addition of a
@@ -496,6 +612,58 @@ get_dsd_ApBeCpD_str <- function(
     %unkb, %i2a, %i2b, %i2c,
     %unkc, %o1a, %o1b, %o1c,
     %unkd, %o2a, %o2b, %o2c
+)'
+
+    # Get dsd module string
+    do.call(dsd_4d_make_module_str, c(s, arg_list()))
+}
+
+#' Instantiate a 'A + B -> C + D + E' module in the DSD script
+#'
+#' This function returns a string representing an addition of a
+#' 'A + B -> C + D + E' reaction in the DSD script. It creates a `ApB_e_CpDpE()`
+#' module in the script, replacing all the parameter strings by the ones
+#' specified in this function.
+#'
+#' @param qi         String representing a variable name for the `qi`
+#'                   parameter of the module signature.
+#' @param qmax       String representing a variable name for the `qmax`
+#'                   parameter of the module signature.
+#' @param CiA        String representing a variable name for the `CiA`
+#'                   parameter of the module signature.
+#' @param CiB        String representing a variable name for the `CiB`
+#'                   parameter of the module signature.
+#' @param CiC        String representing a variable name for the `CiC`
+#'                   parameter of the module signature.
+#' @param CiD        String representing a variable name for the `CiD`
+#'                   parameter of the module signature.
+#' @param CiE        String representing a variable name for the `CiE`
+#'                   parameter of the module signature.
+#' @param Cmax       String representing a variable name for the `Cmax`
+#'                   parameter of the module signature.
+#' @param A_domains  Vector of strings representing the species domains of A.
+#' @param B_domains  Vector of strings representing the species domains of B.
+#' @param C_domains  Vector of strings representing the species domains of C.
+#' @param D_domains  Vector of strings representing the species domains of D.
+#' @param E_domains  Vector of strings representing the species domains of E.
+#'
+#' @return  A string representing the instantiation of a `ApB_e_CpDpE()` module.
+get_dsd_ApBeCpDpE_str <- function(
+    qi, qmax, CiA, CiB, CiC, CiD, CiE, Cmax,
+    A_domains,
+    B_domains,
+    C_domains,
+    D_domains,
+    E_domains
+) {
+    # String template
+    s <- 'ApB_e_CpDpE(
+    %qi, %qmax, %CiA, %CiB, %CiC, %CiD, %CiE, %Cmax,
+    %unka, %i1a, %i1b, %i1c,
+    %unkb, %i2a, %i2b, %i2c,
+    %unkc, %o1a, %o1b, %o1c,
+    %unkd, %o2a, %o2b, %o2c,
+    %unke, %o3a, %o3b, %o3c
 )'
 
     # Get dsd module string
@@ -670,6 +838,48 @@ get_dsd_0eApB_str <- function(
     do.call(dsd_4d_make_module_str, c(s, arg_list()))
 }
 
+#' Instantiate a '0 -> A + B + C' module in the DSD script
+#'
+#' This function returns a string representing an addition of a
+#' '0 -> A + B + C' reaction in the DSD script. It creates a `r0_e_ApBpC()` module
+#' in the script, replacing all the parameter strings by the ones
+#' specified in this function.
+#'
+#' @param qi         String representing a variable name for the `qi`
+#'                   parameter of the module signature.
+#' @param qmax       String representing a variable name for the `qmax`
+#'                   parameter of the module signature.
+#' @param CiA        String representing a variable name for the `CiA`
+#'                   parameter of the module signature.
+#' @param CiB        String representing a variable name for the `CiB`
+#'                   parameter of the module signature.
+#' @param CiC        String representing a variable name for the `CiC`
+#'                   parameter of the module signature.
+#' @param Cmax       String representing a variable name for the `Cmax`
+#'                   parameter of the module signature.
+#' @param A_domains  Vector of strings representing the species domains of A.
+#' @param B_domains  Vector of strings representing the species domains of B.
+#' @param C_domains  Vector of strings representing the species domains of C.
+#'
+#' @return  A string representing the instantiation of a `r0_e_ApBpC()` module.
+get_dsd_0eApBpC_str <- function(
+    qi, qmax, CiA, CiB, CiC, Cmax,
+    A_domains,
+    B_domains,
+    C_domains
+) {
+    # Template string
+    s <- 'r0_e_ApBpC(
+    %qi, %qmax, %CiA, %CiB, %CiC, %Cmax,
+    %unko1, %o1a, %o1b, %o1c,
+    %unko2, %o2a, %o2b, %o2c,
+    %unko3, %o3a, %o3b, %o3c
+)'
+
+    # Get dsd module string
+    do.call(dsd_4d_make_module_str, c(s, arg_list()))
+}
+
 #' Get a definition string for the DSD script
 #'
 #' This function returns a string representing a definition in the
@@ -710,7 +920,10 @@ get_dsd_def_str <- function(key, val) {
 #'
 #' @return  The matrix of functions which can be accesses with [[i,j]]
 dsd_4d_modules <- function() {
-    modules <- matrix(list(), nrow = 3, ncol = 3)
+    # Matrix with the module functions. The higher the row,the  higher 
+    # the number of products, The columns has the same relation with 
+    # the number of products
+    modules <- matrix(list(), nrow = 3, ncol = 4)
 
     # 0 -> 0 is not a valid reaction
     modules[[1,1]] <- NA
@@ -718,18 +931,24 @@ dsd_4d_modules <- function() {
     modules[[1,2]] <- get_dsd_0eA_str
     # 0 -> A + B
     modules[[1,3]] <- get_dsd_0eApB_str
+    # 0 -> A + B + C
+    modules[[1,4]] <- get_dsd_0eApBpC_str
     # A -> 0
     modules[[2,1]] <- get_dsd_Ae0_str
     # A -> B
     modules[[2,2]] <- get_dsd_AeB_str
     # A -> B + C
     modules[[2,3]] <- get_dsd_AeBpC_str
+    # A -> B + C + D
+    modules[[2,4]] <- get_dsd_AeBpCpD_str
     # A + B -> 0
     modules[[3,1]] <- get_dsd_ApBe0_str
     # A + B -> C
     modules[[3,2]] <- get_dsd_ApBeC_str
     # A + B -> C + D
     modules[[3,3]] <- get_dsd_ApBeCpD_str
+    # A + B -> C + D + E
+    modules[[3,4]] <- get_dsd_ApBeCpDpE_str
 
     return(modules)
 }

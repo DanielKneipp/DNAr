@@ -3,14 +3,24 @@ context('DSD script generation')
 
 temp_dsd_filename <- 'temp_dsd.dsd'
 
-export_dsd <- function(parms, ok_filename, first_time = FALSE) {
-    do.call(save_dsd_script, parms)
-    if(!first_time) {
-        out <- readChar(parms$filename, file.info(parms$filename)$size)
-        out_ok <- readChar(ok_filename, file.info(ok_filename)$size)
-        file.remove(parms$filename)
-        return(list(out, out_ok))
-    }
+EXPORT_MODE <- list(FIRST_TIME = 'first_time', NORMAL = 'normal')
+
+export_dsd <- function(parms, ok_filename, mode = EXPORT_MODE$NORMAL) {
+    switch (mode,
+        'normal' = {
+            do.call(save_dsd_script, parms)
+            out <- readChar(parms$filename, file.info(parms$filename)$size)
+            out_ok <- readChar(ok_filename, file.info(ok_filename)$size)
+            file.remove(parms$filename)
+            return(list(out, out_ok))
+        },
+        'first_time' = {
+            parms$filename <- ok_filename
+            do.call(save_dsd_script, parms)
+            return(list(TRUE, TRUE))
+        },
+        stop('Mode does not exists')
+    )
 }
 
 test_that(
@@ -120,6 +130,29 @@ test_that(
             filename  = temp_dsd_filename
         )
         outs <- export_dsd(parms, 'data/dummy2.dsd')
+        expect_equal(outs[[1]], outs[[2]])
+    }
+)
+
+test_that(
+    'save_dsd_script correctly exports a dsd scripts of a CRN (called
+     3prod) with reactions with 3 products.',
+    {
+        parms <- list(
+            species   = c('sA', 'sB', 'sC', 'sD', 'sE', 'sF', 'sG', 'sH'),
+            ci        = c( 0,    0,    0,    1e3,  0,    0,    1e3,  0),
+            reactions = c('0 -> sA + sB + sC',
+                          'sD -> 2sE + sF',
+                          '2sG -> 3sH'),
+            ki        = c(1e1, 1e-1, 1e-4),
+            qmax      = 1e3,
+            cmax      = 1e6,
+            alpha     = 1,
+            beta      = 1,
+            t         = seq(0, 100, 1),
+            filename  = temp_dsd_filename
+        )
+        outs <- export_dsd(parms, 'data/3prod.dsd')
         expect_equal(outs[[1]], outs[[2]])
     }
 )
