@@ -229,3 +229,28 @@ test_that(
         expect_equal(behaviors[[1]], behaviors[[2]])
     }
 )
+
+test_that(
+    'react_4domain reprduces the behavior of a CRN (called
+     behavior_3prod_4domain) with reactions with 3 products.',
+    {
+        parms <- list(
+            species   = c('sA', 'sB', 'sC', 'sD', 'sE', 'sF', 'sG', 'sH'),
+            ci        = c( 0,    0,    0,    1e3,  0,    0,    1e3,  0),
+            reactions = c('0 -> sA + sB + sC',
+                          'sD -> 2sE + sF',
+                          '2sG -> 3sH'),
+            ki        = c(1e1, 1e-1, 1e-4),
+            qmax      = 1e3,
+            cmax      = 1e6,
+            alpha     = 1,
+            beta      = 1,
+            t         = seq(0, 100, 1)
+        )
+        behaviors <- run_reaction_4domain(
+            parms,
+            'data/behavior_3prod_4domain'
+        )
+        expect_equal(behaviors[[1]], behaviors[[2]])
+    }
+)
