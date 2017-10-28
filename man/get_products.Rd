@@ -9,10 +9,11 @@ get_products(reaction)
 \description{
 This function returns the products of a reactions,
 removing their stoichiometry. If the reaction is of the type
-'A -> 0', an empty string '' is returned.
+'A -> 0', '0' is returned as a species since it is considered
+a special species.
 }
 \examples{
 DNAr:::get_products('A + B -> C')   # Returns c('C')
 DNAr:::get_products('2A -> B + C')  # Returns c('B', 'C')
-DNAr:::get_products('A -> 0')       # Returns c('')
+DNAr:::get_products('A -> 0')       # Returns c('0')
 }
