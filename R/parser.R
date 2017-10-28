@@ -523,3 +523,25 @@ relation_operator <- function(reaction) {
 combine_reaction_parts <- function(left_part, right_part, operator) {
     paste0(left_part, operator, right_part)
 }
+
+#' Function to expand species according to their stoichiometry
+#'
+#' This function expand a list of species according to the stoichiometry
+#' of the species. E.g.: given a list of species `('A', 'B')` and
+#' a stoichiometry of `A = 1` and `B = 2`, the resulting list
+#' will be a list `('A', 'B', 'B')`.
+#'
+#' @param species        The list of species;
+#' @param stoichiometry  A function that calculates the stoichiometry
+#'                       of the species.
+#'
+#' @return  An expanded list of species.
+expand_species <- function(species, stoichiometry) {
+    unlist(
+        lapply(species, function(s) {
+            lapply(1:stoichiometry(s), function(i) {
+                s
+            })
+        })
+    )
+}

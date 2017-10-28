@@ -859,24 +859,13 @@ dsd_4d_module_str <- function(reaction, species_domains, k_idx) {
         stoichiometry$right_sto <- 0
     }
 
-    # Function to expand species according to their stoichiometry
-    expand <- function(species, stoichiometry) {
-        unlist(
-            lapply(species, function(s) {
-                lapply(1:stoichiometry(s), function(i) {
-                    s
-                })
-            })
-        )
-    }
-
     # Get the species names of reactants and products
     # The reaction is of formation or degradation, the reactants
     # or products will be NULL, respectively
     reactants <- NULL
     if(!is_formation(reaction)) {
         reactants <- get_reactants(reaction)
-        reactants <- expand(
+        reactants <- expand_species(
             reactants,
             function(species) {
                 get_stoichiometry_onespecies(species, reaction)$left_sto
@@ -886,7 +875,7 @@ dsd_4d_module_str <- function(reaction, species_domains, k_idx) {
     products <- NULL
     if(!is_degradation(reaction)) {
         products <- get_products(reaction)
-        products <- expand(
+        products <- expand_species(
             products,
             function(species) {
                 get_stoichiometry_onespecies(species, reaction)$right_sto
