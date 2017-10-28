@@ -689,6 +689,230 @@ get_dsd_def_str <- function(key, val) {
     return(s)
 }
 
+#' Get the available 4-domain modules for DSD script
+#'
+#' This function returns a matrix with all available 4-domain modules
+#' for the DSD script. The matrix is organized based on the reaction
+#' stoichiometry.
+#'
+#' If a reaction has 2 reactants and 1 product,
+#' will be in the position 3,2. The formation reactions are in the
+#' line 1, and the degradation reactions are in the column 1 ([[,1]]).
+#'
+#' The position [[1,1]] is filled with `NA` because it represents an
+#' invalid reaction (`0 -> 0`).
+#'
+#' @return  The matrix of functions which can be accesses with [[i,j]]
+dsd_4d_modules <- function() {
+    modules <- matrix(list(), nrow = 3, ncol = 3)
+
+    # 0 -> 0 is not a valid reaction
+    modules[[1,1]] <- NA
+    # 0 -> A
+    modules[[1,2]] <- get_dsd_0eA_str
+    # 0 -> A + B
+    modules[[1,3]] <- get_dsd_0eApB_str
+    # A -> 0
+    modules[[2,1]] <- get_dsd_Ae0_str
+    # A -> B
+    modules[[2,2]] <- get_dsd_AeB_str
+    # A -> B + C
+    modules[[2,3]] <- get_dsd_AeBpC_str
+    # A + B -> 0
+    modules[[3,1]] <- get_dsd_ApBe0_str
+    # A + B -> C
+    modules[[3,2]] <- get_dsd_ApBeC_str
+    # A + B -> C + D
+    modules[[3,3]] <- get_dsd_ApBeCpD_str
+
+    return(modules)
+}
+
+#' Selects a module based on the reaction stoichiometry
+#'
+#' This function returns a 4-domain DSD module based on the number
+#' of products and reactants (stoichiometry) of the reaction.
+#'
+#' @param n_reac,n_prod  Number of reactants and products.
+#'
+#' @return  A list with two parameters:
+#'           - `mod_func`: The module function obtained from
+#'             `\link{dsd_4d_modules}()`;
+#'           - `idx`: A vector with two numbers specifying the position
+#'             used to get the module function.
+select_dsd_4d_module <- function(n_reac, n_prod) {
+    # Return the module function and a reference index
+    list(
+        mod_func = dsd_4d_modules()[[n_reac + 1, n_prod + 1]],
+        idx = c(n_reac + 1, n_prod + 1)
+    )
+}
+
+#' Binds the module function with its parameters.
+#'
+#' Use this function to bind a module function to its parameters.
+#'
+#' @param module           The module function;
+#' @param k_idx            The k index to name the k for the module;
+#' @param species_domains  The list with the species domains previously
+#'                         generated
+#' @param reactants        Reactants of the reaction. If a reaction is
+#'                         something like `2A -> B`, a list with
+#'                         two separated A's `('A', 'A')` must be passed.
+#'                         If a reaction is of formation, `NULL` must be passed
+#' @param products         The reaction products. It has the same requirements
+#'                         of `reactants`.
+#'
+#' @return  A function with no arguments. When this function is called, a
+#'          string representing the modules with its arguments defined will
+#'          be returned.
+prepare_dsd_4d_module <- function(
+    module,
+    k_idx,
+    species_domains,
+    reactants,
+    products
+) {
+    # Get the arguments needed by the module
+    args <- names(formals(module))
+
+    # Function to append at the end of a list
+    append <- function(l, var, idx = NULL) {
+        # If idx is null, set it to the last position of the list
+        if(is.null(idx)) {
+            idx <- length(l) + 1
+        }
+
+        # Add the element
+        l[[idx]] <- var
+
+        return(l)
+    }
+
+    # Helper to add a parameter to the parms list if the parameter
+    # is needed by the module
+    add_parm <- function(parms, param_val, param_name = NULL) {
+        # Check if the parameter is needed
+        if(param_name %in% args) {
+            # Add the parameter to the list
+            parms <- append(parms, param_val, param_name)
+        }
+
+        return(parms)
+    }
+
+    # Define other parameters needed by some modules
+    other_parms <- list(
+        list(name = 'qi', val = paste('k', as.character(k_idx), sep = '')),
+        list(name = 'qmax', val = 'qmax'),
+        list(name = 'Cmax', val = 'Cmax')
+    )
+
+    # Extract the Ci parameters
+    ci_parms <- lapply(c(reactants, products), function(species) {
+        paste('Ci', species, sep = '')
+    })
+
+    # Extract the domain parameters
+    domain_parms <- lapply(c(reactants, products), function(species) {
+        species_domains[[species]]
+    })
+
+    # Define the list of parameters
+    parms <- list()
+    for (p in other_parms) {
+        parms <- add_parm(parms, p$val, p$name)
+    }
+    parms <-c(parms, ci_parms, domain_parms)
+
+    # Make the module a function without arguments
+    function() {
+        do.call(module, parms)
+    }
+}
+
+#' Returns a string with the 4-domain dsd module
+#'
+#' Use this function to get a string representing a 4-domain
+#' dsd module for your reaction.
+#'
+#' @param reaction         The reaction for which a dsd module will be
+#'                         instantiated
+#' @param species_domains  A list of lists in which there is a list of domains
+#'                         for each species.
+#' @param k_idx            The index of k, used to name the k variable.
+#'
+#' @return  A string representing the dsd module instantiated.
+dsd_4d_module_str <- function(reaction, species_domains, k_idx) {
+    # Get The number of reactants and products
+    stoichiometry <- get_stoichiometry_all(reaction)
+
+    # get_stoichiometry_all consider 0 a species (0 -> A has a left
+    # stoichiometry of 1). To select the correct dsd module, we have
+    # to change the stoichiometry to 0 in this cases
+    if(is_formation(reaction)) {
+        stoichiometry$left_sto <- 0
+    }
+
+    # Do the same for degradation reactions
+    if(is_degradation(reaction)) {
+        stoichiometry$right_sto <- 0
+    }
+
+    # Function to expand species according to their stoichiometry
+    expand <- function(species, stoichiometry) {
+        unlist(
+            lapply(species, function(s) {
+                lapply(1:stoichiometry(s), function(i) {
+                    s
+                })
+            })
+        )
+    }
+
+    # Get the species names of reactants and products
+    # The reaction is of formation or degradation, the reactants
+    # or products will be NULL, respectively
+    reactants <- NULL
+    if(!is_formation(reaction)) {
+        reactants <- get_reactants(reaction)
+        reactants <- expand(
+            reactants,
+            function(species) {
+                get_stoichiometry_onespecies(species, reaction)$left_sto
+            }
+        )
+    }
+    products <- NULL
+    if(!is_degradation(reaction)) {
+        products <- get_products(reaction)
+        products <- expand(
+            products,
+            function(species) {
+                get_stoichiometry_onespecies(species, reaction)$right_sto
+            }
+        )
+    }
+
+    # Get the correct module
+    module <- select_dsd_4d_module(
+        stoichiometry$left_sto,
+        stoichiometry$right_sto
+    )
+
+    # Get the module with all the parameter already set
+    mod <- prepare_dsd_4d_module(
+        module$mod_func,
+        k_idx,
+        species_domains,
+        reactants,
+        products
+    )
+
+    # Run the module function which will return the string module
+    mod()
+}
+
 #' Export a DSD script for a CRN
 #'
 #' Use this function to export a CRN to a DSD script using the 4-domain
@@ -834,8 +1058,7 @@ save_dsd_script <- function(
         # Set the species definition to the script
         script_str <- paste(script_str, get_dsd_species_str(
             spec, species_domains[[spec]]
-        ), sep = '\n'
-        )
+        ), sep = '\n')
 
         # Add the offset to the counter
         domain_counter <- domain_counter + 4
@@ -866,150 +1089,8 @@ save_dsd_script <- function(
             species_mod_counter[[spec]] <- species_mod_counter[[spec]] + num
         }
 
-        # Get the domains of the reactants and products
-        reactant_domains <- c()
-        product_domains <- c()
-        for(r in reactants) {
-            reactant_domains <- c(reactant_domains, species_domains[[r]])
-        }
-        # If there is a product
-        if(products[[1]] != '') {
-            for(p in products) {
-                product_domains <- c(product_domains, species_domains[[p]])
-            }
-        }
-
         # Set module str
-        mod_str <- ''
-
-        # Analyse the reaction specifications
-        if(is_bimolecular(reactions[[i]])) {
-            # If there is two reactants but only one species
-            if(length(reactants) == 1) {
-                reactants <- c(reactants, reactants[[1]])
-            }
-
-            # If there is a product
-            if(products[[1]] != '') {
-                # If there is two products
-                second_part <- get_second_part(reactions[[i]])
-                num_prod <- get_stoichiometry_part(second_part)
-                if(num_prod == 2) {
-                    # If there is two products but only one species
-                    if(length(products) == 1) {
-                        products <- c(products, products[[1]])
-                    }
-
-                    # Add a ApBeCpD module
-                    mod_str <- get_dsd_ApBeCpD_str(
-                        paste('k', as.character(i), sep = ''), 'qmax',
-                        paste('Ci', reactants[[1]], sep = ''),
-                        paste('Ci', reactants[[2]], sep = ''),
-                        paste('Ci', products[[1]], sep = ''),
-                        paste('Ci', products[[2]], sep = ''), 'Cmax',
-                        species_domains[[ reactants[[1]] ]],
-                        species_domains[[ reactants[[2]] ]],
-                        species_domains[[ products[[1]] ]],
-                        species_domains[[ products[[2]] ]]
-                    )
-                } else {
-                    # Otherwise (one product), add a ApBeC module
-                    mod_str <- get_dsd_ApBeC_str(
-                        paste('k', as.character(i), sep = ''), 'qmax',
-                        paste('Ci', reactants[[1]], sep = ''),
-                        paste('Ci', reactants[[2]], sep = ''),
-                        paste('Ci', products[[1]], sep = ''), 'Cmax',
-                        species_domains[[ reactants[[1]] ]],
-                        species_domains[[ reactants[[2]] ]],
-                        species_domains[[ products[[1]] ]]
-                    )
-                }
-            } else {
-                # In case of absence of product, Add a ApBe0 module
-                mod_str <- get_dsd_ApBe0_str(
-                    paste('k', as.character(i), sep = ''), 'qmax',
-                    paste('Ci', reactants[[1]], sep = ''),
-                    paste('Ci', reactants[[2]], sep = ''), 'Cmax',
-                    species_domains[[ reactants[[1]] ]],
-                    species_domains[[ reactants[[2]] ]]
-                )
-            }
-        } else if(isempty_part(get_first_part(reactions[[i]]))) {
-            # If there is no reactant (formation reaction)
-            # check if there is a product
-            if(products[[1]] != '') {
-                # Check if there is two products
-                second_part <- get_second_part(reactions[[i]])
-                num_prod <- get_stoichiometry_part(second_part)
-                if(num_prod == 2) {
-                    # If there is two products but only one species
-                    if(length(products) == 1) {
-                        products <- c(products, products[[1]])
-                    }
-
-                    # Add a 0eApB module
-                    mod_str <- get_dsd_0eApB_str(
-                        paste('k', as.character(i), sep = ''), 'qmax',
-                        paste('Ci', products[[1]], sep = ''),
-                        paste('Ci', products[[2]], sep = ''), 'Cmax',
-                        species_domains[[ products[[1]] ]],
-                        species_domains[[ products[[2]] ]]
-                    )
-                } else {
-                    # Otherwise (one product), add a 0eA module
-                    mod_str <- get_dsd_0eA_str(
-                        paste('k', as.character(i), sep = ''), 'qmax',
-                        paste('Ci', products[[1]], sep = ''), 'Cmax',
-                        species_domains[[ products[[1]] ]]
-                    )
-                }
-            } else {
-                # In case of absence of product, throw an error
-                stop(paste('Reaction \'', reactions[[1]], '\' is invalid',  
-                           'All reactions must have products and reactants'))
-            }
-        } else {
-            # If the reaction is unimolecular,
-            # check if there is a product
-            if(products[[1]] != '') {
-                # Check if there is two products
-                second_part <- get_second_part(reactions[[i]])
-                num_prod <- get_stoichiometry_part(second_part)
-                if(num_prod == 2) {
-                    # If there is two products but only one species
-                    if(length(products) == 1) {
-                        products <- c(products, products[[1]])
-                    }
-
-                    # Add a AeBpC module
-                    mod_str <- get_dsd_AeBpC_str(
-                        paste('k', as.character(i), sep = ''), 'qmax',
-                        paste('Ci', reactants[[1]], sep = ''),
-                        paste('Ci', products[[1]], sep = ''),
-                        paste('Ci', products[[2]], sep = ''), 'Cmax',
-                        species_domains[[ reactants[[1]] ]],
-                        species_domains[[ products[[1]] ]],
-                        species_domains[[ products[[2]] ]]
-                    )
-                } else {
-                    # Otherwise (one product), add a AeB module
-                    mod_str <- get_dsd_AeB_str(
-                        paste('k', as.character(i), sep = ''), 'qmax',
-                        paste('Ci', reactants[[1]], sep = ''),
-                        paste('Ci', products[[1]], sep = ''), 'Cmax',
-                        species_domains[[ reactants[[1]] ]],
-                        species_domains[[ products[[1]] ]]
-                    )
-                }
-            } else {
-                # In case of absence of product, Add a Ae0 module
-                mod_str <- get_dsd_Ae0_str(
-                    paste('k', as.character(i), sep = ''),
-                    paste('Ci', reactants[[1]], sep = ''), 'Cmax',
-                    species_domains[[ reactants[[1]] ]]
-                )
-            }
-        }
+        mod_str <- dsd_4d_module_str(reactions[[i]], species_domains, i)
 
         # Put the current module string together with the other ones
         modules_str <- paste(modules_str, mod_str, sep = '')
