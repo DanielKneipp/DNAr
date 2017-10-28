@@ -7,7 +7,7 @@
 get_dsd_header_str(time, species_to_plot)
 }
 \arguments{
-\item{time}{The time sequence that simulation will occour.
+\item{time}{The time sequence that simulation will occur.
 this parameter can be exactly the same used in
 the parameter \code{t} of the \code{\link{react}()}
 or \code{\link{react_4domain}()} functions.}

@@ -23,7 +23,7 @@
 #' the concentration unit measure, type of compilation and
 #' the species to be plotted.
 #'
-#' @param time             The time sequence that simulation will occour.
+#' @param time             The time sequence that simulation will occur.
 #'                         this parameter can be exactly the same used in
 #'                         the parameter `t` of the \code{\link{react}()}
 #'                         or \code{\link{react_4domain}()} functions.
@@ -283,6 +283,58 @@ replace_module_markers <- function(template_str, marker_pattern, objs) {
     return(template_str)
 }
 
+#' Get a DSD 4domain module string
+#'
+#' Based on a template string, this function prepare it with the
+#' the parameters passed and returns a string representing the
+#' module with all the parameters set.
+#'
+#' @param template_str  The template string of the module;
+#' @param ...           The parameters to be setted on the module string.
+#'
+#' @return  A string representing an instantiation of a module with all
+#'          parameters set.
+dsd_4d_make_module_str <- function(template_str, ...) {
+    # Put all variables in one vector
+    data <- c(...)
+
+    # Replace the marker by the actual variable names
+    s <- replace_module_markers(template_str, '%[a-zA-Z0-9]+', data)
+
+    return(s)
+}
+
+#' Get the arguments of the current function
+#'
+#' Use this function to get the arguments of the current function.
+#'
+#' @return  A list with the name of the arguments being the name of the
+#'          element, and the argument's content being the content of
+#'          the element.
+arg_list <- function() {
+    # Get the parameters of this function
+    parms <- as.list(match.call(
+        definition = sys.function(sys.parent()),
+        call = sys.call(sys.parent()),
+        envir = parent.frame(2L)
+    ))
+
+    # Remove the first element which is the name of the function it self
+    parms <- parms[2:length(parms)]
+
+    # Evaluate languages
+    pf <- parent.frame(2L)
+    parms <- lapply(parms, function(p) {
+        if(is.language(p)) {
+            eval(p, envir = pf)
+        } else {
+            p
+        }
+    })
+
+    return(parms)
+}
+
 #' Instantiate a 'A -> B' module in the DSD script
 #'
 #' This function returns a string representing an addition of a
@@ -315,14 +367,8 @@ get_dsd_AeB_str <- function(
     %unki, %ia, %ib, %ic,
     %unko, %oa, %ob, %oc
 )'
-
-    # Put all variables in one vector
-    data <- c(qi, qmax, CiA, CiB, Cmax, A_domains, B_domains)
-
-    # Replace the marker by the actual variable names
-    s <- replace_module_markers(s, '%[a-zA-Z0-9]+', data)
-
-    return(s)
+    # Get dsd module string
+    do.call(dsd_4d_make_module_str, c(s, arg_list()))
 }
 
 #' Instantiate a 'A -> B + C' module in the DSD script
@@ -363,13 +409,8 @@ get_dsd_AeBpC_str <- function(
     %unko2, %o2a, %o2b, %o2c
 )'
 
-    # Put all variables in one vector
-    data <- c(qi, qmax, CiA, CiB, CiC, Cmax, A_domains, B_domains, C_domains)
-
-    # Replace the marker by the actual variable names
-    s <- replace_module_markers(s, '%[a-zA-Z0-9]+', data)
-
-    return(s)
+    # Get dsd module string
+    do.call(dsd_4d_make_module_str, c(s, arg_list()))
 }
 
 #' Instantiate a 'A + B -> C' module in the DSD script
@@ -410,13 +451,8 @@ get_dsd_ApBeC_str <- function(
     %unkc, %c1, %c2, %c3
 )'
 
-    # Put all variables in one vector
-    data <- c(qi, qmax, CiA, CiB, CiC, Cmax, A_domains, B_domains, C_domains)
-
-    # Replace the marker by the actual variable names
-    s <- replace_module_markers(s, '%[a-zA-Z0-9]+', data)
-
-    return(s)
+    # Get dsd module string
+    do.call(dsd_4d_make_module_str, c(s, arg_list()))
 }
 
 #' Instantiate a 'A + B -> C + D' module in the DSD script
@@ -462,16 +498,8 @@ get_dsd_ApBeCpD_str <- function(
     %unkd, %o2a, %o2b, %o2c
 )'
 
-    # Put all variables in one vector
-    data <- c(
-        qi, qmax, CiA, CiB, CiC, CiD, Cmax,
-        A_domains, B_domains, C_domains, D_domains
-    )
-
-    # Replace the marker by the actual variable names
-    s <- replace_module_markers(s, '%[a-zA-Z0-9]+', data)
-
-    return(s)
+    # Get dsd module string
+    do.call(dsd_4d_make_module_str, c(s, arg_list()))
 }
 
 #' Instantiate a buffer module in the DSD script
@@ -504,14 +532,8 @@ get_dsd_buff_str <- function(
     %qs, %qmax, %Cmax, %Cii, %d,
     %unki, %ia, %ib, %ic
 )'
-
-    # Put all variables in one vector
-    data <- c(qs, qmax, Cmax, Cii, d, domains)
-
-    # Replace the marker by the actual variable names
-    s <- replace_module_markers(s, '%[a-zA-Z0-9]+', data)
-
-    return(s)
+    # Get dsd module string
+    do.call(dsd_4d_make_module_str, c(s, arg_list()))
 }
 
 #' Instantiate a 'A -> 0' module in the DSD script
@@ -539,13 +561,8 @@ get_dsd_Ae0_str <- function(
     %qi, %CiA, %Cmax, %unki, %ia, %ib, %ic
 )'
 
-    # Put all variables in one vector
-    data <- c(qi, CiA, Cmax, A_domains)
-
-    # Replace the marker by the actual variable names
-    s <- replace_module_markers(s, '%[a-zA-Z0-9]+', data)
-
-    return(s)
+    # Get dsd module string
+    do.call(dsd_4d_make_module_str, c(s, arg_list()))
 }
 
 #' Instantiate a 'A + B -> 0' module in the DSD script
@@ -581,11 +598,8 @@ get_dsd_ApBe0_str <- function(
     %unkb, %i2a, %i2b, %i2c
 )'
 
-    # Put all variables in one vector
-    data <- c(qi, qmax, CiA, CiB, Cmax, A_domains, B_domains)
-
-    # Replace the marker by the actual variable names
-    s <- replace_module_markers(s, '%[a-zA-Z0-9]+', data)
+    # Get dsd module string
+    do.call(dsd_4d_make_module_str, c(s, arg_list()))
 }
 
 #' Instantiate a '0 -> A' module in the DSD script
@@ -615,13 +629,8 @@ get_dsd_0eA_str <- function(
     %qi, %qmax, %CiA, %Cmax, %unko, %oa, %ob, %oc
 )'
 
-    # Put all variables in one vector
-    data <- c(qi, qmax, CiA, Cmax, A_domains)
-
-    # Replace the marker by the actual variable names
-    s <- replace_module_markers(s, '%[a-zA-Z0-9]+', data)
-
-    return(s)
+    # Get dsd module string
+    do.call(dsd_4d_make_module_str, c(s, arg_list()))
 }
 
 #' Instantiate a '0 -> A + B' module in the DSD script
@@ -657,11 +666,8 @@ get_dsd_0eApB_str <- function(
     %unko2, %o2a, %o2b, %o2c
 )'
 
-    # Put all variables in one vector
-    data <- c(qi, qmax, CiA, CiB, Cmax, A_domains, B_domains)
-
-    # Replace the marker by the actual variable names
-    s <- replace_module_markers(s, '%[a-zA-Z0-9]+', data)
+    # Get dsd module string
+    do.call(dsd_4d_make_module_str, c(s, arg_list()))
 }
 
 #' Get a definition string for the DSD script
