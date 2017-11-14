@@ -96,6 +96,10 @@ fte_theme <- function() {
 #' @param x_label,y_label   Label name of the x and y axis, respectively.
 #'                          The default are 'Time' and 'Concentration'.
 #' @param legend_name       Name of the legend. The default is 'Species'.
+#' @param geom_list         A list specifying what geoms from `ggplot2` to
+#'                          use for the plot. The default value is a list with
+#'                          just `line` on it. The currently possible
+#'                          values are `line` and `point`.
 #' @param save_file_name    Name file that the plot should be saved in.
 #'                          Currently files with .pdf and .png were tested but
 #'                          it should support any extension supported by
@@ -112,8 +116,18 @@ plot_behavior <- function(
     x_label = 'Time',
     y_label = 'Concentration',
     legend_name = 'Species',
+    geom_list = list('line'),
     save_file_name = NULL
 ) {
+    # Returns the geom function given a keyword
+    geom <- function(keyword) {
+        switch (keyword,
+                'line' = ggplot2::geom_line(size = 1.3),
+                'point' = ggplot2::geom_point(size = 2.3),
+                stop(paste('\'', keyword, '\' is not a valid geometry'))
+        )
+    }
+
     # If no species was specified, pick all of them.
     if(is.null(species)) {
         species <- names(behavior)[2:dim(behavior)[2]]
@@ -127,10 +141,12 @@ plot_behavior <- function(
     g <- ggplot2::ggplot(dfm, ggplot2::aes(
         time, value, color = variable
     )) +
-        ggplot2::geom_line(size = 1.3) +
         ggplot2::theme_minimal(base_size = 18) +
         ggplot2::labs(x = x_label, y = y_label, color = legend_name) +
         ggplot2::scale_color_brewer(palette="Dark2")
+    for(geometric in geom_list) {
+        g <- g + geom(geometric)
+    }
 
     # if a name file was specified, save the plot there.
     if(!is.null(save_file_name)) {

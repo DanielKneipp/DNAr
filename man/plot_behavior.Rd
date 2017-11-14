@@ -6,7 +6,7 @@
 \usage{
 plot_behavior(behavior, species = NULL, x_label = "Time",
   y_label = "Concentration", legend_name = "Species",
-  save_file_name = NULL)
+  geom_list = list("line"), save_file_name = NULL)
 }
 \arguments{
 \item{behavior}{Behavior returned by \code{\link{react}()}}
@@ -19,6 +19,11 @@ plotted.}
 The default are 'Time' and 'Concentration'.}
 
 \item{legend_name}{Name of the legend. The default is 'Species'.}
+
+\item{geom_list}{A list specifying what geoms from \code{ggplot2} to
+use for the plot. The default value is a list with
+just \code{line} on it. The currently possible
+values are \code{line} and \code{point}.}
 
 \item{save_file_name}{Name file that the plot should be saved in.
 Currently files with .pdf and .png were tested but
