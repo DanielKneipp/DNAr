@@ -155,23 +155,25 @@ get_buff_modules <- function(reactions, ki, qmax, cmax) {
 #'   these are the reserved for the auxiliary ones. Ex.: `L2` and `LS2`
 #'   are not supported but `LT` and `LT2` are.
 #'
-#' @param species     A vector with the species of the reaction. The order of
-#'                    this vector is important because it will define the
-#'                    column order of the returned behavior. The species names
-#'                    `L[0-9]*`, `H[0-9]*`, `W[0-9]*`, `O[0-9]*`,
-#'                    `T[0-9]*`, `G[0-9]*`, `LS[0-9]*`, `HS[0-9]*`,
-#'                    `WS[0-9]*` are not supported. For more information
-#'                    about this, see the Section of **Known limitations**.
-#' @param ci          A vector specifying the initial concentrations of the
-#'                    \code{species} specified, in order.
-#' @param reactions   A vector with the reactions of the CRN^*.
-#' @param ki          A vector defining the constant rate of each reaction
-#'                    in \code{reactions}, in order.
-#' @param qmax        Maximum rate constant for the auxiliary reactions.
-#' @param cmax        Maximum initial concentration for the auxiliary species.
-#' @param alpha,beta  Rescaling parameters.
-#' @param t           A vector specifying the time interval. Each value
-#'                    would be a specific time point.
+#' @param species      A vector with the species of the reaction. The order of
+#'                     this vector is important because it will define the
+#'                     column order of the returned behavior. The species names
+#'                     `L[0-9]*`, `H[0-9]*`, `W[0-9]*`, `O[0-9]*`,
+#'                     `T[0-9]*`, `G[0-9]*`, `LS[0-9]*`, `HS[0-9]*`,
+#'                     `WS[0-9]*` are not supported. For more information
+#'                     about this, see the Section of **Known limitations**.
+#' @param ci           A vector specifying the initial concentrations of the
+#'                     \code{species} specified, in order.
+#' @param reactions    A vector with the reactions of the CRN^*.
+#' @param ki           A vector defining the constant rate of each reaction
+#'                     in \code{reactions}, in order.
+#' @param qmax         Maximum rate constant for the auxiliary reactions.
+#' @param cmax         Maximum initial concentration for the auxiliary species.
+#' @param alpha,beta   Rescaling parameters.
+#' @param t            A vector specifying the time interval. Each value
+#'                     would be a specific time point.
+#' @param auto_buffer  With the default value of `TRUE`, this specifies if
+#'                     buffer modules should be generated automatically.
 #'
 #' @return A list with the attributes `behavior`, `species`, `ci`, `reactions`
 #' and `ki`. These attributes are:
@@ -200,7 +202,8 @@ react_4domain <- function(
     cmax,
     alpha,
     beta,
-    t
+    t,
+    auto_buffer = TRUE
 ) {
     reactions <- check_crn(species, ci, reactions, ki, t)
 
@@ -219,7 +222,10 @@ react_4domain <- function(
     bi_aux_species <- c('L', 'H', 'W', 'O', 'T')
 
     # Get buffer modules
-    buffer_stuff <- get_buff_modules(reactions, ki, qmax, cmax)
+    buffer_stuff <- NULL
+    if(auto_buffer) {
+        buffer_stuff <- get_buff_modules(reactions, ki, qmax, cmax)
+    }
 
     # Change cis according to the lambda^{-1} factor
     if(!is.null(buffer_stuff)) {

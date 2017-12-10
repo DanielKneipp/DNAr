@@ -5,7 +5,8 @@
 \title{Translate a formal CRN into a set of DNA based reactions according to the
 approach described by Soloveichik D et al. \code{[1]}}
 \usage{
-react_4domain(species, ci, reactions, ki, qmax, cmax, alpha, beta, t)
+react_4domain(species, ci, reactions, ki, qmax, cmax, alpha, beta, t,
+  auto_buffer = TRUE)
 }
 \arguments{
 \item{species}{A vector with the species of the reaction. The order of
@@ -32,6 +33,9 @@ in \code{reactions}, in order.}
 
 \item{t}{A vector specifying the time interval. Each value
 would be a specific time point.}
+
+\item{auto_buffer}{With the default value of \code{TRUE}, this specifies if
+buffer modules should be generated automatically.}
 }
 \value{
 A list with the attributes \code{behavior}, \code{species}, \code{ci}, \code{reactions}
