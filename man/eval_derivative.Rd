@@ -2,7 +2,7 @@
 % Please edit documentation in R/analysis.R
 \name{eval_derivative}
 \alias{eval_derivative}
-\title{Evaluate an expression a derivative returned by
+\title{Evaluate a derivative returned by
 \code{\link{analyze_behavior}()}}
 \usage{
 eval_derivative(derivative)

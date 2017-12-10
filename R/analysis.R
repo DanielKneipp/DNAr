@@ -214,7 +214,7 @@ analyze_behavior <- function(
     }
 }
 
-#' Evaluate an expression a derivative returned by
+#' Evaluate a derivative returned by
 #' \code{\link{analyze_behavior}()}
 #'
 #' If \code{\link{analyze_behavior}()} was used with a `behavior` and
@@ -242,3 +242,39 @@ eval_derivative <- function(derivative) {
     return(eval(parse(text = express)))
 }
 
+#' Evaluate subexpressions of a derivative returned by
+#' \code{\link{analyze_behavior}()}
+#'
+#' This functions works like `\link{eval_derivative}()`, but instead of
+#' evaluating the entire derivative, it will evaluate parts of it
+#' (delimited by `()`).
+#'
+#' @param derivative  Derivative with concentration values returned by
+#'                    \code{\link{analyze_behavior}()}.
+#'
+#' @return A numeric named vector value representing the result of each part
+#'         of the the derivative. The names of the results are the evaluated
+#'         subexpressions.
+#'
+#' @export
+eval_derivative_part <- function(derivative) {
+    # Get the part after the '='
+    right_part <- stringr::str_split(derivative, '=')[[1]][2]
+
+    # Calculating the result of each subexpression (within `()``)
+    exps <- stringr::str_match_all(right_part, '\\(.+?\\)')[[1]]
+    exp_results <- sapply(exps, function(exp) {
+        # Remove the concentration names (with exponent, if they have)
+        exp <- stringr::str_replace_all(
+            exp,
+            '\\[[^\\[\\]]*\\](\\^[0-9]+)?',
+            ''
+        )
+
+        # Evaluate the subexpression
+        eval(parse(text = exp))
+    })
+
+    # Return a vector with the results
+    return(exp_results)
+}

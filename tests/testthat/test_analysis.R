@@ -225,4 +225,40 @@ test_that(
         expect_equal(eval_derivative(d[['A']]), -200)
         expect_equal(eval_derivative(d[['B']]), -100)
         expect_equal(eval_derivative(d[['C']]), 100)
-    })
+    }
+)
+
+test_that(
+    'eval_derivative_part',
+    {
+        parms <- list(
+            species   = c('A', 'B', 'C'),
+            ci        = c(1e5, 1e3, 0),
+            reactions = c('2A + B -> C',
+                          '2A -> A'),
+            ki        = c(1e-7,
+                          1e-7),
+            t         = seq(0, 72000, 10)
+        )
+        behavior <- do.call(react, parms)
+
+        parms$t <- NULL
+        parms$time_points <- 1
+        parms$behavior <- behavior
+        d <- do.call(analyze_behavior, parms)
+
+        r <- eval_derivative_part(d[['A']])
+        expect_equal(r[[1]], -2e+06)
+        expect_equal(r[[2]], -1e+03)
+        expect_equal(names(r)[[1]], '(-2e-07 * 1e+10[A]^2 * 1000[B])')
+        expect_equal(names(r)[[2]], '(-1e-07 * 1e+10[A]^2)')
+
+        r <- eval_derivative_part(d[['B']])
+        expect_equal(r[[1]], -1e+06)
+        expect_equal(names(r)[[1]], '(-1e-07 * 1e+10[A]^2 * 1000[B])')
+
+        r <- eval_derivative_part(d[['C']])
+        expect_equal(r[[1]], 1e+06)
+        expect_equal(names(r)[[1]], '(1e-07 * 1e+10[A]^2 * 1000[B])')
+    }
+)
