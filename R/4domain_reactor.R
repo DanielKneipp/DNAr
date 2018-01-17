@@ -174,6 +174,10 @@ get_buff_modules <- function(reactions, ki, qmax, cmax) {
 #'                     would be a specific time point.
 #' @param auto_buffer  With the default value of `TRUE`, this specifies if
 #'                     buffer modules should be generated automatically.
+#' @param verbose      Be verbose and print information about the integration
+#'                     process with `deSolve::diagnostics.deSolve()`. Default
+#'                     value is `FALSE`
+#' @param ...          Parameters passed to `deSolve::ode()`.
 #'
 #' @return A list with the attributes `behavior`, `species`, `ci`, `reactions`
 #' and `ki`. These attributes are:
@@ -203,7 +207,9 @@ react_4domain <- function(
     alpha,
     beta,
     t,
-    auto_buffer = TRUE
+    auto_buffer = TRUE,
+    verbose = FALSE,
+    ...
 ) {
     reactions <- check_crn(species, ci, reactions, ki, t)
 
@@ -343,7 +349,9 @@ react_4domain <- function(
         ci        = new_cis,
         reactions = new_reactions,
         ki        = new_ks,
-        t         = t
+        t         = t,
+        verbose   = verbose,
+        ...
     )
 
     # Arrange the data to be returned in a list

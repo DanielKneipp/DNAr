@@ -4,7 +4,7 @@
 \alias{react}
 \title{Simulate a CRN}
 \usage{
-react(species, ci, reactions, ki, t)
+react(species, ci, reactions, ki, t, verbose = FALSE, ...)
 }
 \arguments{
 \item{species}{A vector with the species of the reaction. The order of
@@ -26,6 +26,12 @@ in \code{reactions}, in order.}
 
 \item{t}{A vector specifying the time interval. Each value
 would be a specific time point.}
+
+\item{verbose}{Be verbose and print information about the integration
+process with \code{deSolve::diagnostics.deSolve()}. Default
+value is \code{FALSE}}
+
+\item{...}{Parameters passed to \code{deSolve::ode()}.}
 }
 \value{
 A data frame with each line being a specific point in the time

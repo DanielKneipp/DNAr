@@ -74,6 +74,10 @@ get_M <- function(reactions, species) {
 #'                   in \code{reactions}, in order.
 #' @param t          A vector specifying the time interval. Each value
 #'                   would be a specific time point.
+#' @param verbose    Be verbose and print information about the integration
+#'                   process with `deSolve::diagnostics.deSolve()`. Default
+#'                   value is `FALSE`
+#' @param ...        Parameters passed to `deSolve::ode()`.
 #'
 #' @return A data frame with each line being a specific point in the time
 #'         and each column but the first being the concentration of a
@@ -83,7 +87,7 @@ get_M <- function(reactions, species) {
 #' @export
 #'
 #' @example demo/main_crn.R
-react <- function(species, ci, reactions, ki, t) {
+react <- function(species, ci, reactions, ki, t, verbose = FALSE, ...) {
     # Check the crn specification
     reactions <- check_crn(species, ci, reactions, ki, t)
 
@@ -130,7 +134,10 @@ react <- function(species, ci, reactions, ki, t) {
         list(dy)
     }
 
-    result <- deSolve::ode(times = t, y = ci, func = fx, parms = NULL)
+    result <- deSolve::ode(times = t, y = ci, func = fx, parms = NULL, ...)
+    if(verbose) {
+        print(deSolve::diagnostics.deSolve(result))
+    }
 
     # Convert double matrix to dataframe
     df_result <- data.frame(result)
