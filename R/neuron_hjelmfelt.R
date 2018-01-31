@@ -729,10 +729,56 @@ get_neuron_AND_gate_hje <- function(gate_name, input_cis, binding_inhibit = NULL
         output_neuron_name = output_name,
         input_neuron_cis = input_cis,
         binding_enzyme_configs = list(
-            list(ci = 1/3, k = c(200, 100)),
-            list(ci = 1/3, k = c(200, 100))
+            list(ci = 1/3, k = c(2e5, 1e5)),
+            list(ci = 1/3, k = c(2e5, 1e5))
         ),
         binding_cis = c(2/3, 2/3),
+        binding_inhibit = binding_inhibit
+    )
+
+    return(gate)
+}
+
+#' Get a OR neuron gate
+#'
+#' This function returns an OR gate using neurons based on McCullogh-Pitts
+#' model (neurons returned by `\link{get_neuron_hje}()`). The two input neurons
+#' have the name `i1` and `i2`, and the output neuron has the `o` name. This
+#' (with the gate name) determines the species names created for the CRNs
+#' that represent them.
+#'
+#' @param gate_name        The name of the gate
+#' @param input_cis        A numeric vector representing the initial
+#'                         concentration of the inputs.
+#' @param binding_inhibit  Boolean vector where each elements specifies
+#'                         whether the input with the same index will
+#'                         be an inhibitory binding or not. If no vector
+#'                         is passed, no binding will be inhibited. This
+#'                         parameter is passed to
+#'                         `\link{get_neuron_generic_gate_hje}()`.
+#'
+#' @return  A list representing the gate. To transform this representation into
+#'          a CRN (to simulate with `\link{react}()`, for example) you have
+#'          to use the function `\link{get_crn_from_neuron_gate_hje}()`.
+#'
+#' @export
+get_neuron_OR_gate_hje <- function(gate_name, input_cis, binding_inhibit = NULL) {
+    # Define the input and output names
+    input1_name <- jn(gate_name, 'i1')
+    input2_name <- jn(gate_name, 'i2')
+    output_name <- jn(gate_name, 'o')
+
+    # Get the gate
+    gate <- get_neuron_generic_gate_hje(
+        gate_name = gate_name,
+        input_neuron_names = list(input1_name, input2_name),
+        output_neuron_name = output_name,
+        input_neuron_cis = input_cis,
+        binding_enzyme_configs = list(
+            list(ci = 2/3, k = c(2e5, 1e5)),
+            list(ci = 2/3, k = c(2e5, 1e5))
+        ),
+        binding_cis = c(4/3, 4/3),
         binding_inhibit = binding_inhibit
     )
 
