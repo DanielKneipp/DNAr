@@ -105,6 +105,11 @@ fte_theme <- function() {
 #'                          it should support any extension supported by
 #'                          \code{\link[ggplot2]{ggsave}()}. If no file name
 #'                          is specified, the won't be saved.
+#' @param show_legend       Show legend in the plot, Default value is `TRUE`.
+#' @param show_x_label_name Show label name of x axis. Default value is `TRUE`.
+#' @param show_y_label_name Show label name of y axis. Default value is `TRUE`.
+#' @param y_origin_0        Set the origin of y axis to 0. Default value is
+#'                          `FALSE`.
 #'
 #' @return  The object returned by \code{\link[ggplot2]{ggplot}()}, so you
 #'          can modify the plot or save it in a different way.
@@ -117,7 +122,11 @@ plot_behavior <- function(
     y_label = 'Concentration',
     legend_name = 'Species',
     geom_list = list('line'),
-    save_file_name = NULL
+    save_file_name = NULL,
+    show_legend = TRUE,
+    show_x_label_name = TRUE,
+    show_y_label_name = TRUE,
+    y_origin_0 = FALSE
 ) {
     # Returns the geom function given a keyword
     geom <- function(keyword) {
@@ -146,6 +155,18 @@ plot_behavior <- function(
         ggplot2::scale_color_brewer(palette="Dark2")
     for(geometric in geom_list) {
         g <- g + geom(geometric)
+    }
+    if(!show_legend) {
+        g <- g + ggplot2::guides(color = FALSE)
+    }
+    if(y_origin_0) {
+        g <- g + ggplot2::expand_limits(y = 0)
+    }
+    if(!show_x_label_name) {
+        g <- g + ggplot2::theme(axis.title.x = ggplot2::element_blank())
+    }
+    if(!show_y_label_name) {
+        g <- g + ggplot2::theme(axis.title.y = ggplot2::element_blank())
     }
 
     # if a name file was specified, save the plot there.
