@@ -208,12 +208,12 @@ save_reactions_txt <- function(species, cis, reactions, kis, filename) {
 
     # Store the data frame
     capture.output(
-        print(spec_data, row.names = FALSE, print.gap = 4),
+        print(spec_data, row.names = FALSE, print.gap = 4, max = 999999),
         file = filename
     )
     cat('\n', file = filename, append = TRUE)
     capture.output(
-        print(react_data, row.names = FALSE, print.gap = 4),
+        print(react_data, row.names = FALSE, print.gap = 4, max = 999999),
         file = filename,
         append = TRUE
     )
