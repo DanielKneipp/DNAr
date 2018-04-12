@@ -367,3 +367,31 @@ react_4domain <- function(
     # initial concentrations, reactions and rate constants.
     return(result)
 }
+
+#' Automatically modify a CRN to make it compatible with the DNA simulation
+#'
+#' This function automatically set the `qmax`, `cmax`, `alpha`, `beta`, and
+#' optionally the parameters `method` and `t` (duration time).
+#'
+#' @param crn     The CRN to be modified.
+#' @param t       Optional parameter used to redefine the duration time.
+#' @param method  Optional parameter which sets the solver method.
+#'
+#' @return  The modified CRN with the nwe parameters, ready to be used with
+#'          the function \code{\link{react_4domain}()}.
+#'
+#' @export
+update_crn_4domain <- function(crn, t = NULL, method = NULL) {
+    crn$qmax <- max(crn$ki) * 1e4
+    crn$cmax <- max(crn$ci) * 1e4
+    crn$alpha <- 1
+    crn$beta <- 1
+    if(!is.null(method)){
+        crn$method <- method
+    }
+    if(!is.null(t)) {
+        crn$t <- t
+    }
+
+    return(crn)
+}

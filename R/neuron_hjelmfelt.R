@@ -784,3 +784,84 @@ get_neuron_OR_gate_hje <- function(gate_name, input_cis, binding_inhibit = NULL)
 
     return(gate)
 }
+
+#' Get a majority gate
+#'
+#' It returns a majority gate using neurons based on McCullogh-Pitts
+#' model (neurons returned by `\link{get_neuron_hje}()`). It supports an
+#' arbitrary number of inputs (although it must be odd).
+#'
+#' @param gate_name        The name of the gate.
+#' @param n_inputs         The number of inputs.
+#' @param input_cis        A numeric vector representing the initial
+#'                         concentration of the inputs.
+#' @param binding_inhibit  Boolean vector where each elements specifies
+#'                         whether the input with the same index will
+#'                         be an inhibitory binding or not. If no vector
+#'                         is passed, no binding will be inhibited. This
+#'                         parameter is passed to
+#'                         `\link{get_neuron_generic_gate_hje}()`.
+#'
+#' @return  A list representing the gate. To transform this representation into
+#'          a CRN (to simulate with `\link{react}()`, for example) you have
+#'          to use the function `\link{get_crn_from_neuron_gate_hje}()`.
+#'
+#' @export
+get_neuron_majority_gate <- function(
+    gate_name,
+    n_inputs,
+    input_cis,
+    binding_inhibit = NULL
+) {
+    # Check if the number of inputs is odd
+    assertthat::assert_that(
+        n_inputs %% 2 != 0,
+        msg = paste0('The number of inputs must be odd. \'input_cis = ',
+                    n_inputs, '\' was given')
+    )
+
+    # Check if the number if inputs is equal to the number of
+    # initial concentrations
+    assertthat::assert_that(
+        n_inputs == length(input_cis),
+        msg = paste('The number of inputs must be equal to the number of',
+                    'initial concentrations. \'n_inputs [', n_inputs,
+                    '] != length(input_cis) [', length(input_cis),']\'')
+    )
+
+    # Define the input and output names
+    input_names <- lapply(1:n_inputs, function(i) {
+        jn(gate_name, 'i', i)
+    })
+    output_name <- jn(gate_name, 'o')
+
+    # Calculating the value of a binding when activated.
+    # The sum of inputs must be 2 when all inputs are activated.
+    # This means when only half of the inputs are activated,
+    # the input value will be 1 (undefined state). If any any binding
+    # changes its state, the neuron will tend to a defined response.
+    bci <- 2 / n_inputs
+    # Finding eij0 based on bci
+    eij0 <- bci * (1 + 1 / (2 * 1))
+    # By construction, [Eij]_0 is defined
+    eci <- eij0 - bci
+    enz_confs <- lapply(1:n_inputs, function(i) {
+        list(ci = eci, k = c(2e5, 1e5))
+    })
+    bind_cis <- sapply(1:n_inputs, function(i) {
+        bci
+    })
+
+    # Get the gate
+    gate <- DNAr:::get_neuron_generic_gate_hje(
+        gate_name = gate_name,
+        input_neuron_names = input_names,
+        output_neuron_name = output_name,
+        input_neuron_cis = input_cis,
+        binding_enzyme_configs = enz_confs,
+        binding_cis = bind_cis,
+        binding_inhibit = binding_inhibit
+    )
+
+    return(gate)
+}

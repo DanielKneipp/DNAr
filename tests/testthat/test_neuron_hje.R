@@ -95,3 +95,30 @@ test_that(
         expect_equal(b[[1]], b[[2]])
     }
 )
+
+test_that(
+    'if a majority gate behaves correctly',
+    {
+        # 3 inputs
+        g <- get_neuron_majority_gate('_MAJ_', 3, c(1.5, 1.5, 0))
+        crn <- DNAr::get_crn_from_neuron_gate_hje(g)
+        crn$t <- seq(0, 10, length.out = 100)
+        b <- run_reaction(crn, 'data/neuron_hje/neuron_hje_MAJ_3i')
+        expect_equal(b[[1]], b[[2]])
+
+        # 5 inputs
+        g <- get_neuron_majority_gate('_MAJ_', 5, c(1.5, 1.5, 1.5, 0, 0))
+        circ <- DNAr::get_circuit_from_neuron_gates_hje(list(g))
+        crn <- DNAr::get_crn_from_neuron_circuit_hje(circ)
+        crn$t <- seq(0, 10, length.out = 100)
+        b <- run_reaction(crn, 'data/neuron_hje/neuron_hje_MAJ_5i')
+        expect_equal(b[[1]], b[[2]])
+
+        # 7 inputs
+        g <- get_neuron_majority_gate('_MAJ_', 7, c(1.5, 1.5, 1.5, 1.5, 0, 0, 0))
+        crn <- DNAr::get_crn_from_neuron_gate_hje(g)
+        crn$t <- seq(0, 10, length.out = 100)
+        b <- run_reaction(crn, 'data/neuron_hje/neuron_hje_MAJ_7i')
+        expect_equal(b[[1]], b[[2]])
+    }
+)
