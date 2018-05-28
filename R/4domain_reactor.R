@@ -227,10 +227,23 @@ react_4domain <- function(
     uni_aux_species <- c('G', 'O', 'T')
     bi_aux_species <- c('L', 'H', 'W', 'O', 'T')
 
+    # Scale rate constantes
+    scaled_ks <- c()
+    is_bimolecular_map <- c()
+    for(i in 1:length(reactions)) {
+        if(is_bimolecular(reactions[i])) {
+            scaled_ks[i] <- ki[i] / (alpha * beta)
+            is_bimolecular_map[i] <- TRUE
+        } else {
+            scaled_ks[i] <- ki[i] / alpha
+            is_bimolecular_map[i] <- FALSE
+        }
+    }
+
     # Get buffer modules
     buffer_stuff <- NULL
     if(auto_buffer) {
-        buffer_stuff <- get_buff_modules(reactions, ki, qmax, cmax)
+        buffer_stuff <- get_buff_modules(reactions, scaled_ks, qmax, cmax)
     }
 
     # Change cis according to the lambda^{-1} factor
@@ -246,7 +259,7 @@ react_4domain <- function(
         new_ks_for_i <- c()
         new_cis_for_i <- c()
 
-        if(is_bimolecular(reactions[i])) {
+        if(is_bimolecular_map[i]) {
             aux <- paste(bi_aux_species, as.character(i), sep = '')
 
             left_part <- get_first_part(reactions[i])
@@ -278,7 +291,7 @@ react_4domain <- function(
             new_cis_for_i <- c(cmax, 0.0, cmax, 0.0)
 
             # Recalculate qis according to the buffer module theory
-            qi_with_buff <- ki[i] / (alpha * beta)
+            qi_with_buff <- scaled_ks[i]
             if(!is.null(buffer_stuff)) {
                 qi_with_buff <- qi_with_buff * buffer_stuff$lambda_1
             }
@@ -312,7 +325,7 @@ react_4domain <- function(
             new_species_for_i <- c(aux[1], aux[2])
             #                    G    O
             new_cis_for_i <- c(cmax, 0.0)
-            qi_with_buff <- ki[i] / alpha / cmax
+            qi_with_buff <- scaled_ks[i] / cmax
             if(!is.null(buffer_stuff)) {
                 qi_with_buff <- qi_with_buff * buffer_stuff$lambda_1
             }
