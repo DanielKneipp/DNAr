@@ -920,8 +920,8 @@ get_dsd_def_str <- function(key, val) {
 #'
 #' @return  The matrix of functions which can be accesses with [[i,j]]
 dsd_4d_modules <- function() {
-    # Matrix with the module functions. The higher the row,the  higher 
-    # the number of products, The columns has the same relation with 
+    # Matrix with the module functions. The higher the row,the  higher
+    # the number of products, The columns has the same relation with
     # the number of products
     modules <- matrix(list(), nrow = 3, ncol = 4)
 
@@ -1162,8 +1162,21 @@ save_dsd_script <- function(
     new_cis <- c(ci * beta)
     new_kis <- c()
 
+    # Scale rate constantes
+    scaled_ks <- c()
+    is_bimolecular_map <- c()
+    for(i in 1:length(reactions)) {
+        if(is_bimolecular(reactions[i])) {
+            scaled_ks[i] <- ki[i] / (alpha * beta)
+            is_bimolecular_map[i] <- TRUE
+        } else {
+            scaled_ks[i] <- ki[i] / alpha
+            is_bimolecular_map[i] <- FALSE
+        }
+    }
+
     # Get lambda value and buffer k
-    buffer_stuff <- get_buff_modules(reactions, ki, qmax, cmax)
+    buffer_stuff <- get_buff_modules(reactions, scaled_ks, qmax, cmax)
 
     # Change cis according to the lambda^{-1} factor
     if(!is.null(buffer_stuff)) {
@@ -1197,9 +1210,9 @@ save_dsd_script <- function(
     # Set the rate constants
     script_str <- paste(script_str, '\n', sep = '')
     for(i in 1:length(reactions)) {
-        if(is_bimolecular(reactions[i])) {
+        if(is_bimolecular_map[i]) {
             # Recalculate ki according to the buffer module theory
-            k <- ki[i] / (alpha * beta)
+            k <- scaled_ks[i]
             if(!is.null(buffer_stuff)) {
                 k <- k * buffer_stuff$lambda_1
             }
@@ -1213,7 +1226,7 @@ save_dsd_script <- function(
             )
         } else {
             # Recalculate ki according to the buffer module theory
-            k <- ki[i] / alpha / cmax
+            k <- scaled_ks[i] / cmax
             if(!is.null(buffer_stuff)) {
                 k <- k * buffer_stuff$lambda_1
             }
