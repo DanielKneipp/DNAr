@@ -7,7 +7,8 @@
 plot_behavior(behavior, species = NULL, x_label = "Time",
   y_label = "Concentration", legend_name = "Species",
   geom_list = list("line"), save_file_name = NULL, show_legend = TRUE,
-  show_x_label_name = TRUE, show_y_label_name = TRUE, y_origin_0 = FALSE)
+  show_x_label_name = TRUE, show_y_label_name = TRUE, y_origin_0 = FALSE,
+  variable_line_type = FALSE)
 }
 \arguments{
 \item{behavior}{Behavior returned by \code{\link{react}()}}
@@ -40,6 +41,10 @@ is specified, the won't be saved.}
 
 \item{y_origin_0}{Set the origin of y axis to 0. Default value is
 \code{FALSE}.}
+
+\item{variable_line_type}{If TRUE, the line type will change for each
+species. This is usefull when multiple species
+has the same behavior.}
 }
 \value{
 The object returned by \code{\link[ggplot2]{ggplot}()}, so you
