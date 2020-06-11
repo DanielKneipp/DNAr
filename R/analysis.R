@@ -47,7 +47,7 @@ rmse <- function(data1, data2) {
 #' @export
 nrmse <- function(sim_data, obs_data) {
     rmse_num <- rmse(sim_data, obs_data)
-    return(rmse_num / (1 + max(obs_data) - min(obs_data)))
+    return(rmse_num / (max(obs_data) - min(obs_data)))
 }
 
 #' Compare the behavior of two reactions
@@ -67,23 +67,31 @@ nrmse <- function(sim_data, obs_data) {
 #' `compare_behaviors_nrmse(data1, data2)` results in different measures
 #' than `compare_behaviors_nrmse(data2, data1)`.
 #'
-#' @param bhv_sim  The simulated behavior.
-#' @param bhv_obs  The observed behavior (used in the normalization).
+#' @param bhv_sim             The simulated behavior.
+#' @param bhv_obs             The observed behavior (used in the normalization).
+#' @param ignore_time_column  Ignore the time column, the first column of
+#'                            a behavior
 #'
 #' @return  A data frame with the same columns of the behaviors and one row.
 #'          Each value is the NRMSE of that species.
 #'
 #' @export
-compare_behaviors_nrmse <- function(bhv_sim, bhv_obs) {
+compare_behaviors_nrmse <- function(bhv_sim, bhv_obs, ignore_time_column = T) {
+    column_names <- names(bhv_sim)
+
+    if(ignore_time_column) {
+        column_names <- column_names[2:length(column_names)]
+    }
+
     # Create an empty data frame with the same columns of the behaviors,
     # but the time column
-    result <- data.frame(matrix(nrow = 1, ncol = dim(bhv_sim)[2] - 1))
-    column_names <- names(bhv_sim)[2:length(names(bhv_sim))]
+    result <- data.frame(matrix(nrow = 1, ncol = length(column_names)))
+
     colnames(result) <- column_names
 
     # Calculate the NRMSE for each column
     for(i in column_names) {
-        result[i] <- nrmse(bhv_sim[i], bhv_obs[i])
+        result[i] <- nrmse(bhv_sim[[i]], bhv_obs[[i]])
     }
 
     # Return the result data frame

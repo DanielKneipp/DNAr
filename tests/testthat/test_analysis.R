@@ -262,3 +262,50 @@ test_that(
         expect_equal(names(r)[[1]], '(1e-07 * 1e+10[A]^2 * 1000[B])')
     }
 )
+
+test_that(
+    'compare_behaviors_nrmse correctly returns 0 if there is no difference',
+    {
+        b <- react(
+            species   = c('A', 'B', 'C'),
+            ci        = c(1e3, 1e3, 0),
+            reactions = c('A + B -> C'),
+            ki        = c(1e-7),
+            t         = seq(0, 72000, length.out = 10)
+        )
+
+        diff <- compare_behaviors_nrmse(b, b)
+
+        expect_equal(diff[['A']], 0)
+        expect_equal(diff[['B']], 0)
+        expect_equal(diff[['C']], 0)
+    }
+)
+
+test_that(
+    'compare_behaviors_nrmse correctly returns greater than 0
+    when there is a difference',
+    {
+        b1 <- react(
+            species   = c('A', 'B', 'C'),
+            ci        = c(1e3, 1e3, 0),
+            reactions = c('A + B -> C'),
+            ki        = c(1e-7),
+            t         = seq(0, 72000, length.out = 10)
+        )
+
+        b2 <- react(
+            species   = c('A', 'B', 'C'),
+            ci        = c(1e4, 1e3, 0),
+            reactions = c('A + B -> C'),
+            ki        = c(1e-7),
+            t         = seq(0, 72000, length.out = 10)
+        )
+
+        diff <- round(compare_behaviors_nrmse(b1, b2), 2)
+
+        expect_equal(diff[['A']], 8.78)
+        expect_equal(diff[['B']], 0.27)
+        expect_equal(diff[['C']], 0.27)
+    }
+)
