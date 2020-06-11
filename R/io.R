@@ -89,30 +89,34 @@ fte_theme <- function() {
 #'
 #' This function plots the behavior returned by \code{\link{react}()}.
 #'
-#' @param behavior           Behavior returned by \code{\link{react}()}
-#' @param species            The vector with the species that should be plotted.
-#'                           If no one is specified, than all of them are
-#'                           plotted.
-#' @param x_label,y_label    Label name of the x and y axis, respectively.
-#'                           The default are 'Time' and 'Concentration'.
-#' @param legend_name        Name of the legend. The default is 'Species'.
-#' @param geom_list          A list specifying what geoms from `ggplot2` to
-#'                           use for the plot. The default value is a list with
-#'                           just `line` on it. The currently possible
-#'                           values are `line` and `point`.
-#' @param save_file_name     Name file that the plot should be saved in.
-#'                           Currently files with .pdf and .png were tested but
-#'                           it should support any extension supported by
-#'                           \code{\link[ggplot2]{ggsave}()}. If no file name
-#'                           is specified, the won't be saved.
-#' @param show_legend        Show legend in the plot, Default value is `TRUE`.
-#' @param show_x_label_name  Show label name of x axis. Default value is `TRUE`.
-#' @param show_y_label_name  Show label name of y axis. Default value is `TRUE`.
-#' @param y_origin_0         Set the origin of y axis to 0. Default value is
-#'                           `FALSE`.
-#' @param variable_line_type If TRUE, the line type will change for each
-#'                           species. This is usefull when multiple species
-#'                           has the same behavior.
+#' @param behavior            Behavior returned by \code{\link{react}()}
+#' @param species             The vector with the species that should be
+#'                            plotted. If no one is specified, than all of
+#'                            them are plotted.
+#' @param x_label,y_label     Label name of the x and y axis, respectively.
+#'                            The default are 'Time' and 'Concentration'.
+#' @param legend_name         Name of the legend. The default is 'Species'.
+#' @param geom_list           A list specifying what geoms from `ggplot2` to
+#'                            use for the plot. The default value is a list with
+#'                            just `line` on it. The currently possible
+#'                            values are `line` and `point`.
+#' @param save_file_name      Name file that the plot should be saved in.
+#'                            Currently files with .pdf and .png were tested but
+#'                            it should support any extension supported by
+#'                            \code{\link[ggplot2]{ggsave}()}. If no file name
+#'                            is specified, the won't be saved.
+#' @param show_legend         Show legend in the plot, Default value is `TRUE`.
+#' @param show_x_label_name   Show label name of x axis. Default value is
+#'                            `TRUE`.
+#' @param show_y_label_name   Show label name of y axis. Default value is
+#'                            `TRUE`.
+#' @param y_origin_0          Set the origin of y axis to 0. Default value is
+#'                            `FALSE`.
+#' @param variable_line_type  If TRUE, the line type will change for each
+#'                            species. This is useful when multiple species
+#'                            has the same behavior.
+#' @param variable_point_type If TRUE, the point shape type will change for
+#'                            each species
 #'
 #' @return  The object returned by \code{\link[ggplot2]{ggplot}()}, so you
 #'          can modify the plot or save it in a different way.
@@ -130,7 +134,8 @@ plot_behavior <- function(
     show_x_label_name = TRUE,
     show_y_label_name = TRUE,
     y_origin_0 = FALSE,
-    variable_line_type = FALSE
+    variable_line_type = FALSE,
+    variable_point_type = FALSE
 ) {
     # Returns the geom function given a keyword
     geom <- function(keyword) {
@@ -176,6 +181,11 @@ plot_behavior <- function(
         g <- g +
             ggplot2::aes(linetype = variable) +
             ggplot2::labs(linetype = legend_name)
+    }
+    if(variable_point_type) {
+        g <- g +
+            ggplot2::aes(shape = variable) +
+            ggplot2::labs(shape = legend_name)
     }
 
     # if a name file was specified, save the plot there.
