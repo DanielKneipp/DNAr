@@ -492,7 +492,7 @@ of **[7]** of building logic gates directly with CRNs (without artificial
 neurons or other building block). 
 
 This plug-in implemented as a separated package
-called [DNArDigitalLogic](https://gitlab.com/DanielKneipp/DNArDigitalLogic)
+called [DNArLogic](https://github.com/renanmarks/DNArLogic) **[8]**
 serves as another good example on how another pieces of software can be
 built on top of DNAr to create and simulate much more complex CRNs, focusing
 less on the Chemical Kinetics theory particularities, and more in higher level 
@@ -532,3 +532,5 @@ National Academy of Sciences, 88(24):10983--10987.
 - **[7]** Jiang, H.; Riedel, M. D. & Parhi, K. K. (2013). Digital logic with 
 molecular reactions. Em Computer-Aided Design (ICCAD), 2013 IEEE/ACM 
 International Conference on, pp. 721--727. IEEE.
+
+- **[8]** Marks, R. A.;  Vieira, D. K. S.; Guterres, M. V.; Oliveira, P. A. C. & Neto, O. P. V. (2019). DNAr-logic: a constructive DNA logic circuit design library in R language for molecular computing. In Proceedings of the 32nd Symposium on Integrated Circuits and Systems Design (SBCCI '19). Association for Computing Machinery, New York, NY, USA, Article 12, 1–6. DOI:https://doi.org/10.1145/3338852.3339854
