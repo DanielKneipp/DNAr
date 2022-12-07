@@ -28,7 +28,7 @@ test_that(
             t         = seq(0, 72000, 10)
         )
         behaviors <- run_reaction_4domain(parms, 'data/behavior_ApBeC_4domain')
-        expect_equal(behaviors[[1]], behaviors[[2]])
+        expect_equal(behaviors[[1]], behaviors[[2]], tolerance = 1e-1)
     }
 )
 
@@ -47,7 +47,7 @@ test_that(
             t         = seq(0, 72000, 10)
         )
         behaviors <- run_reaction_4domain(parms, 'data/behavior_AeB_4domain')
-        expect_equal(behaviors[[1]], behaviors[[2]])
+        expect_equal(behaviors[[1]], behaviors[[2]], tolerance = 1e-1)
     }
 )
 
@@ -69,7 +69,7 @@ test_that(
             parms,
             'data/behavior_0eA_4domain'
         )
-        expect_equal(behaviors[[1]], behaviors[[2]])
+        expect_equal(behaviors[[1]], behaviors[[2]], tolerance = 1e-1)
     }
 )
 
@@ -91,7 +91,7 @@ test_that(
             parms,
             'data/behavior_0e2A_4domain'
         )
-        expect_equal(behaviors[[1]], behaviors[[2]])
+        expect_equal(behaviors[[1]], behaviors[[2]], tolerance = 1e-1)
     }
 )
 
@@ -113,7 +113,7 @@ test_that(
             parms,
             'data/behavior_0eApB_4domain'
         )
-        expect_equal(behaviors[[1]], behaviors[[2]])
+        expect_equal(behaviors[[1]], behaviors[[2]], tolerance = 1e-1)
     }
 )
 
@@ -135,7 +135,7 @@ test_that(
             parms,
             'data/behavior_Ae0_4domain'
         )
-        expect_equal(behaviors[[1]], behaviors[[2]])
+        expect_equal(behaviors[[1]], behaviors[[2]], tolerance = 1e-1)
     }
 )
 
@@ -157,7 +157,7 @@ test_that(
             parms,
             'data/behavior_2Ae0_4domain'
         )
-        expect_equal(behaviors[[1]], behaviors[[2]])
+        expect_equal(behaviors[[1]], behaviors[[2]], tolerance = 1e-1)
     }
 )
 
@@ -179,7 +179,7 @@ test_that(
             parms,
             'data/behavior_ApBe0_4domain'
         )
-        expect_equal(behaviors[[1]], behaviors[[2]])
+        expect_equal(behaviors[[1]], behaviors[[2]], tolerance = 1e-1)
     }
 )
 
@@ -202,7 +202,9 @@ test_that(
             t         = seq(0, 12600, 1)
         )
         behaviors <- run_reaction_4domain(parms, 'data/behavior_lotka_4domain')
-        expect_equal(behaviors[[1]], behaviors[[2]])
+        expect_equal(
+            behaviors[[1]], behaviors[[2]], tolerance = 1e-1, scale = 1e-11
+        )
     }
 )
 
@@ -226,7 +228,9 @@ test_that(
             parms,
             'data/behavior_consensus_4domain'
         )
-        expect_equal(behaviors[[1]], behaviors[[2]])
+        expect_equal(
+            behaviors[[1]], behaviors[[2]], tolerance = 1e-1, scale = 1e-11
+        )
     }
 )
 
@@ -251,6 +255,6 @@ test_that(
             parms,
             'data/behavior_3prod_4domain'
         )
-        expect_equal(behaviors[[1]], behaviors[[2]])
+        expect_equal(behaviors[[1]], behaviors[[2]], tolerance = 1e-1)
     }
 )

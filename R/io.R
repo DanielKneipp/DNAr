@@ -117,6 +117,9 @@ fte_theme <- function() {
 #'                            has the same behavior.
 #' @param variable_point_type If TRUE, the point shape type will change for
 #'                            each species
+#' @param line_types          Manually specify the types of lines. It must have
+#'                            the same size of the number of species to be
+#'                            plotted.
 #'
 #' @return  The object returned by \code{\link[ggplot2]{ggplot}()}, so you
 #'          can modify the plot or save it in a different way.
@@ -135,7 +138,8 @@ plot_behavior <- function(
     show_y_label_name = TRUE,
     y_origin_0 = FALSE,
     variable_line_type = FALSE,
-    variable_point_type = FALSE
+    variable_point_type = FALSE,
+    line_types = NULL
 ) {
     # Returns the geom function given a keyword
     geom <- function(keyword) {
@@ -186,6 +190,12 @@ plot_behavior <- function(
         g <- g +
             ggplot2::aes(shape = variable) +
             ggplot2::labs(shape = legend_name)
+    }
+    if(!is.null(line_types)) {
+        g <- g +
+            ggplot2::scale_linetype_manual(values = line_types) +
+            ggplot2::aes(linetype = variable) +
+            ggplot2::labs(linetype = legend_name)
     }
 
     # if a name file was specified, save the plot there.

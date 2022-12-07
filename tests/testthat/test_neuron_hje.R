@@ -19,14 +19,14 @@ test_that(
         n$t <- seq(0, 1, length.out = 100)
         n$name <- NULL
         b <- run_reaction(n, 'data/neuron_hje/neuron_hje_activated')
-        expect_equal(b[[1]], b[[2]])
+        expect_equal(b[[1]], b[[2]], tolerance = 1e-1)
 
         # Deactivated neuron
         n <- DNAr::get_neuron_hje('n', 0.9)
         n$t <- seq(0, 1, length.out = 100)
         n$name <- NULL
         b <- run_reaction(n, 'data/neuron_hje/neuron_hje_deactivated')
-        expect_equal(b[[1]], b[[2]])
+        expect_equal(b[[1]], b[[2]], tolerance = 1e-1)
     }
 )
 
@@ -43,22 +43,22 @@ test_that(
         # Input 0 0
         and_crn <- get_gate_crn(c(0.5, 0.5))
         b <- run_reaction(and_crn, 'data/neuron_hje/neuron_hje_AND_00')
-        expect_equal(b[[1]], b[[2]])
+        expect_equal(b[[1]], b[[2]], tolerance = 1e-1)
 
         # Input 0 1
         and_crn <- get_gate_crn(c(0.5, 1.5))
         b <- run_reaction(and_crn, 'data/neuron_hje/neuron_hje_AND_01')
-        expect_equal(b[[1]], b[[2]])
+        expect_equal(b[[1]], b[[2]], tolerance = 1e-1)
 
         # Input 1 0
         and_crn <- get_gate_crn(c(1.5, 0.5))
         b <- run_reaction(and_crn, 'data/neuron_hje/neuron_hje_AND_10')
-        expect_equal(b[[1]], b[[2]])
+        expect_equal(b[[1]], b[[2]], tolerance = 1e-1)
 
         # Input 1 1
         and_crn <- get_gate_crn(c(1.5, 1.5))
         b <- run_reaction(and_crn, 'data/neuron_hje/neuron_hje_AND_11')
-        expect_equal(b[[1]], b[[2]])
+        expect_equal(b[[1]], b[[2]], tolerance = 1e-1)
     }
 )
 
@@ -77,22 +77,22 @@ test_that(
         # Input  0 0 0
         crn <- get_circ_crn(c(0.5, 0.5), c(0, 0.5))
         b <- run_reaction(crn, 'data/neuron_hje/neuron_hje_AND_AND_000')
-        expect_equal(b[[1]], b[[2]])
+        expect_equal(b[[1]], b[[2]], tolerance = 1e-1)
 
         # Input  0 0 1
         crn <- get_circ_crn(c(0.5, 1.5), c(0, 0.5))
         b <- run_reaction(crn, 'data/neuron_hje/neuron_hje_AND_AND_001')
-        expect_equal(b[[1]], b[[2]])
+        expect_equal(b[[1]], b[[2]], tolerance = 1e-1)
 
         # Input  0 1 1
         crn <- get_circ_crn(c(1.5, 1.5), c(0, 0.5))
         b <- run_reaction(crn, 'data/neuron_hje/neuron_hje_AND_AND_011')
-        expect_equal(b[[1]], b[[2]])
+        expect_equal(b[[1]], b[[2]], tolerance = 1e-1)
 
         # Input  1 1 1
         crn <- get_circ_crn(c(1.5, 1.5), c(0, 1.5))
         b <- run_reaction(crn, 'data/neuron_hje/neuron_hje_AND_AND_111')
-        expect_equal(b[[1]], b[[2]])
+        expect_equal(b[[1]], b[[2]], tolerance = 1e-1)
     }
 )
 
@@ -104,7 +104,7 @@ test_that(
         crn <- DNAr::get_crn_from_neuron_gate_hje(g)
         crn$t <- seq(0, 10, length.out = 100)
         b <- run_reaction(crn, 'data/neuron_hje/neuron_hje_MAJ_3i')
-        expect_equal(b[[1]], b[[2]], tolerance = 1e-4)
+        expect_equal(b[[1]], b[[2]], tolerance = 1e-1)
 
         # 5 inputs
         g <- get_neuron_majority_gate('_MAJ_', 5, c(1.5, 1.5, 1.5, 0, 0))
@@ -112,13 +112,13 @@ test_that(
         crn <- DNAr::get_crn_from_neuron_circuit_hje(circ)
         crn$t <- seq(0, 10, length.out = 100)
         b <- run_reaction(crn, 'data/neuron_hje/neuron_hje_MAJ_5i')
-        expect_equal(b[[1]], b[[2]], tolerance = 1e-4)
+        expect_equal(b[[1]], b[[2]], tolerance = 1e-1)
 
         # 7 inputs
         g <- get_neuron_majority_gate('_MAJ_', 7, c(1.5, 1.5, 1.5, 1.5, 0, 0, 0))
         crn <- DNAr::get_crn_from_neuron_gate_hje(g)
         crn$t <- seq(0, 10, length.out = 100)
         b <- run_reaction(crn, 'data/neuron_hje/neuron_hje_MAJ_7i')
-        expect_equal(b[[1]], b[[2]], tolerance = 1e-4)
+        expect_equal(b[[1]], b[[2]], tolerance = 1e-1)
     }
 )
