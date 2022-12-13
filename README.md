@@ -485,18 +485,19 @@ r <- react_4domain(
 plot_behavior(r$behavior, species = c('Cn0', 'An0'))
 ```
 
-### Other example
+### Other plugins
 
-Another good plug-in example is the set of functions implementing the approach
-of **[7]** of building logic gates directly with CRNs (without artificial 
-neurons or other building block). 
+Other good plug-ins implemented as separated packages are:
+- [DNAr-Logic](https://git.nanocomp.dcc.ufmg.br/dnacomputing/dnar-logic) **[8]** : 
+Contains a set of functions implementing the approach of **[7]** of 
+building logic gates directly with CRNs.
+- [DNAr-Analog](https://git.nanocomp.dcc.ufmg.br/dnacomputing/dnar-analog) **[9]** :
+Contains a set of functions implementing many analog computing gates directly with CRNs.
 
-This plug-in implemented as a separated package
-called [DNArLogic](https://github.com/renanmarks/DNArLogic) **[8]**
-serves as another good example on how another pieces of software can be
-built on top of DNAr to create and simulate much more complex CRNs, focusing
-less on the Chemical Kinetics theory particularities, and more in higher level 
-abstractions in order to solve problems.
+These plug-ins implemented as separated packages serves as good examples
+on how other pieces of software can be built on top of DNAr to create and
+simulate much more complex CRNs, focusing less on the Chemical Kinetics theory particularities,
+and more in higher level abstractions in order to solve problems.
 
 The rule of thumb is this: If the code can yield a formal CRN with all the 
 parameters required by `react()`, it can be built on top of DNAr. So feel free
@@ -534,3 +535,5 @@ molecular reactions. Em Computer-Aided Design (ICCAD), 2013 IEEE/ACM
 International Conference on, pp. 721--727. IEEE.
 
 - **[8]** Marks, R. A.;  Vieira, D. K. S.; Guterres, M. V.; Oliveira, P. A. C. & Neto, O. P. V. (2019). DNAr-logic: a constructive DNA logic circuit design library in R language for molecular computing. In Proceedings of the 32nd Symposium on Integrated Circuits and Systems Design (SBCCI '19). Association for Computing Machinery, New York, NY, USA, Article 12, 1–6. DOI:https://doi.org/10.1145/3338852.3339854
+
+- **[9]** Oliveira, P. A. C.; Marks, R. A.; Teixeira, J. V. C.; Guterres, M. V.;  & Neto, O. P. V. (2022). DNAr-analog: a library with a multiplexer to easily design, program, and simulate DSD analog circuits. (To appear): In Proceedings of the International symposium and flagship event of the IEEE Circuits and Systems Society in Latin America (LASCAS 2023).
