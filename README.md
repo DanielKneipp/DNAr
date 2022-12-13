@@ -487,15 +487,15 @@ plot_behavior(r$behavior, species = c('Cn0', 'An0'))
 
 ### Other plugins
 
-Other good plug-ins implemented as a separated packages are:
+Other good plug-ins implemented as separated packages are:
 - [DNAr-Logic](https://git.nanocomp.dcc.ufmg.br/dnacomputing/dnar-logic) **[8]** : 
 Contains a set of functions implementing the approach of **[7]** of 
 building logic gates directly with CRNs.
 - [DNAr-Analog](https://git.nanocomp.dcc.ufmg.br/dnacomputing/dnar-analog) **[9]** :
 Contains a set of functions implementing many analog computing gates directly with CRNs.
 
-These plug-ins implemented as a separated packages serves as good examples 
-on how another pieces of software can be built on top of DNAr to create and
+These plug-ins implemented as separated packages serves as good examples
+on how other pieces of software can be built on top of DNAr to create and
 simulate much more complex CRNs, focusing less on the Chemical Kinetics theory particularities,
 and more in higher level abstractions in order to solve problems.
 
